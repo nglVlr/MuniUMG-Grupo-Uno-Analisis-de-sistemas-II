@@ -1,6 +1,6 @@
 # Sistema de Quejas, Reclamos, Denuncias y Sugerencias
 
-Municipalidad Urbanización Monte Grande -- UMG --
+Municipalidad de Granados
 
 ## Stack
 
