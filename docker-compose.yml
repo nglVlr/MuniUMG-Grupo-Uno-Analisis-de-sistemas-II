@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: quejas-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-quejas_db}
+      POSTGRES_USER: ${DB_USER:-quejas_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-quejas_pass}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - quejas_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-quejas_user} -d ${DB_NAME:-quejas_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quejas-backend
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-quejas_db}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-quejas_user}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-quejas_pass}
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - quejas_net
+    expose:
+      - "8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quejas-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - quejas_net
+    expose:
+      - "80"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: quejas-nginx
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - quejas_net
+
+networks:
+  quejas_net:
+    driver: bridge
+
+volumes:
+  db_data:

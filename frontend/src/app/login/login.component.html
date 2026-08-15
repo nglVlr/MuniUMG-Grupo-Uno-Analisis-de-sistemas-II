@@ -1,0 +1,13 @@
+<div class="container">
+  <h1>Ingreso al Sistema</h1>
+  <form (ngSubmit)="ingresar()">
+    <label>Usuario</label>
+    <input [(ngModel)]="username" name="username" required />
+
+    <label>Contraseña</label>
+    <input type="password" [(ngModel)]="password" name="password" required />
+
+    <button type="submit">Ingresar</button>
+  </form>
+  <p *ngIf="mensaje">{{ mensaje }}</p>
+</div>

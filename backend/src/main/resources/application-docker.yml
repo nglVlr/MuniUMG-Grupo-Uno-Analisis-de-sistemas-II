@@ -1,0 +1,7 @@
+# Sobrescribe la datasource cuando corre dentro de docker-compose
+# (las variables reales vienen de las variables de entorno del contenedor)
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}

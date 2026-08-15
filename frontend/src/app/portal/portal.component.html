@@ -1,0 +1,49 @@
+<div class="container">
+  <h1>Municipalidad Urbanización Monte Grande -- UMG --</h1>
+  <p>Sistema de Quejas, Reclamos, Denuncias y Sugerencias</p>
+
+  <p><a routerLink="/login">Iniciar Sesión (personal municipal)</a></p>
+
+  <h2>Registrar Caso</h2>
+
+  <div *ngIf="!tipoCaso">
+    <p>Seleccione el tipo de caso que desea reportar:</p>
+    <button (click)="seleccionarTipo('QUEJA')">Queja</button>
+    <button (click)="seleccionarTipo('DENUNCIA')">Denuncia</button>
+    <button (click)="seleccionarTipo('SUGERENCIA')">Sugerencia</button>
+  </div>
+
+  <form *ngIf="tipoCaso" (ngSubmit)="registrar()">
+    <p><strong>Tipo de caso:</strong> {{ tipoCaso }}</p>
+
+    <label>Tipo de documento</label>
+    <select [(ngModel)]="form.tipoDocumento" name="tipoDocumento">
+      <option value="DPI">DPI</option>
+      <option value="NIT">NIT</option>
+      <option value="IUSI">IUSI</option>
+    </select>
+
+    <label>Número de documento</label>
+    <input [(ngModel)]="form.numeroDocumento" name="numeroDocumento" (blur)="buscarCiudadano()" required />
+
+    <div *ngIf="ciudadanoEncontrado">
+      <p>Nombre: {{ ciudadanoEncontrado.nombre }}</p>
+      <p>Correo: {{ ciudadanoEncontrado.correo }}</p>
+    </div>
+
+    <label>Categoría del problema</label>
+    <select [(ngModel)]="form.idCategoria" name="idCategoria" required>
+      <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
+    </select>
+
+    <label>Dirección o ubicación del problema</label>
+    <input [(ngModel)]="form.direccionProblema" name="direccionProblema" required />
+
+    <label>Descripción del caso</label>
+    <textarea [(ngModel)]="form.descripcion" name="descripcion" required></textarea>
+
+    <button type="submit">Registrar</button>
+  </form>
+
+  <p *ngIf="mensaje">{{ mensaje }}</p>
+</div>

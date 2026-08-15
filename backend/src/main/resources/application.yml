@@ -1,0 +1,29 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: sistema-quejas
+  datasource:
+    url: jdbc:postgresql://localhost:5432/quejas_db
+    username: quejas_user
+    password: quejas_pass
+  jpa:
+    hibernate:
+      ddl-auto: validate   # el esquema lo maneja Flyway, no Hibernate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+# Catalogos precargados en cache (RN-CU02-01): tiempo de vida antes de refrescar
+app:
+  cache:
+    catalogos-ttl-minutos: 60
+  evidencia:
+    tamano-maximo-mb: 2
