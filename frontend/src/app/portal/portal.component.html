@@ -1,49 +1,76 @@
-<div class="container">
-  <h1>Municipalidad Urbanización Monte Grande -- UMG --</h1>
-  <p>Sistema de Quejas, Reclamos, Denuncias y Sugerencias</p>
-
-  <p><a routerLink="/login">Iniciar Sesión (personal municipal)</a></p>
-
-  <h2>Registrar Caso</h2>
-
-  <div *ngIf="!tipoCaso">
-    <p>Seleccione el tipo de caso que desea reportar:</p>
-    <button (click)="seleccionarTipo('QUEJA')">Queja</button>
-    <button (click)="seleccionarTipo('DENUNCIA')">Denuncia</button>
-    <button (click)="seleccionarTipo('SUGERENCIA')">Sugerencia</button>
+<header class="topbar">
+  <div class="topbar__brand">
+    <img src="assets/img/escudo-granados.png" alt="Escudo de la Municipalidad de Granados" class="topbar__seal" />
+    <span class="topbar__name">Municipalidad de Granados<span class="topbar__bv">, B.V.</span></span>
   </div>
 
-  <form *ngIf="tipoCaso" (ngSubmit)="registrar()">
-    <p><strong>Tipo de caso:</strong> {{ tipoCaso }}</p>
+  <button type="button" class="btn btn--ghost" routerLink="/login">
+    Iniciar Sesión
+  </button>
+</header>
 
-    <label>Tipo de documento</label>
-    <select [(ngModel)]="form.tipoDocumento" name="tipoDocumento">
-      <option value="DPI">DPI</option>
-      <option value="NIT">NIT</option>
-      <option value="IUSI">IUSI</option>
-    </select>
+<section class="hero">
+  <div class="hero__media">
+    <img src="assets/img/palacio-municipal.jpg" alt="Palacio Municipal de Granados" class="hero__photo" />
+    <div class="hero__scrim"></div>
+  </div>
 
-    <label>Número de documento</label>
-    <input [(ngModel)]="form.numeroDocumento" name="numeroDocumento" (blur)="buscarCiudadano()" required />
+  <div class="hero__content">
+    <p class="eyebrow">Sistema de Quejas, Reclamos, Denuncias y Sugerencias</p>
+    <h1 class="hero__title">
+      Tu voz también construye Granados
+      <span class="rule" aria-hidden="true"></span>
+    </h1>
+    <p class="hero__lead">
+      Reporta un problema de agua, luz, calles o cualquier servicio municipal,
+      o dinos cómo podemos mejorar. Le damos seguimiento a cada caso hasta resolverlo.
+    </p>
 
-    <div *ngIf="ciudadanoEncontrado">
-      <p>Nombre: {{ ciudadanoEncontrado.nombre }}</p>
-      <p>Correo: {{ ciudadanoEncontrado.correo }}</p>
+    <div class="hero__actions">
+      <button type="button" class="btn btn--primary" (click)="ingresarQueja()">
+        Ingresa tu Queja
+      </button>
+      <button type="button" class="btn btn--primary" (click)="consultarEstadoCaso()">
+        Consultar Estado del Caso
+      </button>
     </div>
+    
+  </div>
 
-    <label>Categoría del problema</label>
-    <select [(ngModel)]="form.idCategoria" name="idCategoria" required>
-      <option *ngFor="let c of categorias" [value]="c.id">{{ c.nombre }}</option>
-    </select>
+  <a class="hero__hint hero__hint--center" href="#mision">Conocé quiénes somos ↓</a>
+</section>
 
-    <label>Dirección o ubicación del problema</label>
-    <input [(ngModel)]="form.direccionProblema" name="direccionProblema" required />
+<section id="mision" class="institucional">
+  <div class="institucional__col">
+    <h2 class="institucional__heading">
+      Visión
+      <span class="rule" aria-hidden="true"></span>
+    </h2>
+    <p>
+      Ser una institución transformadora a los procesos de desarrollo
+      socioeconómico, cultural y administrativo, con transparencia,
+      generando servicios de calidad, con la participación ciudadana
+      y énfasis en la pertenencia cultural.
+    </p>
+  </div>
 
-    <label>Descripción del caso</label>
-    <textarea [(ngModel)]="form.descripcion" name="descripcion" required></textarea>
+  <div class="institucional__col">
+    <h2 class="institucional__heading">
+      Misión
+      <span class="rule" aria-hidden="true"></span>
+    </h2>
+    <p>
+      Somos una institución que promueve el desarrollo integral del
+      Municipio, a través del manejo eficiente y eficaz de los recursos
+      con la participación democrática de los habitantes del Municipio,
+      prestando servicios y obras de calidad con principios y valores.
+    </p>
+  </div>
 
-    <button type="submit">Registrar</button>
-  </form>
+  <img src="assets/img/escudo-granados.png" alt="" aria-hidden="true" class="institucional__watermark" />
+</section>
 
-  <p *ngIf="mensaje">{{ mensaje }}</p>
-</div>
+<footer class="site-footer">
+  <img src="assets/img/escudo-granados.png" alt="" aria-hidden="true" class="site-footer__seal" />
+  <p>Municipalidad de Granados, B.V. &middot; Sistema de Quejas, Reclamos, Denuncias y Sugerencias</p>
+</footer>

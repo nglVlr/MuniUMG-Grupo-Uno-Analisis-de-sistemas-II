@@ -1,4 +1,51 @@
-/* Estilos globales minimos */
-body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
-.container { max-width: 800px; margin: 0 auto; padding: 24px; }
-button { cursor: pointer; }
+/* Estilos y tokens de diseño globales del Sistema de Quejas de la
+   Municipalidad de Granados. Paleta tomada del material institucional
+   real (escudo dorado, verde institucional, rojo del Palacio Municipal). */
+
+:root {
+  /* Color */
+  --bg-deep: #0e2b25;
+  --bg-deep-2: #123830;
+  --gold: #c9a227;
+  --gold-bright: #e3b94a;
+  --brick: #a3231e;
+  --brick-bright: #c22e28;
+  --cream: #f7f4ec;
+  --ink: #14211d;
+  --ink-soft: #3c4a44;
+
+  /* Tipografia */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Work Sans', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--cream);
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  margin: 0;
+}
+
+a { color: inherit; }
+
+button { font-family: var(--font-body); }
+
+/* Foco visible para accesibilidad de teclado */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

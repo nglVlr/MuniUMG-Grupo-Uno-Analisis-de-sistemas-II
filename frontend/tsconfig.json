@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "rootDir": "./src",
     "outDir": "./dist/out-tsc",
     "strict": true,
     "target": "ES2022",
@@ -15,4 +16,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   }
+  // ...existing code...
 }

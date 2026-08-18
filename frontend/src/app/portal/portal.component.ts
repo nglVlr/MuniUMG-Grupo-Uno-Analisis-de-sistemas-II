@@ -5,19 +5,21 @@ import { RouterLink } from '@angular/router';
 import { CategoriaService, Categoria } from '../core/categoria.service';
 import { CasoService, RegistroCasoRequest } from '../core/caso.service';
 
-/**
- * CU-00 Portal de Inicio + CU-02 Registro de Caso (simplificado en una sola
- * pantalla para mantener el ejemplo simple). El ciudadano elige primero el
- * tipo de caso, y en base a eso se muestra el listado de categorias
- * correspondiente (RN-CU02-02/03).
- */
 @Component({
   selector: 'app-portal',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './portal.component.html'
+  imports: [RouterLink],
+  templateUrl: './portal.component.html',
+  styleUrl: './portal.component.css'
 })
 export class PortalComponent {
+  ingresarQueja(): void {
+    // Intencionalmente sin implementar todavia.
+  }
+
+  consultarEstadoCaso(): void {
+    // Intencionalmente sin implementar todavia.
+  }
   tipoCaso: 'QUEJA' | 'DENUNCIA' | 'SUGERENCIA' | '' = '';
   categorias: Categoria[] = [];
 
