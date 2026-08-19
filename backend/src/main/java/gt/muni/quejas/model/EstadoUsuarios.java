@@ -5,22 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "rol")
+@Table(name = "estado_usuarios")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Rol {
-
+public class EstadoUsuarios {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
-    private String rol;
-
-    @Column(nullable = false)
-    private LocalDateTime createAt;
+    @Column(nullable = false, unique = true)
+    private String estado;
 }

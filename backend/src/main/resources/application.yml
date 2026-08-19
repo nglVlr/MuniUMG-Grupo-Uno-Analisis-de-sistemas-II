@@ -7,9 +7,9 @@ spring:
   application:
     name: sistema-quejas
   datasource:
-    url: jdbc:postgresql://localhost:5432/quejas_db
-    username: quejas_user
-    password: quejas_pass
+    url: jdbc:postgresql://localhost:5432/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate   # el esquema lo maneja Flyway, no Hibernate
@@ -20,6 +20,23 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+api:
+  security:
+    secret: ${API_SECURITY_SECRET}
 
 # Catalogos precargados en cache (RN-CU02-01): tiempo de vida antes de refrescar
 app:

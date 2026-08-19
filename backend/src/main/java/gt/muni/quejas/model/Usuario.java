@@ -1,50 +1,110 @@
 package gt.muni.quejas.model;
 
+import gt.muni.quejas.dto.DtoUsuario;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-/**
- * Usuario interno del sistema (CU-10 Mantenimiento de Usuarios).
- * El campo "estado" es clave para la reasignacion de casos: un Administrador
- * puede marcar a un empleado/jefe/supervisor como VACACIONES o PERMISO, y el
- * algoritmo de asignacion (RN-CU05-05) y la reasignacion manual deben excluir
- * a los usuarios que no esten ACTIVO.
- */
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
 @Entity
 @Table(name = "usuario")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails {
+
+    public static final int MAX_INTENTOS_FALLIDOS = 5;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 13)
+    private String cui;
 
     @Column(nullable = false, length = 150)
     private String nombre;
 
-    @Column(nullable = false, unique = true, length = 60)
-    private String username;
+    @Column(nullable = false, unique = true, length = 100)
+    private String correo;
 
-    /** Nota del proyecto: NO se cifra la contraseña (decisión explícita del curso). */
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 150)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private Rol rol;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private EstadoUsuario estado = EstadoUsuario.ACTIVO;
+    @ManyToOne
+    @JoinColumn(name = "id_rol")
+    private Rol idRol;
 
     @ManyToOne
     @JoinColumn(name = "id_departamento")
-    private Departamento departamento;
+    private Departamento idDepartamento;
+
+    @ManyToOne
+    @JoinColumn(name = "id_estado")
+    private EstadoUsuarios idEstado;
 
     @Column(name = "intentos_fallidos", nullable = false)
-    private int intentosFallidos = 0;
+    private Integer intentosFallidos = 0;
+
+    @Column(nullable = false)
+    private LocalDateTime createAt;
+
+    @Column(nullable = false, length = 50)
+    private String usuarioCreacion;
+
+    public Usuario (DtoUsuario dtoUsuario){
+        this.correo = dtoUsuario.usuario();
+        this.nombre = dtoUsuario.nombre();
+        this.password = dtoUsuario.password();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword(){return password;}
+
+    @Override
+    public String getUsername() {
+        return correo;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return idEstado == null || !"Bloqueado".equalsIgnoreCase(idEstado.getEstado());
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return idEstado != null && "Activo".equalsIgnoreCase(idEstado.getEstado());
+    }
+
+    public void incrementarIntentosFallidos(){
+        this.intentosFallidos = (this.intentosFallidos == null ? 0: this.intentosFallidos) + 1;
+    }
+
+    public void reiniciarIntentosFallidos(){
+        this.intentosFallidos = 0;
+    }
+
+    public boolean debeBloquearse(){
+        return this.intentosFallidos != null && this.intentosFallidos >= MAX_INTENTOS_FALLIDOS;
+    }
 }

@@ -9,7 +9,7 @@ frontend/.angular/
 
 # Entorno
 .env
-
+*.log
 # IDE
 .idea/
 *.iml

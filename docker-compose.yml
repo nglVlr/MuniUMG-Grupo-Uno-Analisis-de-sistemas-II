@@ -7,9 +7,9 @@ services:
     container_name: quejas-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DB_NAME:-quejas_db}
-      POSTGRES_USER: ${DB_USER:-quejas_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-quejas_pass}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -17,7 +17,7 @@ services:
     networks:
       - quejas_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-quejas_user} -d ${DB_NAME:-quejas_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,9 +29,13 @@ services:
     container_name: quejas-backend
     restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-quejas_db}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER:-quejas_user}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-quejas_pass}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      API_SECURITY_SECRET: ${API_SECURITY_SECRET}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
+      
       SPRING_PROFILES_ACTIVE: docker
     depends_on:
       db:

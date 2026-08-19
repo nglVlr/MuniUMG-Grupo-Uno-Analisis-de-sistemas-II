@@ -1,0 +1,250 @@
+<div class="layout">
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="topbar">
+
+    <!-- Logo -->
+    <div class="topbar__brand">
+
+      <img
+        class="topbar__logo"
+        src="assets/img/escudo-granados.png"
+        alt="Escudo de la Municipalidad de Granados"
+      >
+
+    </div>
+
+    <!-- Nombre del sistema -->
+    <div class="topbar__title">
+
+      <span class="topbar__system">
+        Sistema de Quejas
+      </span>
+
+      <span class="topbar__institution">
+        Municipalidad de Granados
+      </span>
+
+    </div>
+
+    <!-- Usuario -->
+    <div class="topbar__user">
+
+      <span class="topbar__user-name">
+        {{ nombreUsuario }}
+      </span>
+
+      <div class="topbar__cases">
+
+        <span class="topbar__cases-number">
+          0
+        </span>
+
+        <span class="topbar__cases-label">
+          casos asignados
+        </span>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================= CONTENIDO ================= -->
+
+  <div class="layout__body">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+      <nav class="sidebar__nav">
+
+        <!-- Inicio -->
+        <a
+          class="sidebar__item sidebar__item--active"
+          routerLink="/inicio"
+        >
+          <span class="sidebar__icon">
+            ⌂
+          </span>
+
+          <span>
+            Inicio
+          </span>
+        </a>
+
+
+        <!-- Opciones futuras -->
+        <button
+          type="button"
+          class="sidebar__item sidebar__item--disabled"
+          disabled
+        >
+          <span class="sidebar__icon">
+            ▣
+          </span>
+
+          <span>
+            Opción X
+          </span>
+        </button>
+
+
+        <button
+          type="button"
+          class="sidebar__item sidebar__item--disabled"
+          disabled
+        >
+          <span class="sidebar__icon">
+            ◫
+          </span>
+
+          <span>
+            Opción X
+          </span>
+        </button>
+
+
+        <button
+          type="button"
+          class="sidebar__item sidebar__item--disabled"
+          disabled
+        >
+          <span class="sidebar__icon">
+            ▤
+          </span>
+
+          <span>
+            Opción X
+          </span>
+        </button>
+
+      </nav>
+
+
+      <!-- Cerrar sesión -->
+      <div class="sidebar__bottom">
+
+        <button
+          type="button"
+          class="sidebar__logout"
+          (click)="cerrarSesion()"
+        >
+          <span class="sidebar__icon">
+            ↪
+          </span>
+
+          <span>
+            Cerrar sesión
+          </span>
+        </button>
+
+      </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="content">
+
+      <div class="content__header">
+
+        <div>
+
+          <span class="content__eyebrow">
+            Gestión de casos
+          </span>
+
+          <h1 class="content__title">
+            Casos asignados
+          </h1>
+
+          <span class="rule"></span>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================= TABLA ================= -->
+
+      <section class="cases">
+
+        <div class="cases__header">
+
+          <div>
+
+            <h2 class="cases__title">
+              Pendientes
+            </h2>
+
+            <p class="cases__description">
+              Casos asignados para atención y seguimiento.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="cases__table-container">
+
+          <table class="cases__table">
+
+            <thead>
+
+              <tr>
+
+                <th>Caso</th>
+                <th>Asunto</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Acción</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              <tr>
+
+                <td colspan="5">
+
+                  <div class="cases__empty">
+
+                    <span class="cases__empty-icon">
+                      ✓
+                    </span>
+
+                    <h3>
+                      Sin pendientes
+                    </h3>
+
+                    <p>
+                      No tienes casos pendientes asignados actualmente.
+                    </p>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</div>
