@@ -59,5 +59,6 @@ INSERT INTO estado_usuarios(estado) VALUES
     ('Ausente');
 
 INSERT INTO usuario (cui, nombre, correo, password, id_rol, id_departamento, id_estado, usuario_creacion) VALUES
-    ('1971216190109', 'admin', 'spoconb@miumg.edu.gt', '$2a$10$FfYHZ5Il5pGBn8Hphp5RU.sEAq8dIAHYXH9IiohZZlVwaCsdHaoIm',1, 1, 1, 'system'),
-    ('1971216190110', 'nombre_admin2', 'admin2@gmail.com', '$2a$10$FfYHZ5Il5pGBn8Hphp5RU.sEAq8dIAHYXH9IiohZZlVwaCsdHaoIm',1, 1, 2, 'system');
+    ('1971216190109', 'Santiago Pocón', 'spoconb@miumg.edu.gt', '$2a$10$FfYHZ5Il5pGBn8Hphp5RU.sEAq8dIAHYXH9IiohZZlVwaCsdHaoIm',1, 1, 1, 'system'),
+    ('1971216190110', 'Valeria Guzman', 'gvaleem979@gmail.com', '$2a$10$FfYHZ5Il5pGBn8Hphp5RU.sEAq8dIAHYXH9IiohZZlVwaCsdHaoIm',1, 1, 1, 'system'),
+    ('1971216190111', 'Angel Mayen', 'amayenc1@miumg.edu.gt', '$2a$10$FfYHZ5Il5pGBn8Hphp5RU.sEAq8dIAHYXH9IiohZZlVwaCsdHaoIm',1, 1, 1, 'system');;

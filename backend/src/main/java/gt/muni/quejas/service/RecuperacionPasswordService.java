@@ -38,6 +38,10 @@ public class RecuperacionPasswordService {
     @Transactional
     public void solicitarRecuperacion(DtoSolicitudRecuperacion dto) {
         usuarioRepository.findByCorreo(dto.correo()).ifPresent(usuario -> {
+            if (usuario.getIdEstado() == null || "Inactivo".equalsIgnoreCase(usuario.getIdEstado().getEstado())){
+                return;
+            }
+
             invalidarTokensAnteriores(usuario);
 
             TokenRecuperacion token = new TokenRecuperacion();
