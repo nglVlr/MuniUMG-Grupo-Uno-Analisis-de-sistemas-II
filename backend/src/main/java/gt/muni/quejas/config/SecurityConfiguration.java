@@ -41,7 +41,9 @@ public class SecurityConfiguration {
                         SessionCreationPolicy.STATELESS
                 ))
                 .authorizeHttpRequests(autorize -> autorize.requestMatchers(
-                                HttpMethod.POST, "/api/login", "/api/password/olvide", "/api/password/restablecer").permitAll()
+                                HttpMethod.POST, "/api/login", "/api/password/olvide", "/api/password/restablecer",
+                                "/api/casos", "/api/casos/verificacion", "/api/casos/verificacion/confirmar").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categorias").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(entryPointNoAutorizado)

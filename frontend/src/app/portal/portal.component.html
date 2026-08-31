@@ -28,17 +28,225 @@
 
     <div class="hero__actions">
       <button type="button" class="btn btn--primary" (click)="ingresarQueja()">
-        Ingresa tu Queja
+        Registrar Caso
       </button>
       <button type="button" class="btn btn--primary" (click)="consultarEstadoCaso()">
         Consultar Estado del Caso
       </button>
+      <button type="button" class="btn btn--primary" (click)="modificarQueja()">
+        Modificar Queja
+      </button>
     </div>
-    
   </div>
 
   <a class="hero__hint hero__hint--center" href="#mision">Conocé quiénes somos ↓</a>
 </section>
+
+@if (vista !== 'inicio') {
+<section id="registro" class="registro" aria-labelledby="registro-titulo">
+  <div class="registro__card">
+    <header class="registro__header">
+      <p class="registro__eyebrow">Municipalidad de Granados, B.V.</p>
+      <h2 id="registro-titulo" class="registro__title">
+        @if (vista === 'identificacion' || vista === 'codigo') {
+          Registrar Caso
+        } @else if (vista === 'formulario') {
+          Formulario de registro
+        } @else {
+          Caso registrado
+        }
+      </h2>
+    </header>
+
+    @if (vista === 'identificacion') {
+    <form class="registro__form" (ngSubmit)="enviarDpi()">
+      <div class="registro__field">
+        <label class="registro__label" for="dpi">Número de identificación (DPI)</label>
+        <input
+          id="dpi"
+          name="dpi"
+          class="registro__input"
+          type="text"
+          inputmode="numeric"
+          maxlength="13"
+          [(ngModel)]="dpi"
+          required
+        />
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">
+          Enviar código de verificación
+        </button>
+        <button type="button" class="btn btn--text" (click)="volverAlPortal()">Volver al portal</button>
+      </div>
+    </form>
+    }
+
+    @if (vista === 'codigo') {
+    <form class="registro__form" (ngSubmit)="enviarCodigo()">
+      <p class="registro__help">
+        Se envió un código de verificación al correo electrónico asociado al DPI. Tiene 5 minutos para ingresarlo.
+      </p>
+      <div class="registro__field">
+        <label class="registro__label" for="codigoVerificacion">Código de verificación</label>
+        <input
+          id="codigoVerificacion"
+          name="codigoVerificacion"
+          class="registro__input"
+          type="text"
+          inputmode="numeric"
+          maxlength="6"
+          [(ngModel)]="codigoVerificacion"
+          required
+        />
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Verificar código</button>
+        <button type="button" class="btn btn--text" (click)="vista = 'identificacion'">Corregir DPI</button>
+      </div>
+    </form>
+    }
+
+    @if (vista === 'formulario' && ciudadano) {
+    <form class="registro__form" (ngSubmit)="registrarCaso()">
+      <div class="registro__grid">
+        <div class="registro__field">
+          <label class="registro__label" for="nombreCiudadano">Nombre del ciudadano</label>
+          <input id="nombreCiudadano" class="registro__input" [value]="ciudadano.nombre" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="telefonoCiudadano">Número de teléfono</label>
+          <input id="telefonoCiudadano" class="registro__input" [value]="ciudadano.telefono" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="dpiCiudadano">DPI</label>
+          <input id="dpiCiudadano" class="registro__input" [value]="ciudadano.dpi" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="correoCiudadano">Correo electrónico</label>
+          <input id="correoCiudadano" class="registro__input" [value]="ciudadano.correo" readonly />
+        </div>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="tipoCaso">Tipo de caso</label>
+        <select
+          id="tipoCaso"
+          name="tipoCaso"
+          class="registro__input"
+          [(ngModel)]="tipoCaso"
+          (ngModelChange)="onTipoCasoChange()"
+          required
+        >
+          <option value="">Seleccione</option>
+          @for (tipo of tiposCaso; track tipo) {
+          <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+        <p class="registro__hint">
+          La queja expresa insatisfacción por la atención o el servicio.
+          El reclamo exige una solución directa ante el incumplimiento de lo contratado o comprado.
+        </p>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="idCategoria">Categoría del problema</label>
+        <select
+          id="idCategoria"
+          name="idCategoria"
+          class="registro__input"
+          [(ngModel)]="idCategoria"
+          (ngModelChange)="onCategoriaChange()"
+          [disabled]="!tipoCaso"
+          required
+        >
+          <option [ngValue]="null">Seleccione</option>
+          @for (categoria of categorias; track categoria.id) {
+          <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="departamentoResponsable">Departamento responsable</label>
+        <input
+          id="departamentoResponsable"
+          class="registro__input"
+          [value]="departamentoResponsable"
+          readonly
+        />
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="direccionProblema">Dirección o ubicación del problema</label>
+        <input
+          id="direccionProblema"
+          name="direccionProblema"
+          class="registro__input"
+          type="text"
+          maxlength="250"
+          [(ngModel)]="direccionProblema"
+          required
+        />
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="descripcion">Descripción del caso</label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          class="registro__input registro__textarea"
+          maxlength="2000"
+          rows="6"
+          [(ngModel)]="descripcion"
+          required
+        ></textarea>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="evidencia">Evidencia</label>
+        <input
+          id="evidencia"
+          name="evidencia"
+          class="registro__file"
+          type="file"
+          accept="image/*,.pdf,video/*"
+          (change)="onEvidenciaSeleccionada($event)"
+        />
+        <p class="registro__hint">Opcional. Imagen, PDF o video. Máximo 100MB.</p>
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Registrar Caso</button>
+        <button type="button" class="btn btn--text" (click)="volverAlPortal()">Volver al portal</button>
+      </div>
+    </form>
+    }
+
+    @if (vista === 'exito') {
+    <div class="registro__exito" role="status">
+      <p>{{ mensajeExito }}</p>
+      <p class="registro__codigo">{{ codigoSeguimiento }}</p>
+      <button type="button" class="btn btn--submit" (click)="volverAlPortal()">Volver al portal</button>
+    </div>
+    }
+  </div>
+</section>
+}
 
 <section id="mision" class="institucional">
   <div class="institucional__col">

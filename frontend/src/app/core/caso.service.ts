@@ -2,31 +2,55 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { TipoCaso } from './categoria.service';
 
-export interface RegistroCasoRequest {
-  tipoDocumento: 'DPI' | 'NIT' | 'IUSI';
-  numeroDocumento: string;
-  tipoCaso: 'QUEJA' | 'DENUNCIA' | 'SUGERENCIA';
-  idCategoria: number;
-  direccionProblema: string;
-  descripcion: string;
+export interface CiudadanoVerificado {
+  dpi: string;
+  nombre: string;
+  telefono: string;
+  correo: string;
+  tokenSesion: string;
+}
+
+export interface RegistroCasoRespuesta {
+  numeroCaso: number;
+  codigoSeguimiento: string;
+  mensaje: string;
+}
+
+export interface MensajeRespuesta {
+  mensaje: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class CasoService {
   constructor(private http: HttpClient) {}
 
-  // CU-02 paso 4/5: busca al ciudadano por su documento en la base precargada
-  buscarCiudadano(tipoDocumento: string, numeroDocumento: string): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/casos/ciudadano`, { params: { tipoDocumento, numeroDocumento } });
+  solicitarVerificacion(dpi: string): Observable<MensajeRespuesta> {
+    return this.http.post<MensajeRespuesta>(`${environment.apiUrl}/casos/verificacion`, { dpi });
   }
 
-  registrar(datos: RegistroCasoRequest): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/casos`, datos);
+  confirmarVerificacion(dpi: string, codigo: string): Observable<CiudadanoVerificado> {
+    return this.http.post<CiudadanoVerificado>(`${environment.apiUrl}/casos/verificacion/confirmar`, { dpi, codigo });
   }
 
-  // CU-03: consulta publica de estado
-  consultarPorCodigo(codigo: string): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/casos/seguimiento/${codigo}`);
+  registrar(
+    tokenSesion: string,
+    tipoCaso: TipoCaso,
+    idCategoria: number,
+    direccionProblema: string,
+    descripcion: string,
+    evidencia?: File
+  ): Observable<RegistroCasoRespuesta> {
+    const datos = new FormData();
+    datos.append('tokenSesion', tokenSesion);
+    datos.append('tipoCaso', tipoCaso);
+    datos.append('idCategoria', String(idCategoria));
+    datos.append('direccionProblema', direccionProblema);
+    datos.append('descripcion', descripcion);
+    if (evidencia) {
+      datos.append('evidencia', evidencia, evidencia.name);
+    }
+    return this.http.post<RegistroCasoRespuesta>(`${environment.apiUrl}/casos`, datos);
   }
 }
