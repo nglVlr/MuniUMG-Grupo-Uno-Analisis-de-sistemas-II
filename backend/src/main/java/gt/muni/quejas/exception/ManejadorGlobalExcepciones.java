@@ -13,6 +13,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.util.List;
 
@@ -99,6 +101,17 @@ public class ManejadorGlobalExcepciones {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler({MaxUploadSizeExceededException.class, MultipartException.class})
+    public ResponseEntity<DtoError> manejarArchivoGrande(Exception ex, HttpServletRequest request) {
+        DtoError error = DtoError.of(
+                CodigoError.EVIDENCIA_TAMANO.getHttpStatus().value(),
+                CodigoError.EVIDENCIA_TAMANO.name(),
+                CodigoError.EVIDENCIA_TAMANO.getMensajePorDefecto(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(CodigoError.EVIDENCIA_TAMANO.getHttpStatus()).body(error);
     }
 
     @ExceptionHandler(Exception.class)

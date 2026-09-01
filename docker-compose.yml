@@ -37,6 +37,9 @@ services:
       SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD}
       
       SPRING_PROFILES_ACTIVE: docker
+      APP_ARCHIVOS_DIRECTORIO: /app/data/archivos
+    volumes:
+      - evidencias_data:/app/data/archivos
     depends_on:
       db:
         condition: service_healthy
@@ -78,3 +81,4 @@ networks:
 
 volumes:
   db_data:
+  evidencias_data:
