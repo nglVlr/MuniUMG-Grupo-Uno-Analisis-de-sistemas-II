@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CategoriaService, Categoria, TipoCaso } from '../core/categoria.service';
-import { CasoService, CiudadanoVerificado } from '../core/caso.service';
 
-type VistaPortal = 'inicio' | 'identificacion' | 'codigo' | 'formulario' | 'exito';
+import { CasoService, CiudadanoVerificado, ConsultaCasoRespuesta } from '../core/caso.service';
+
+type VistaPortal = 'inicio' | 'identificacion' | 'codigo' | 'formulario' | 'exito' | 'consulta' | 'consulta-resultado';
 
 @Component({
   selector: 'app-portal',
@@ -32,6 +33,8 @@ export class PortalComponent {
   descripcion = '';
   evidencia: File | null = null;
   codigoSeguimiento = '';
+  codigoConsulta = '';
+  resultadoConsulta: ConsultaCasoRespuesta | null = null;
 
   constructor(
     private categoriaService: CategoriaService,
@@ -44,8 +47,30 @@ export class PortalComponent {
     this.desplazarARegistro();
   }
 
-  consultarEstadoCaso(): void {
-    // CU-03: stub
+    consultarEstadoCaso(): void {
+    this.reiniciarFormulario();
+    this.vista = 'consulta';
+    this.desplazarARegistro();
+  }
+
+  enviarConsulta(): void {
+    this.mensaje = '';
+    if (!this.codigoConsulta.trim()) {
+      this.mensaje = 'Debe completar todos los campos obligatorios del formulario.';
+      return;
+    }
+    this.cargando = true;
+    this.casoService.consultarEstado(this.codigoConsulta.trim()).subscribe({
+      next: (resultado) => {
+        this.cargando = false;
+        this.resultadoConsulta = resultado;
+        this.vista = 'consulta-resultado';
+      },
+      error: (error) => {
+        this.cargando = false;
+        this.mensaje = this.mensajeError(error, 'El código es inválido, intente de nuevo.');
+      }
+    });
   }
 
   modificarQueja(): void {
@@ -188,6 +213,8 @@ export class PortalComponent {
     this.descripcion = '';
     this.evidencia = null;
     this.codigoSeguimiento = '';
+    this.codigoConsulta = '';
+    this.resultadoConsulta = null;
   }
 
   private desplazarARegistro(): void {

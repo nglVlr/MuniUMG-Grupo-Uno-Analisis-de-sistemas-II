@@ -21,7 +21,10 @@ public enum CodigoError {
     DIRECCION_REQUERIDA(HttpStatus.BAD_REQUEST, "Debe indicar la dirección o ubicación del problema reportado."),
     EVIDENCIA_TAMANO(HttpStatus.BAD_REQUEST, "El archivo adjunto supera el tamaño máximo permitido de 100MB."),
     EVIDENCIA_FORMATO(HttpStatus.BAD_REQUEST, "El archivo debe ser una imagen, PDF o video en un formato permitido."),
-    ERROR_INTERNO(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado");
+    ERROR_INTERNO(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado"),
+    CODIGO_SEGUIMIENTO_REQUERIDO(HttpStatus.BAD_REQUEST, "Debe completar todos los campos obligatorios del formulario."),
+    CASO_NO_ENCONTRADO(HttpStatus.NOT_FOUND, "El código es inválido, intente de nuevo.");
+
 
     private final HttpStatus httpStatus;
     private final String mensajePorDefecto;

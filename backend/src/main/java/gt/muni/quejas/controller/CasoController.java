@@ -1,21 +1,12 @@
 package gt.muni.quejas.controller;
 
-import gt.muni.quejas.dto.DtoCiudadano;
-import gt.muni.quejas.dto.DtoConfirmarVerificacion;
-import gt.muni.quejas.dto.DtoMensaje;
-import gt.muni.quejas.dto.DtoRegistroCasoRespuesta;
-import gt.muni.quejas.dto.DtoSolicitudVerificacion;
+import gt.muni.quejas.dto.*;
 import gt.muni.quejas.service.CasoService;
 import gt.muni.quejas.service.VerificacionCiudadanoService;
 import gt.muni.quejas.util.ClienteHttp;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -62,5 +53,11 @@ public class CasoController {
                 evidencia,
                 ClienteHttp.ipOrigen(request)
         ));
+    }
+
+    @GetMapping("/consulta")
+    public ResponseEntity<DtoConsultaCasoRespuesta> consultarEstado(
+            @RequestParam(required = false) String codigoSeguimiento) {
+        return ResponseEntity.ok(casoService.consultarEstado(codigoSeguimiento));
     }
 }

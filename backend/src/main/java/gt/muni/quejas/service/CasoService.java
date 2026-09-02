@@ -1,5 +1,6 @@
 package gt.muni.quejas.service;
 
+import gt.muni.quejas.dto.DtoConsultaCasoRespuesta;
 import gt.muni.quejas.dto.DtoRegistroCasoRespuesta;
 import gt.muni.quejas.exception.CodigoError;
 import gt.muni.quejas.exception.NegocioException;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 public class CasoService {
 
     public static final String MENSAJE_EXITO = "Su caso fue registrado exitosamente. Su código de seguimiento es: %s. Consérvelo para darle seguimiento.";
+    public static final String MENSAJE_CONSULTA_EXITO = "Consulta realizada correctamente. A continuación se muestra el estado actual de su caso.";
 
     private final VerificacionCiudadanoService verificacionCiudadanoService;
     private final CatalogoCacheService catalogoCacheService;
@@ -148,4 +150,27 @@ public class CasoService {
         correlativoSeguimientoRepository.save(correlativo);
         return String.format("MG-%04d-%d", correlativo.getUltimo(), anio);
     }
+
+
+    @Transactional(readOnly = true)
+    public DtoConsultaCasoRespuesta consultarEstado(String codigoSeguimiento) {
+        if (codigoSeguimiento == null || codigoSeguimiento.isBlank()) {
+            throw new NegocioException(CodigoError.CODIGO_SEGUIMIENTO_REQUERIDO);
+        }
+
+        Caso caso = casoRepository.findByCodigoSeguimiento(codigoSeguimiento.trim())
+                .orElseThrow(() -> new NegocioException(CodigoError.CASO_NO_ENCONTRADO));
+
+        return new DtoConsultaCasoRespuesta(
+                caso.getCodigoSeguimiento(),
+                caso.getEstado().getEstado(),
+                caso.getCreateAt(),
+                caso.getDepartamento().getNombre(),
+                caso.getDescripcion(),
+                MENSAJE_CONSULTA_EXITO
+        );
+    }
+
+
+
 }

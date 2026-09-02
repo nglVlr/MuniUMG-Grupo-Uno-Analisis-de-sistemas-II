@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(autorize -> autorize.requestMatchers(
                                 HttpMethod.POST, "/api/login", "/api/password/olvide", "/api/password/restablecer",
                                 "/api/casos", "/api/casos/verificacion", "/api/casos/verificacion/confirmar").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categorias").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categorias", "/api/casos/consulta").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> handling
                         .authenticationEntryPoint(entryPointNoAutorizado)

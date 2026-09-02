@@ -22,6 +22,15 @@ export interface MensajeRespuesta {
   mensaje: string;
 }
 
+export interface ConsultaCasoRespuesta {
+  codigoSeguimiento: string;
+  estado: string;
+  fechaRegistro: string;
+  departamentoResponsable: string;
+  descripcion: string;
+  mensaje: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CasoService {
   constructor(private http: HttpClient) {}
@@ -53,4 +62,11 @@ export class CasoService {
     }
     return this.http.post<RegistroCasoRespuesta>(`${environment.apiUrl}/casos`, datos);
   }
+  
+  consultarEstado(codigoSeguimiento: string): Observable<ConsultaCasoRespuesta> {
+    return this.http.get<ConsultaCasoRespuesta>(`${environment.apiUrl}/casos/consulta`, {
+      params: { codigoSeguimiento }
+    });
+  }
+
 }

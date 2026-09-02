@@ -52,6 +52,8 @@
           Registrar Caso
         } @else if (vista === 'formulario') {
           Formulario de registro
+        } @else if (vista === 'consulta' || vista === 'consulta-resultado') {
+          Consultar estado del caso
         } @else {
           Caso registrado
         }
@@ -115,6 +117,65 @@
         <button type="button" class="btn btn--text" (click)="vista = 'identificacion'">Corregir DPI</button>
       </div>
     </form>
+    }
+
+     @if (vista === 'consulta') {
+    <form class="registro__form" (ngSubmit)="enviarConsulta()">
+      <div class="registro__field">
+        <label class="registro__label" for="codigoConsulta">Código de seguimiento</label>
+        <input
+          id="codigoConsulta"
+          name="codigoConsulta"
+          class="registro__input"
+          type="text"
+          [(ngModel)]="codigoConsulta"
+          required
+        />
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Consultar</button>
+        <button type="button" class="btn btn--text" (click)="volverAlPortal()">Volver al portal</button>
+      </div>
+    </form>
+    }
+
+    @if (vista === 'consulta-resultado' && resultadoConsulta) {
+    <div class="registro__form">
+      <p class="registro__help">{{ resultadoConsulta.mensaje }}</p>
+
+      <div class="registro__grid">
+        <div class="registro__field">
+          <label class="registro__label" for="resCodigo">Código de seguimiento</label>
+          <input id="resCodigo" class="registro__input" [value]="resultadoConsulta.codigoSeguimiento" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="resEstado">Estado actual</label>
+          <input id="resEstado" class="registro__input" [value]="resultadoConsulta.estado" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="resFecha">Fecha de registro</label>
+          <input id="resFecha" class="registro__input" [value]="resultadoConsulta.fechaRegistro | date:'dd/MM/yyyy HH:mm'" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="resDepto">Departamento responsable</label>
+          <input id="resDepto" class="registro__input" [value]="resultadoConsulta.departamentoResponsable" readonly />
+        </div>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="resDescripcion">Descripción del caso</label>
+        <textarea id="resDescripcion" class="registro__input registro__textarea" rows="4" [value]="resultadoConsulta.descripcion" readonly></textarea>
+      </div>
+
+      <div class="registro__actions">
+        <button type="button" class="btn btn--submit" (click)="volverAlPortal()">Volver al portal</button>
+      </div>
+    </div>
     }
 
     @if (vista === 'formulario' && ciudadano) {
