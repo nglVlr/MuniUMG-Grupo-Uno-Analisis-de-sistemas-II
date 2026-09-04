@@ -47,31 +47,36 @@ export class PortalComponent {
     this.desplazarARegistro();
   }
 
-    consultarEstadoCaso(): void {
+  consultarEstadoCaso(): void {
     this.reiniciarFormulario();
     this.vista = 'consulta';
     this.desplazarARegistro();
   }
 
-  enviarConsulta(): void {
-    this.mensaje = '';
-    if (!this.codigoConsulta.trim()) {
-      this.mensaje = 'Debe completar todos los campos obligatorios del formulario.';
-      return;
-    }
-    this.cargando = true;
-    this.casoService.consultarEstado(this.codigoConsulta.trim()).subscribe({
-      next: (resultado) => {
-        this.cargando = false;
-        this.resultadoConsulta = resultado;
-        this.vista = 'consulta-resultado';
-      },
-      error: (error) => {
-        this.cargando = false;
-        this.mensaje = this.mensajeError(error, 'El código es inválido, intente de nuevo.');
-      }
-    });
+ enviarConsulta(): void {
+  this.mensaje = '';
+  const codigo = this.codigoConsulta.trim();
+  if (!codigo) {
+    this.mensaje = 'Debe completar todos los campos obligatorios del formulario.';
+    return;
   }
+  if (!/^MG-\d{4}-\d{4}$/.test(codigo)) {
+    this.mensaje = 'El código de seguimiento ingresado no tiene un formato válido. Debe tener el formato MG-XXXX-XXXX.';
+    return;
+  }
+  this.cargando = true;
+  this.casoService.consultarEstado(codigo).subscribe({
+    next: (resultado) => {
+      this.cargando = false;
+      this.resultadoConsulta = resultado;
+      this.vista = 'consulta-resultado';
+    },
+    error: (error) => {
+      this.cargando = false;
+      this.mensaje = this.mensajeError(error, 'El código es inválido, intente de nuevo.');
+    }
+  });
+}
 
   modificarQueja(): void {
     // CU-18: stub

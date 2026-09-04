@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build"
+    "build": "ng build",
+    "test": "ng test",
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {
@@ -22,7 +24,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^17.3.0",
-    "@angular/cli": "^17.3.0",
+    "@angular/cli": "^17.3.17",
     "@angular/compiler-cli": "^17.3.0",
     "typescript": "~5.4.0"
   }
