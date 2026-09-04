@@ -163,6 +163,8 @@ public class CasoService {
 
         return new DtoConsultaCasoRespuesta(
                 caso.getCodigoSeguimiento(),
+                // caso.getEstado() devuelve la entidad EstadoCaso;
+                // .getEstado() de esa entidad da el nombre en texto (ej. "Registrado")
                 caso.getEstado().getEstado(),
                 caso.getCreateAt(),
                 caso.getDepartamento().getNombre(),
