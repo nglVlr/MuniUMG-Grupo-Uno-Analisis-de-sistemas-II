@@ -19,19 +19,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 @Service
 public class CasoService {
 
     public static final String MENSAJE_EXITO = "Su caso fue registrado exitosamente. Su código de seguimiento es: %s. Consérvelo para darle seguimiento.";
-    public static final String MENSAJE_CONSULTA_EXITO = "Consulta realizada correctamente. A continuación se muestra el estado actual de su caso.";
+    private static final Pattern CODIGO_CASO = Pattern.compile("MG-\\d{4}-\\d{4}");
 
     private final VerificacionCiudadanoService verificacionCiudadanoService;
     private final CatalogoCacheService catalogoCacheService;
     private final EstadoCasoRepository estadoCasoRepository;
     private final CorrelativoSeguimientoRepository correlativoSeguimientoRepository;
     private final CasoRepository casoRepository;
-    private final InformeInicialService informeInicialService;
     private final EvidenciaStorageService evidenciaStorageService;
     private final BitacoraCambioService bitacoraCambioService;
     private final NotificacionCasoService notificacionCasoService;
@@ -41,7 +41,6 @@ public class CasoService {
                        EstadoCasoRepository estadoCasoRepository,
                        CorrelativoSeguimientoRepository correlativoSeguimientoRepository,
                        CasoRepository casoRepository,
-                       InformeInicialService informeInicialService,
                        EvidenciaStorageService evidenciaStorageService,
                        BitacoraCambioService bitacoraCambioService,
                        NotificacionCasoService notificacionCasoService) {
@@ -50,7 +49,6 @@ public class CasoService {
         this.estadoCasoRepository = estadoCasoRepository;
         this.correlativoSeguimientoRepository = correlativoSeguimientoRepository;
         this.casoRepository = casoRepository;
-        this.informeInicialService = informeInicialService;
         this.evidenciaStorageService = evidenciaStorageService;
         this.bitacoraCambioService = bitacoraCambioService;
         this.notificacionCasoService = notificacionCasoService;
@@ -64,7 +62,7 @@ public class CasoService {
                                               String descripcion,
                                               MultipartFile evidencia,
                                               String ipOrigen) {
-        Ciudadano ciudadano = verificacionCiudadanoService.consumirSesion(tokenSesion);
+        Ciudadano ciudadano = verificacionCiudadanoService.validarSesion(tokenSesion);
         validarFormulario(tipoCaso, idCategoria, direccionProblema, descripcion);
 
         Categoria categoria = catalogoCacheService.obtenerCategoriaActiva(idCategoria)
@@ -93,9 +91,9 @@ public class CasoService {
 
         evidenciaStorageService.guardarSiPresente(caso, evidencia);
 
-        String rutaInforme = informeInicialService.generar(caso);
-        caso.setInformeInicialRuta(rutaInforme);
-        casoRepository.save(caso);
+        notificacionCasoService.notificarRegistro(caso);
+
+        String mensaje = String.format(MENSAJE_EXITO, codigo);
 
         bitacoraCambioService.registrar(
                 "Registro de caso",
@@ -105,12 +103,10 @@ public class CasoService {
                 codigo
         );
 
-        notificacionCasoService.notificarRegistro(caso);
-
         return new DtoRegistroCasoRespuesta(
                 caso.getId(),
                 codigo,
-                String.format(MENSAJE_EXITO, codigo)
+                mensaje
         );
     }
 
@@ -154,22 +150,21 @@ public class CasoService {
 
     @Transactional(readOnly = true)
     public DtoConsultaCasoRespuesta consultarEstado(String codigoSeguimiento) {
-        if (codigoSeguimiento == null || codigoSeguimiento.isBlank()) {
-            throw new NegocioException(CodigoError.CODIGO_SEGUIMIENTO_REQUERIDO);
+        String codigo = codigoSeguimiento == null ? "" : codigoSeguimiento.trim();
+        if (!CODIGO_CASO.matcher(codigo).matches()) {
+            throw new NegocioException(CodigoError.CASO_NO_ENCONTRADO);
         }
 
-        Caso caso = casoRepository.findByCodigoSeguimiento(codigoSeguimiento.trim())
+        Caso caso = casoRepository.findByCodigoSeguimiento(codigo)
                 .orElseThrow(() -> new NegocioException(CodigoError.CASO_NO_ENCONTRADO));
 
         return new DtoConsultaCasoRespuesta(
                 caso.getCodigoSeguimiento(),
-                // caso.getEstado() devuelve la entidad EstadoCaso;
-                // .getEstado() de esa entidad da el nombre en texto (ej. "Registrado")
                 caso.getEstado().getEstado(),
                 caso.getCreateAt(),
                 caso.getDepartamento().getNombre(),
                 caso.getDescripcion(),
-                MENSAJE_CONSULTA_EXITO
+                ""
         );
     }
 

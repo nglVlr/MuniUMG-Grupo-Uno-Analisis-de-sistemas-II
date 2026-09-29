@@ -100,6 +100,8 @@
   box-shadow:
     0 0 0 3px rgba(201, 162, 39, 0.25),
     0 5px 18px rgba(0, 0, 0, 0.15);
+
+  animation: surgir 0.65s ease both;
 }
 
 .login__eyebrow {
@@ -335,6 +337,16 @@
 
 /* ---------- Mensaje de error ---------- */
 
+.login__aviso {
+  padding: 11px 13px;
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  background: rgba(201, 162, 39, 0.12);
+  color: var(--ink);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
 .login__error {
   padding: 11px 13px;
 
@@ -380,6 +392,7 @@
 
 .login__back {
   display: block;
+  margin-top: 14px;
 
   text-align: center;
 

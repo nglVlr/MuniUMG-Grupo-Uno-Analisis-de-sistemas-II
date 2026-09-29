@@ -19,8 +19,9 @@ public enum CodigoError {
     TIPO_CASO_REQUERIDO(HttpStatus.BAD_REQUEST, "Debe seleccionar el tipo de caso (queja, reclamo, denuncia o sugerencia)."),
     CATEGORIA_REQUERIDA(HttpStatus.BAD_REQUEST, "Debe seleccionar la categoría del problema reportado."),
     DIRECCION_REQUERIDA(HttpStatus.BAD_REQUEST, "Debe indicar la dirección o ubicación del problema reportado."),
-    EVIDENCIA_TAMANO(HttpStatus.BAD_REQUEST, "El archivo adjunto supera el tamaño máximo permitido de 100MB."),
-    EVIDENCIA_FORMATO(HttpStatus.BAD_REQUEST, "El archivo debe ser una imagen, PDF o video en un formato permitido."),
+    EVIDENCIA_TAMANO(HttpStatus.BAD_REQUEST, "El archivo adjunto supera el tamaño máximo permitido de 10MB."),
+    EVIDENCIA_FORMATO(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF."),
+    EVIDENCIA_VACIA(HttpStatus.BAD_REQUEST, "El archivo no debe estar vacío."),
     ERROR_INTERNO(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado"),
     CODIGO_SEGUIMIENTO_REQUERIDO(HttpStatus.BAD_REQUEST, "Debe completar todos los campos obligatorios del formulario."),
     CASO_NO_ENCONTRADO(HttpStatus.NOT_FOUND, "El código es inválido, intente de nuevo.");

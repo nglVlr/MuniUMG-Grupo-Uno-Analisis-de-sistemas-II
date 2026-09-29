@@ -43,6 +43,10 @@ export class CasoService {
     return this.http.post<CiudadanoVerificado>(`${environment.apiUrl}/casos/verificacion/confirmar`, { dpi, codigo });
   }
 
+  cerrarSesionCiudadano(tokenSesion: string): Observable<MensajeRespuesta> {
+    return this.http.post<MensajeRespuesta>(`${environment.apiUrl}/casos/verificacion/cerrar`, { tokenSesion });
+  }
+
   registrar(
     tokenSesion: string,
     tipoCaso: TipoCaso,

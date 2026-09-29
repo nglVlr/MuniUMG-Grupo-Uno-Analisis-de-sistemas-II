@@ -31,17 +31,20 @@ public class VerificacionCiudadanoService {
     private final TokenVerificacionCiudadanoRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final BitacoraCambioService bitacoraCambioService;
 
     public VerificacionCiudadanoService(CatalogoCacheService catalogoCacheService,
                                         CiudadanoRepository ciudadanoRepository,
                                         TokenVerificacionCiudadanoRepository tokenRepository,
                                         PasswordEncoder passwordEncoder,
-                                        EmailService emailService) {
+                                        EmailService emailService,
+                                        BitacoraCambioService bitacoraCambioService) {
         this.catalogoCacheService = catalogoCacheService;
         this.ciudadanoRepository = ciudadanoRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.bitacoraCambioService = bitacoraCambioService;
     }
 
     @Transactional
@@ -76,39 +79,63 @@ public class VerificacionCiudadanoService {
     }
 
     @Transactional
-    public DtoCiudadano confirmarCodigo(DtoConfirmarVerificacion dto) {
+    public DtoCiudadano confirmarCodigo(DtoConfirmarVerificacion dto, String ipOrigen) {
         String dpi = normalizarDpi(dto == null ? null : dto.dpi());
-        validarFormatoDpi(dpi);
-        if (dto == null || dto.codigo() == null || dto.codigo().isBlank()) {
-            throw new NegocioException(CodigoError.CODIGO_VERIFICACION_INVALIDO);
+        try {
+            validarFormatoDpi(dpi);
+            if (dto == null || dto.codigo() == null || dto.codigo().isBlank()) {
+                throw new NegocioException(CodigoError.CODIGO_VERIFICACION_INVALIDO);
+            }
+
+            Ciudadano ciudadano = resolverCiudadano(dpi);
+
+            List<TokenVerificacionCiudadano> tokens = tokenRepository.findByCiudadanoAndUsadoFalse(ciudadano);
+            TokenVerificacionCiudadano vigente = tokens.stream()
+                    .filter(TokenVerificacionCiudadano::codigoVigente)
+                    .filter(token -> passwordEncoder.matches(dto.codigo().trim(), token.getCodigoHash()))
+                    .findFirst()
+                    .orElseThrow(() -> new NegocioException(CodigoError.CODIGO_VERIFICACION_INVALIDO));
+
+            vigente.setUsado(true);
+            vigente.setTokenSesion(UUID.randomUUID().toString());
+            vigente.setFechaExpiracionSesion(LocalDateTime.now().plusMinutes(MINUTOS_EXPIRACION_SESION));
+            vigente.setSesionUsada(false);
+            tokenRepository.save(vigente);
+
+            bitacoraCambioService.registrarIngreso(
+                    BitacoraCambioService.INGRESO_EXITOSO, dpi, ipOrigen, "Ciudadano");
+
+            return new DtoCiudadano(
+                    ciudadano.getDpi(),
+                    ciudadano.getNombre(),
+                    ciudadano.getTelefono(),
+                    ciudadano.getCorreo(),
+                    vigente.getTokenSesion()
+            );
+        } catch (NegocioException ex) {
+            bitacoraCambioService.registrarIngreso(
+                    BitacoraCambioService.INGRESO_FALLIDO, dpi, ipOrigen, "Ciudadano");
+            throw ex;
         }
-
-        Ciudadano ciudadano = resolverCiudadano(dpi);
-
-        List<TokenVerificacionCiudadano> tokens = tokenRepository.findByCiudadanoAndUsadoFalse(ciudadano);
-        TokenVerificacionCiudadano vigente = tokens.stream()
-                .filter(TokenVerificacionCiudadano::codigoVigente)
-                .filter(token -> passwordEncoder.matches(dto.codigo().trim(), token.getCodigoHash()))
-                .findFirst()
-                .orElseThrow(() -> new NegocioException(CodigoError.CODIGO_VERIFICACION_INVALIDO));
-
-        vigente.setUsado(true);
-        vigente.setTokenSesion(UUID.randomUUID().toString());
-        vigente.setFechaExpiracionSesion(LocalDateTime.now().plusMinutes(MINUTOS_EXPIRACION_SESION));
-        vigente.setSesionUsada(false);
-        tokenRepository.save(vigente);
-
-        return new DtoCiudadano(
-                ciudadano.getDpi(),
-                ciudadano.getNombre(),
-                ciudadano.getTelefono(),
-                ciudadano.getCorreo(),
-                vigente.getTokenSesion()
-        );
     }
 
     @Transactional
-    public Ciudadano consumirSesion(String tokenSesion) {
+    public Ciudadano validarSesion(String tokenSesion) {
+        return buscarSesionVigente(tokenSesion).getCiudadano();
+    }
+
+    @Transactional
+    public void cerrarSesion(String tokenSesion) {
+        if (tokenSesion == null || tokenSesion.isBlank()) {
+            return;
+        }
+        tokenRepository.findByTokenSesion(tokenSesion.trim()).ifPresent(token -> {
+            token.setSesionUsada(true);
+            tokenRepository.save(token);
+        });
+    }
+
+    private TokenVerificacionCiudadano buscarSesionVigente(String tokenSesion) {
         if (tokenSesion == null || tokenSesion.isBlank()) {
             throw new NegocioException(CodigoError.SESION_REGISTRO_INVALIDA);
         }
@@ -117,9 +144,7 @@ public class VerificacionCiudadanoService {
         if (!token.sesionVigente()) {
             throw new NegocioException(CodigoError.SESION_REGISTRO_INVALIDA);
         }
-        token.setSesionUsada(true);
-        tokenRepository.save(token);
-        return token.getCiudadano();
+        return token;
     }
 
     public static void validarFormatoDpi(String dpi) {

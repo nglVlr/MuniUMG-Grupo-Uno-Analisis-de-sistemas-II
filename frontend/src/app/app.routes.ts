@@ -3,10 +3,12 @@ import { Routes } from '@angular/router';
 import { PortalComponent } from './portal/portal.component';
 import { LoginComponent } from './login/login.component';
 import { InicioComponent } from './inicio/inicio.component';
+import { BandejaComponent } from './bandeja/bandeja.component';
 import { RecuperarPasswordComponent } from './recuperar-password/recuperar-password.component';
 import { RestablecerPasswordComponent } from './reestablecer-password/restablecer-password.component';
 
 import { authGuard } from './guards/auth.guard';
+import { ciudadanoGuard } from './guards/ciudadano.guard';
 
 export const routes: Routes = [
 
@@ -31,6 +33,11 @@ export const routes: Routes = [
     path: 'inicio',
     component: InicioComponent,
     canActivate: [authGuard]
+  },
+  {
+    path: 'bandeja',
+    component: BandejaComponent,
+    canActivate: [ciudadanoGuard]
   }
 
 ];

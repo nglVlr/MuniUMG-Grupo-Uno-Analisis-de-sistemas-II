@@ -19,15 +19,9 @@ import java.util.UUID;
 @Service
 public class EvidenciaStorageService {
 
-    private static final Set<String> TIPOS_PERMITIDOS = Set.of(
-            "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp",
-            "application/pdf",
-            "video/mp4", "video/webm", "video/quicktime", "video/mpeg"
-    );
+    private static final Set<String> TIPOS_PERMITIDOS = Set.of("application/pdf");
 
-    private static final Set<String> EXTENSIONES = Set.of(
-            ".jpg", ".jpeg", ".png", ".gif", ".webp", ".pdf", ".mp4", ".webm", ".mov", ".mpeg", ".mpg"
-    );
+    private static final Set<String> EXTENSIONES = Set.of(".pdf");
 
     private final ArchivoProperties archivoProperties;
     private final EvidenciaRepository evidenciaRepository;
@@ -39,8 +33,11 @@ public class EvidenciaStorageService {
     }
 
     public void guardarSiPresente(Caso caso, MultipartFile archivo) {
-        if (archivo == null || archivo.isEmpty()) {
+        if (archivo == null) {
             return;
+        }
+        if (archivo.isEmpty()) {
+            throw new NegocioException(CodigoError.EVIDENCIA_VACIA);
         }
 
         long maxBytes = archivoProperties.getEvidencia().getTamanoMaximoMb() * 1024L * 1024L;

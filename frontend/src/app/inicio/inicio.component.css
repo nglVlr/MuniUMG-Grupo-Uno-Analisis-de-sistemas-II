@@ -10,8 +10,10 @@
 
 .layout {
   min-height: 100vh;
-
-  background: var(--cream);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(201, 162, 39, 0.16), transparent 28%),
+    radial-gradient(circle at 90% 80%, rgba(18, 56, 48, 0.08), transparent 32%),
+    var(--cream);
   color: var(--ink);
 }
 
@@ -39,12 +41,12 @@
 
   padding: 0 28px;
 
-  background: var(--bg-deep);
+  background: rgba(247, 244, 236, 0.92);
+  backdrop-filter: blur(10px);
 
-  border-bottom: 1px solid rgba(247, 244, 236, 0.10);
+  border-bottom: 1px solid rgba(20, 33, 29, 0.06);
 
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(20, 33, 29, 0.06);
 }
 
 
@@ -82,7 +84,7 @@
 }
 
 .topbar__system {
-  color: var(--cream);
+  color: var(--bg-deep);
 
   font-family: var(--font-display);
 
@@ -96,7 +98,7 @@
 .topbar__institution {
   margin-top: 3px;
 
-  color: rgba(247, 244, 236, 0.65);
+  color: var(--ink-soft);
 
   font-size: 0.75rem;
 
@@ -129,7 +131,7 @@
 }
 
 .topbar__user-name {
-  color: var(--cream);
+  color: var(--bg-deep);
 
   font-size: 0.9rem;
 
@@ -194,7 +196,6 @@
   position: fixed;
 
   top: 82px;
-  bottom: 0;
   left: 0;
 
   width: 240px;
@@ -205,11 +206,14 @@
 
   justify-content: space-between;
 
-  padding: 28px 16px;
-
-  background: var(--bg-deep-2);
-
-  border-right: 1px solid rgba(247, 244, 236, 0.08);
+  margin: 18px 0 18px 18px;
+  padding: 22px 14px;
+  height: calc(100vh - 82px - 36px);
+  background: #fff;
+  border: 1px solid rgba(20, 33, 29, 0.06);
+  border-radius: 22px;
+  box-shadow: 0 16px 40px rgba(20, 33, 29, 0.06);
+  animation: surgir 0.5s ease both;
 }
 
 .sidebar__nav {
@@ -232,9 +236,11 @@
 
   padding: 12px 14px;
 
-  border-radius: 8px;
-
-  color: rgba(247, 244, 236, 0.72);
+  border: 0;
+  background: transparent;
+  border-radius: 14px;
+  color: var(--ink);
+  cursor: pointer;
 
   font-family: var(--font-body);
 
@@ -249,16 +255,15 @@
     color 0.15s ease;
 }
 
-.sidebar__item:hover {
-  background: rgba(247, 244, 236, 0.08);
-
-  color: var(--cream);
+.sidebar__item:hover,
+.sidebar__item:focus-visible {
+  background: rgba(18, 56, 48, 0.06);
+  color: var(--bg-deep);
 }
 
 .sidebar__item--active {
-  background: rgba(201, 162, 39, 0.14);
-
-  color: var(--gold-bright);
+  background: var(--bg-deep);
+  color: var(--cream);
 }
 
 .sidebar__icon {
@@ -275,7 +280,7 @@
 .sidebar__bottom {
   padding-top: 20px;
 
-  border-top: 1px solid rgba(247, 244, 236, 0.08);
+  border-top: 1px solid rgba(20, 33, 29, 0.08);
 }
 
 .sidebar__logout {
@@ -287,9 +292,8 @@
 }
 
 .sidebar__logout:hover {
-  background: rgba(163, 35, 30, 0.20);
-
-  color: #f1a6a2;
+  background: rgba(163, 35, 30, 0.08);
+  color: var(--brick);
 }
 
 
@@ -298,11 +302,49 @@
    ========================================================= */
 
 .content {
-  width: calc(100% - 240px);
+  width: calc(100% - 276px);
+  margin-left: 276px;
+  padding: clamp(28px, 4vw, 48px);
+}
 
-  margin-left: 240px;
+.panel {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
 
-  padding: clamp(32px, 5vw, 56px);
+.panel__card {
+  min-height: 180px;
+  padding: 28px;
+  border: 1px solid rgba(20, 33, 29, 0.06);
+  border-radius: 22px;
+  background: #fff;
+  color: var(--bg-deep);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(20, 33, 29, 0.06);
+  animation: surgir 0.55s ease both;
+}
+
+.panel__card:nth-child(1) { animation-delay: 0.08s; }
+.panel__card:nth-child(2) { animation-delay: 0.16s; }
+.panel__card:nth-child(3) { animation-delay: 0.24s; }
+
+.panel__card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 162, 39, 0.7);
+  box-shadow: 0 18px 40px rgba(20, 33, 29, 0.1);
+}
+
+@media (max-width: 900px) {
+  .panel { grid-template-columns: 1fr; }
+  .sidebar { position: static; width: auto; height: auto; margin: 16px; }
+  .content { width: auto; margin-left: 0; }
+  .layout__body { flex-direction: column; }
+  .topbar { position: static; height: auto; grid-template-columns: 1fr; padding: 16px; gap: 8px; }
 }
 
 .content__header {
@@ -658,7 +700,7 @@
 }
 
 .topbar__user-name {
-  color: var(--cream);
+  color: var(--bg-deep);
 
   font-size: 0.9rem;
 

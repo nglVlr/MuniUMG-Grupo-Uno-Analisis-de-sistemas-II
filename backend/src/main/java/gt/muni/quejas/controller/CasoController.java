@@ -30,8 +30,15 @@ public class CasoController {
     }
 
     @PostMapping("/verificacion/confirmar")
-    public ResponseEntity<DtoCiudadano> confirmarVerificacion(@RequestBody DtoConfirmarVerificacion dto) {
-        return ResponseEntity.ok(verificacionCiudadanoService.confirmarCodigo(dto));
+    public ResponseEntity<DtoCiudadano> confirmarVerificacion(@RequestBody DtoConfirmarVerificacion dto,
+                                                              HttpServletRequest request) {
+        return ResponseEntity.ok(verificacionCiudadanoService.confirmarCodigo(dto, ClienteHttp.ipOrigen(request)));
+    }
+
+    @PostMapping("/verificacion/cerrar")
+    public ResponseEntity<DtoMensaje> cerrarSesion(@RequestBody DtoCerrarSesionCiudadano dto) {
+        verificacionCiudadanoService.cerrarSesion(dto == null ? null : dto.tokenSesion());
+        return ResponseEntity.ok(new DtoMensaje("Sesión cerrada"));
     }
 
     @PostMapping

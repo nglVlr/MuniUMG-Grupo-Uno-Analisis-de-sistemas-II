@@ -19,11 +19,11 @@
     <div class="topbar__title">
 
       <span class="topbar__system">
-        Sistema de Quejas
+        Sistema de Quejas, Reclamos, Denuncias y Sugerencias
       </span>
 
       <span class="topbar__institution">
-        Municipalidad de Granados
+        Municipalidad de Granados, B.V.
       </span>
 
     </div>
@@ -34,18 +34,6 @@
       <span class="topbar__user-name">
         {{ nombreUsuario }}
       </span>
-
-      <div class="topbar__cases">
-
-        <span class="topbar__cases-number">
-          0
-        </span>
-
-        <span class="topbar__cases-label">
-          casos asignados
-        </span>
-
-      </div>
 
     </div>
 
@@ -62,64 +50,14 @@
 
       <nav class="sidebar__nav">
 
-        <!-- Inicio -->
-        <a
-          class="sidebar__item sidebar__item--active"
-          routerLink="/inicio"
-        >
-          <span class="sidebar__icon">
-            ⌂
-          </span>
-
-          <span>
-            Inicio
-          </span>
-        </a>
-
-
-        <!-- Opciones futuras -->
-        <button
-          type="button"
-          class="sidebar__item sidebar__item--disabled"
-          disabled
-        >
-          <span class="sidebar__icon">
-            ▣
-          </span>
-
-          <span>
-            Opción X
-          </span>
+        <button type="button" class="sidebar__item sidebar__item--active">
+          Casos Asignados
         </button>
-
-
-        <button
-          type="button"
-          class="sidebar__item sidebar__item--disabled"
-          disabled
-        >
-          <span class="sidebar__icon">
-            ◫
-          </span>
-
-          <span>
-            Opción X
-          </span>
+        <button type="button" class="sidebar__item">
+          Casos en Revisión
         </button>
-
-
-        <button
-          type="button"
-          class="sidebar__item sidebar__item--disabled"
-          disabled
-        >
-          <span class="sidebar__icon">
-            ▤
-          </span>
-
-          <span>
-            Opción X
-          </span>
+        <button type="button" class="sidebar__item">
+          Reportes
         </button>
 
       </nav>
@@ -150,99 +88,11 @@
     <!-- ================= MAIN ================= -->
 
     <main class="content">
-
-      <div class="content__header">
-
-        <div>
-
-          <span class="content__eyebrow">
-            Gestión de casos
-          </span>
-
-          <h1 class="content__title">
-            Casos asignados
-          </h1>
-
-          <span class="rule"></span>
-
-        </div>
-
+      <div class="panel">
+        <button type="button" class="panel__card">Casos Asignados</button>
+        <button type="button" class="panel__card">Casos en Revisión</button>
+        <button type="button" class="panel__card">Reportes</button>
       </div>
-
-
-      <!-- ================= TABLA ================= -->
-
-      <section class="cases">
-
-        <div class="cases__header">
-
-          <div>
-
-            <h2 class="cases__title">
-              Pendientes
-            </h2>
-
-            <p class="cases__description">
-              Casos asignados para atención y seguimiento.
-            </p>
-
-          </div>
-
-        </div>
-
-
-        <div class="cases__table-container">
-
-          <table class="cases__table">
-
-            <thead>
-
-              <tr>
-
-                <th>Caso</th>
-                <th>Asunto</th>
-                <th>Fecha</th>
-                <th>Estado</th>
-                <th>Acción</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              <tr>
-
-                <td colspan="5">
-
-                  <div class="cases__empty">
-
-                    <span class="cases__empty-icon">
-                      ✓
-                    </span>
-
-                    <h3>
-                      Sin pendientes
-                    </h3>
-
-                    <p>
-                      No tienes casos pendientes asignados actualmente.
-                    </p>
-
-                  </div>
-
-                </td>
-
-              </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
     </main>
 
   </div>

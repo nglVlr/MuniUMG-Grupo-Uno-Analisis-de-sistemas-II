@@ -1,5 +1,7 @@
 :host {
   display: block;
+  background: var(--bg-deep);
+  min-height: 100vh;
 }
 
 .rule {
@@ -9,11 +11,19 @@
   margin-top: 10px;
   background: var(--gold);
   border-radius: 2px;
+  transform-origin: left center;
+  animation: crecer 0.7s ease 0.25s both;
+}
+
+@keyframes crecer {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 /* ---------- Topbar ---------- */
 
 .topbar {
+  animation: surgir 0.45s ease both;
   position: absolute;
   top: 0;
   left: 0;
@@ -91,10 +101,11 @@
 
 .hero {
   position: relative;
-  min-height: min(92vh, 780px);
+  min-height: 100vh;
   display: flex;
   align-items: flex-end;
   overflow: hidden;
+  background: var(--bg-deep);
 }
 
 .hero__media {
@@ -107,6 +118,12 @@
   height: 100%;
   object-fit: cover;
   object-position: center 40%;
+  animation: aliento 22s ease-in-out infinite alternate;
+}
+
+@keyframes aliento {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
 }
 
 .hero__scrim {
@@ -199,12 +216,54 @@
 
 .institucional__watermark {
   position: absolute;
-  right: -60px;
-  bottom: -60px;
-  width: 260px;
-  height: 260px;
-  opacity: 0.06;
+  right: 4%;
+  bottom: -20px;
+  width: min(280px, 42vw);
+  height: auto;
+  opacity: 0.16;
   pointer-events: none;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.25));
+  animation: flotar 7s ease-in-out infinite;
+}
+
+.puente {
+  position: relative;
+  height: 42vh;
+  min-height: 280px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(201, 162, 39, 0.18), transparent 42%),
+    var(--bg-deep);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.puente__logo {
+  width: min(220px, 46vw);
+  height: auto;
+  animation: flotar 6s ease-in-out infinite;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.35));
+}
+
+.puente__linea {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 18%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform-origin: center;
+  animation: latido 2.8s ease-in-out infinite;
+}
+
+@keyframes flotar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+@keyframes latido {
+  0%, 100% { opacity: 0.35; transform: scaleX(0.72); }
+  50% { opacity: 1; transform: scaleX(1); }
 }
 
 /* ---------- Footer ---------- */

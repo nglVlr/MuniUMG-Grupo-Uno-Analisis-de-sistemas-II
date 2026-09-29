@@ -1,6 +1,6 @@
 <main class="login">
 
-  <section class="login__card" aria-labelledby="login-title">
+  <section class="login__card" aria-label="Formulario de ingreso">
 
     <!-- Encabezado -->
     <header class="login__header">
@@ -12,65 +12,60 @@
       >
 
       <p class="login__eyebrow">
-        Municipalidad de Granados
+        Municipalidad de Granados, B.V.
       </p>
-
-      <h1 id="login-title" class="login__title">
-        Iniciar sesión
-      </h1>
     </header>
 
 
     <!-- Formulario -->
-    <form class="login__form" (ngSubmit)="iniciarSesion()">
+    <form class="login__form" (ngSubmit)="acceder()">
 
-      <!-- Usuario -->
       <div class="login__field">
-
-        <label
-          class="login__label"
-          for="usuario"
+        <label class="login__label" for="tipoUsuario">Tipo de usuario</label>
+        <select
+          id="tipoUsuario"
+          name="tipoUsuario"
+          class="login__input"
+          [(ngModel)]="tipoUsuario"
+          (ngModelChange)="alCambiarTipo()"
         >
-          Usuario
-        </label>
+          <option value="">Seleccione</option>
+          <option value="Ciudadano">Ciudadano</option>
+          <option value="Empleado">Empleado</option>
+        </select>
+      </div>
 
+      @if (tipoUsuario) {
+      <div class="login__field">
+        <label class="login__label" for="usuario">Usuario</label>
         <input
           id="usuario"
           name="usuario"
           class="login__input"
           type="text"
-          placeholder="Ingresa tu usuario"
+          [placeholder]="tipoUsuario === 'Ciudadano' ? 'Ingresar DPI de 13 dígitos' : 'Ingrese su correo electrónico'"
+          [attr.maxlength]="tipoUsuario === 'Ciudadano' ? 13 : null"
+          [attr.inputmode]="tipoUsuario === 'Ciudadano' ? 'numeric' : null"
           autocomplete="username"
           [(ngModel)]="usuario"
-          required
+          (blur)="alSalirUsuario()"
         >
-
       </div>
+      }
 
-
-      <!-- Contraseña -->
+      @if (tipoUsuario === 'Empleado') {
       <div class="login__field">
-
-        <label
-          class="login__label"
-          for="password"
-        >
-          Contraseña
-        </label>
-
+        <label class="login__label" for="password">Contraseña</label>
         <div class="login__password">
-
           <input
             id="password"
             name="password"
             class="login__input"
             [type]="mostrarPassword ? 'text' : 'password'"
-            placeholder="Ingresa tu contraseña"
+            placeholder="Ingresar contraseña, mínimo 6 caracteres"
             autocomplete="current-password"
             [(ngModel)]="password"
-            required
           >
-
           <button
             type="button"
             class="login__password-toggle"
@@ -79,23 +74,29 @@
           >
             👁
           </button>
-
         </div>
-
       </div>
+      }
 
-
-      <!-- Opciones -->
-      <div class="login__options">
-
-        <a
-          class="login__forgot"
-          routerLink="/recuperar-password"
+      @if (tipoUsuario === 'Ciudadano') {
+      <div class="login__field">
+        <label class="login__label" for="passwordCiudadano">Contraseña</label>
+        <input
+          id="passwordCiudadano"
+          name="passwordCiudadano"
+          class="login__input"
+          type="text"
+          [placeholder]="codigoEnviado ? 'Coloque el código aquí' : ''"
+          autocomplete="off"
+          [(ngModel)]="password"
         >
-          ¿Olvidaste tu contraseña?
-        </a>
-
       </div>
+      }
+
+
+      @if (aviso) {
+      <div class="login__aviso" role="status">{{ aviso }}</div>
+      }
 
 
       <!-- Error de autenticación -->
@@ -109,40 +110,19 @@
       </div>
       }
 
-      <!-- Botón -->
+      @if (tipoUsuario) {
       <button
         type="submit"
         class="login__button"
+        [disabled]="cargando"
       >
-        Iniciar sesión
+        Acceder
       </button>
+      }
+
+      <a class="login__back" routerLink="/">Regresar</a>
 
     </form>
-
-
-    <!-- Separador -->
-    <div class="login__divider">
-      <span>o</span>
-    </div>
-
-
-    <!-- Regresar al portal -->
-    <a
-      class="login__back"
-      routerLink="/"
-    >
-      ← Volver al portal
-    </a>
-
-
-    <!-- Footer de la tarjeta -->
-    <footer class="login__footer">
-
-      <span>
-        Sistema de Quejas · Municipalidad de Granados
-      </span>
-
-    </footer>
 
   </section>
 

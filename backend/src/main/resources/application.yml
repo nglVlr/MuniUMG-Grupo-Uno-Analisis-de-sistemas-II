@@ -47,6 +47,6 @@ app:
   cache:
     catalogos-ttl-minutos: 60
   evidencia:
-    tamano-maximo-mb: 100
+    tamano-maximo-mb: 10
   archivos:
     directorio: ${APP_ARCHIVOS_DIRECTORIO:./data/archivos}

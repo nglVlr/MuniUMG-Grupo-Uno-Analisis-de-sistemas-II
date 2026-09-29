@@ -32,7 +32,10 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": { "buildTarget": "sistema-quejas-frontend:build" }
+          "options": {
+            "buildTarget": "sistema-quejas-frontend:build",
+            "proxyConfig": "proxy.conf.json"
+          }
         }
       }
     }

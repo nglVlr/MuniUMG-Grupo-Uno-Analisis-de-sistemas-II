@@ -1,0 +1,194 @@
+<section class="bandeja">
+  <div class="bandeja__fondo" aria-hidden="true">
+    <img class="bandeja__photo" src="assets/img/palacio-municipal.jpg" alt="">
+    <div class="bandeja__scrim"></div>
+  </div>
+  <div class="registro__card">
+    <header class="registro__header">
+      <img class="bandeja__logo" src="assets/img/logo-granados.png" alt="Municipalidad de Granados, Baja Verapaz">
+      <p class="registro__eyebrow">Municipalidad de Granados, B.V.</p>
+      <h1 class="registro__title">Bandeja principal</h1>
+    </header>
+
+    <nav class="bandeja__menus" aria-label="Menú de la bandeja">
+      <button type="button" class="btn btn--primary" (click)="ingresarCaso()">Ingresar Caso</button>
+      <button type="button" class="btn btn--primary" (click)="consultarCaso()">Consultar Caso</button>
+      <button type="button" class="btn btn--primary" (click)="ampliarCaso()">Ampliar Caso</button>
+      <button type="button" class="btn btn--primary" (click)="cerrarSesion()">Cerrar Sesión</button>
+    </nav>
+
+    @if (vista === 'formulario' && ciudadano) {
+    <form class="registro__form" (ngSubmit)="registrar()">
+      <h2 class="registro__subtitle">Registro de caso</h2>
+
+      <div class="registro__grid">
+        <div class="registro__field">
+          <label class="registro__label" for="nombreCiudadano">Nombre del Ciudadano</label>
+          <input id="nombreCiudadano" class="registro__input" [value]="ciudadano.nombre" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="dpiCiudadano">DPI</label>
+          <input id="dpiCiudadano" class="registro__input" [value]="ciudadano.dpi" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="correoCiudadano">Correo Electrónico</label>
+          <input id="correoCiudadano" class="registro__input" [value]="ciudadano.correo" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="telefonoCiudadano">Número de teléfono</label>
+          <input id="telefonoCiudadano" class="registro__input" [value]="ciudadano.telefono" readonly />
+        </div>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="tipoCaso">Tipo de Caso</label>
+        <select
+          id="tipoCaso"
+          name="tipoCaso"
+          class="registro__input"
+          [(ngModel)]="tipoCaso"
+          (ngModelChange)="onTipoCasoChange()"
+        >
+          <option value="">Seleccione</option>
+          @for (tipo of tiposCaso; track tipo.valor) {
+          <option [value]="tipo.valor">{{ tipo.valor }}</option>
+          }
+        </select>
+        <ul class="registro__tipos">
+          @for (tipo of tiposCaso; track tipo.valor) {
+          <li><strong>{{ tipo.valor }}.</strong> {{ tipo.descripcion }}</li>
+          }
+        </ul>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="idCategoria">Categoría del Problema</label>
+        <select
+          id="idCategoria"
+          name="idCategoria"
+          class="registro__input"
+          [(ngModel)]="idCategoria"
+          (ngModelChange)="onCategoriaChange()"
+          [disabled]="!tipoCaso"
+        >
+          <option [ngValue]="null">Seleccione</option>
+          @for (categoria of categorias; track categoria.id) {
+          <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="departamentoResponsable">Departamento Responsable</label>
+        <input id="departamentoResponsable" class="registro__input" [value]="departamentoResponsable" readonly />
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="direccionProblema">Dirección o Ubicación del Problema</label>
+        <input
+          id="direccionProblema"
+          name="direccionProblema"
+          class="registro__input"
+          type="text"
+          maxlength="250"
+          [(ngModel)]="direccionProblema"
+        />
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="descripcion">Descripción del Caso</label>
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          class="registro__input registro__textarea"
+          maxlength="2000"
+          rows="6"
+          [(ngModel)]="descripcion"
+        ></textarea>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="evidencia">Evidencia</label>
+        <input
+          id="evidencia"
+          name="evidencia"
+          class="registro__file"
+          type="file"
+          accept=".pdf,application/pdf"
+          (change)="onEvidenciaSeleccionada($event)"
+        />
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Registrar</button>
+        <button type="button" class="btn btn--text" (click)="cancelar()">Cancelar</button>
+      </div>
+    </form>
+    }
+
+    @if (vista === 'exito') {
+    <div class="registro__exito" role="status">
+      <p>{{ mensajeExito }}</p>
+    </div>
+    }
+
+    @if (vista === 'consulta') {
+    <form class="registro__form" (ngSubmit)="enviarConsulta()">
+      <div class="registro__field">
+        <label class="registro__label" for="codigoConsulta">Código de caso</label>
+        <input
+          id="codigoConsulta"
+          name="codigoConsulta"
+          class="registro__input"
+          type="text"
+          maxlength="12"
+          [(ngModel)]="codigoConsulta"
+        />
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Consultar</button>
+        <button type="button" class="btn btn--text" (click)="cancelarConsulta()">Cancelar</button>
+      </div>
+    </form>
+    }
+
+    @if (vista === 'consulta-resultado' && resultadoConsulta) {
+    <div class="registro__form">
+      <div class="registro__grid">
+        <div class="registro__field">
+          <label class="registro__label" for="resCodigo">Código de seguimiento</label>
+          <input id="resCodigo" class="registro__input" [value]="resultadoConsulta.codigoSeguimiento" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="resFecha">Fecha de registro</label>
+          <input id="resFecha" class="registro__input" [value]="resultadoConsulta.fechaRegistro | date:'dd/MM/yyyy'" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="resDepto">Departamento responsable</label>
+          <input id="resDepto" class="registro__input" [value]="resultadoConsulta.departamentoResponsable" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="resEstado">Estado Actual</label>
+          <input id="resEstado" class="registro__input" [value]="resultadoConsulta.estado" readonly />
+        </div>
+      </div>
+      <div class="registro__field">
+        <label class="registro__label" for="resDescripcion">Descripción del caso</label>
+        <textarea id="resDescripcion" class="registro__input registro__textarea" rows="4" [value]="resultadoConsulta.descripcion" readonly></textarea>
+      </div>
+      <div class="registro__actions">
+        <button type="button" class="btn btn--submit" (click)="regresarConsulta()">Regresar</button>
+      </div>
+    </div>
+    }
+  </div>
+</section>
