@@ -1,0 +1,153 @@
+<section class="auxiliar">
+  <div class="auxiliar__card">
+    <header class="auxiliar__header">
+      <p class="auxiliar__eyebrow">Municipalidad de Granados, B.V.</p>
+      <h1 class="auxiliar__title">
+        @if (vista === 'lista') {
+          Bandeja Auxiliar
+        } @else if (vista === 'detalle') {
+          Detalle del caso
+        } @else {
+          Rechazar caso
+        }
+      </h1>
+      <a routerLink="/inicio" class="auxiliar__volver">Volver a Inicio</a>
+    </header>
+
+    @if (mensaje) {
+    <div class="auxiliar__alert" role="alert">{{ mensaje }}</div>
+    }
+
+    @if (mensajeExito) {
+    <div class="auxiliar__exito" role="status">{{ mensajeExito }}</div>
+    }
+
+    <!-- ================= LISTA (RN16) ================= -->
+    @if (vista === 'lista') {
+    <table class="auxiliar__tabla">
+      <thead>
+        <tr>
+          <th>Código de seguimiento</th>
+          <th>Fecha de ingreso</th>
+          <th>Tipo de caso</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (caso of casos; track caso.id) {
+        <tr>
+          <td>{{ caso.codigoSeguimiento }}</td>
+          <td>{{ caso.fechaIngreso | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ caso.tipoCaso }}</td>
+          <td>{{ caso.estado }}</td>
+          <td>
+            <button type="button" class="btn btn--submit" (click)="verDetalle(caso.id)">
+              Ver detalle
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+
+    <!-- ================= DETALLE (RN17) ================= -->
+    @if (vista === 'detalle' && casoSeleccionado) {
+    <div class="auxiliar__detalle">
+      <div class="auxiliar__grid">
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Código de seguimiento</label>
+          <input class="auxiliar__input" [value]="casoSeleccionado.codigoSeguimiento" readonly />
+        </div>
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Fecha de ingreso</label>
+          <input class="auxiliar__input" [value]="casoSeleccionado.fechaIngreso | date: 'dd/MM/yyyy HH:mm'" readonly />
+        </div>
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Tipo de caso</label>
+          <input class="auxiliar__input" [value]="casoSeleccionado.tipoCaso" readonly />
+        </div>
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Categoría</label>
+          <input class="auxiliar__input" [value]="casoSeleccionado.categoria" readonly />
+        </div>
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Dirección</label>
+          <input class="auxiliar__input" [value]="casoSeleccionado.direccion" readonly />
+        </div>
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Estado actual</label>
+          <input class="auxiliar__input" [value]="casoSeleccionado.estado" readonly />
+        </div>
+      </div>
+
+      <div class="auxiliar__campo">
+        <label class="auxiliar__label">Descripción del caso</label>
+        <textarea class="auxiliar__input auxiliar__textarea" rows="4" [value]="casoSeleccionado.descripcion" readonly></textarea>
+      </div>
+
+      @if (casoSeleccionado.tieneEvidencia) {
+      <p class="auxiliar__nota">Este caso tiene evidencia adjunta.</p>
+      }
+
+      <div class="auxiliar__acciones">
+        @if (casoSeleccionado.estado === 'Registrado') {
+        <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="aceptarCaso()">
+          Aceptar
+        </button>
+        <button type="button" class="btn btn--rechazar" [disabled]="cargando" (click)="mostrarFormularioRechazo()">
+          Rechazar
+        </button>
+        }
+
+        @if (casoSeleccionado.estado === 'En Revisión') {
+        <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="asignarTecnico()">
+          Asignar Técnico
+        </button>
+        }
+
+        <button type="button" class="btn btn--text" (click)="regresarALaLista()">Regresar</button>
+      </div>
+    </div>
+    }
+
+    <!-- ================= RECHAZO (RN18) ================= -->
+    @if (vista === 'rechazo') {
+    <form class="auxiliar__form" (ngSubmit)="confirmarRechazo()">
+      <div class="auxiliar__campo">
+        <label class="auxiliar__label" for="motivoRechazo">Motivo de rechazo</label>
+        <select id="motivoRechazo" name="motivoRechazo" class="auxiliar__input" [(ngModel)]="idMotivoRechazo" required>
+          <option [ngValue]="null">Seleccione</option>
+          @for (motivo of motivos; track motivo.id) {
+          <option [ngValue]="motivo.id">{{ motivo.motivo }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="auxiliar__campo">
+        <label class="auxiliar__label" for="comentarioRechazo">Comentario</label>
+        <textarea
+          id="comentarioRechazo"
+          name="comentarioRechazo"
+          class="auxiliar__input auxiliar__textarea"
+          rows="4"
+          maxlength="500"
+          [(ngModel)]="comentarioRechazo"
+          required
+        ></textarea>
+      </div>
+
+      <div class="auxiliar__campo auxiliar__campo--linea">
+        <label class="auxiliar__label" for="aplicaAmpliacion">¿Aplica ampliación?</label>
+        <input id="aplicaAmpliacion" name="aplicaAmpliacion" type="checkbox" [(ngModel)]="aplicaAmpliacion" />
+      </div>
+
+      <div class="auxiliar__acciones">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Aceptar</button>
+        <button type="button" class="btn btn--text" (click)="cancelarRechazo()">Cancelar</button>
+      </div>
+    </form>
+    }
+  </div>
+</section>
