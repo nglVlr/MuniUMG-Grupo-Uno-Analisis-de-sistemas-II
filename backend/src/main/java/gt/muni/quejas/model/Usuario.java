@@ -51,6 +51,10 @@ public class Usuario implements UserDetails {
     @Column(name = "intentos_fallidos", nullable = false)
     private Integer intentosFallidos = 0;
 
+    // Cantidad de casos "En Atención" que tiene asignados (solo aplica a Técnicos)
+    @Column(name = "cantidad_casos_asignados", nullable = false)
+    private Integer cantidadCasosAsignados = 0;
+
     @Column(nullable = false)
     private LocalDateTime createAt;
 

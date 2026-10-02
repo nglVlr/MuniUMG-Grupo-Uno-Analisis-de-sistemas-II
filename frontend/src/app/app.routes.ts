@@ -4,6 +4,7 @@ import { PortalComponent } from './portal/portal.component';
 import { LoginComponent } from './login/login.component';
 import { InicioComponent } from './inicio/inicio.component';
 import { BandejaComponent } from './bandeja/bandeja.component';
+import { BandejaAuxiliarComponent } from './bandeja-auxiliar/bandeja-auxiliar.component';
 import { RecuperarPasswordComponent } from './recuperar-password/recuperar-password.component';
 import { RestablecerPasswordComponent } from './reestablecer-password/restablecer-password.component';
 
@@ -32,6 +33,11 @@ export const routes: Routes = [
   {
     path: 'inicio',
     component: InicioComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'bandeja-auxiliar',
+    component: BandejaAuxiliarComponent,
     canActivate: [authGuard]
   },
   {

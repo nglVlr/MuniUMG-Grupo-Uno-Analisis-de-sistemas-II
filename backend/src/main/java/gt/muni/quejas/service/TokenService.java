@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -35,21 +33,17 @@ public class TokenService {
 
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
+            // Sesión de Empleado sin expiración: ningún caso de uso ni regla de
+            // negocio exige un tiempo límite de sesión para Auxiliar/Técnico/etc.
             return JWT.create()
                     .withIssuer("app municipalidad")
                     .withSubject(usuario.getUsername())
                     .withClaim("cui", cui)
                     .withClaim("rol", rol)
-                    .withExpiresAt(generatorDateExpiration())
                     .sign(algorithm);
         } catch (JWTCreationException exception){
             throw new NegocioException(CodigoError.ERROR_INTERNO, "Error al generar el token");
         }
-    }
-
-    private Instant generatorDateExpiration(){
-        return Instant.now()
-                .plus(15, ChronoUnit.MINUTES);
     }
 
     public String getSubject(String token){

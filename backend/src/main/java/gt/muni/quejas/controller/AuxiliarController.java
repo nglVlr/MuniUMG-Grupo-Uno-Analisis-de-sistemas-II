@@ -5,10 +5,15 @@ import gt.muni.quejas.dto.DtoCasoDetalleAuxiliar;
 import gt.muni.quejas.dto.DtoMensaje;
 import gt.muni.quejas.dto.DtoMotivoRechazo;
 import gt.muni.quejas.dto.DtoRechazoAuxiliar;
+import gt.muni.quejas.model.Evidencia;
 import gt.muni.quejas.model.Usuario;
 import gt.muni.quejas.service.AuxiliarService;
 import gt.muni.quejas.util.ClienteHttp;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +23,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -71,5 +79,17 @@ public class AuxiliarController {
             HttpServletRequest request) {
         String ip = ClienteHttp.ipOrigen(request);
         return ResponseEntity.ok(auxiliarService.rechazarCaso(id, dto, auxiliar, ip));
+    }
+
+    // ---------- FA06: Ver documento adjunto ----------
+    @GetMapping("/casos/{id}/evidencia")
+    public ResponseEntity<Resource> verEvidencia(@PathVariable Long id) throws MalformedURLException {
+        Evidencia evidencia = auxiliarService.obtenerEvidencia(id);
+        Resource recurso = new UrlResource(Path.of(evidencia.getRuta()).toUri());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(evidencia.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + evidencia.getNombreArchivo() + "\"")
+                .body(recurso);
     }
 }

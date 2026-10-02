@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import {
   AuxiliarService,
   CasoBandeja,
@@ -9,19 +10,28 @@ import {
   MotivoRechazo
 } from '../core/auxiliar.service';
 
-type VistaAuxiliar = 'lista' | 'detalle' | 'rechazo';
+type VistaAuxiliar = 'menu' | 'lista' | 'detalle' | 'rechazo';
 
 @Component({
   selector: 'app-bandeja-auxiliar',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './bandeja-auxiliar.component.html',
   styleUrl: './bandeja-auxiliar.component.css'
 })
-export class BandejaAuxiliarComponent implements OnInit {
-  vista: VistaAuxiliar = 'lista';
+export class BandejaAuxiliarComponent {
+  vista: VistaAuxiliar = 'menu';
 
   casos: CasoBandeja[] = [];
+  casosOriginal: CasoBandeja[] = [];
+  categoriasDisponibles: string[] = [];
+  tiposCaso = ['Queja', 'Reclamo', 'Denuncia', 'Sugerencia'];
+
+  codigoBusqueda = '';
+  filtroFecha = '';
+  filtroTipo = '';
+  filtroCategoria = '';
+
   casoSeleccionado: CasoDetalleAuxiliar | null = null;
   motivos: MotivoRechazo[] = [];
 
@@ -32,36 +42,123 @@ export class BandejaAuxiliarComponent implements OnInit {
   mensaje = '';
   mensajeExito = '';
   cargando = false;
+  private temporizadorExito: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(private auxiliarService: AuxiliarService) {}
+  evidenciaUrl: string | null = null;
+  evidenciaEsImagen = false;
 
-  ngOnInit(): void {
+  constructor(
+    private auxiliarService: AuxiliarService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  // ---------- El usuario selecciona el menú "Casos Asignados" ----------
+  abrirCasosAsignados(): void {
+    this.vista = 'lista';
+    this.mensajeExito = '';
     this.cargarBandeja();
+  }
+
+  volverAlMenu(): void {
+    this.vista = 'menu';
+  }
+
+  // ---------- FA06: Cerrar sesión ----------
+  cerrarSesion(): void {
+    this.authService.cerrarSesion();
+    this.router.navigate(['']);
   }
 
   cargarBandeja(): void {
     this.mensaje = '';
-    this.mensajeExito = '';
     this.cargando = true;
 
     this.auxiliarService.listarBandeja().subscribe({
       next: (resultado) => {
         this.cargando = false;
         this.casos = resultado;
+        this.casosOriginal = resultado;
+        this.limpiarFiltros();
 
+        // Armamos la lista de categorías que aparecen en los casos, con un for normal
+        this.categoriasDisponibles = [];
+        for (let i = 0; i < resultado.length; i++) {
+          const categoria = resultado[i].categoria;
+          if (!this.categoriasDisponibles.includes(categoria)) {
+            this.categoriasDisponibles.push(categoria);
+          }
+        }
+
+        // FA01: no existen casos pendientes
         if (this.casos.length === 0) {
-          this.mensaje = 'No existen casos pendientes de revisión en este momento.';
+          this.mensaje = 'No existen casos pendientes en este momento.';
         }
       },
       error: (error) => {
         this.cargando = false;
-        this.mensaje = this.mensajeError(error, 'El servicio no está disponible en este momento. Intente nuevamente más tarde.');
+        this.mensaje = this.mensajeError(error, 'No existen casos pendientes en este momento.');
       }
     });
   }
 
+  // ---------- FA04: Búsqueda de caso ----------
+  buscarCaso(): void {
+    const codigo = this.codigoBusqueda.trim().toLowerCase();
+
+    if (!codigo) {
+      this.casos = this.casosOriginal;
+      return;
+    }
+
+    const resultado: CasoBandeja[] = [];
+    for (let i = 0; i < this.casosOriginal.length; i++) {
+      const caso = this.casosOriginal[i];
+      if (caso.codigoSeguimiento.toLowerCase().includes(codigo)) {
+        resultado.push(caso);
+      }
+    }
+    this.casos = resultado;
+  }
+
+  // ---------- FA05: Filtro de casos ----------
+  aplicarFiltros(): void {
+    const resultado: CasoBandeja[] = [];
+
+    for (let i = 0; i < this.casosOriginal.length; i++) {
+      const caso = this.casosOriginal[i];
+      let cumpleFiltros = true;
+
+      if (this.filtroFecha && !caso.fechaIngreso.startsWith(this.filtroFecha)) {
+        cumpleFiltros = false;
+      }
+      if (this.filtroTipo && caso.tipoCaso !== this.filtroTipo) {
+        cumpleFiltros = false;
+      }
+      if (this.filtroCategoria && caso.categoria !== this.filtroCategoria) {
+        cumpleFiltros = false;
+      }
+
+      if (cumpleFiltros) {
+        resultado.push(caso);
+      }
+    }
+
+    this.casos = resultado;
+  }
+
+  limpiarFiltros(): void {
+    this.codigoBusqueda = '';
+    this.filtroFecha = '';
+    this.filtroTipo = '';
+    this.filtroCategoria = '';
+    this.casos = this.casosOriginal;
+  }
+
+  // ---------- El usuario selecciona el caso con el botón "ver detalle" ----------
   verDetalle(id: number): void {
     this.mensaje = '';
+    this.mensajeExito = '';
     this.cargando = true;
 
     this.auxiliarService.obtenerDetalle(id).subscribe({
@@ -96,6 +193,7 @@ export class BandejaAuxiliarComponent implements OnInit {
     });
   }
 
+  // ---------- FA08: Técnico no activo (incluido en el mensaje de error) ----------
   asignarTecnico(): void {
     if (!this.casoSeleccionado) {
       return;
@@ -106,7 +204,7 @@ export class BandejaAuxiliarComponent implements OnInit {
     this.auxiliarService.asignarTecnico(this.casoSeleccionado.id).subscribe({
       next: (resultado) => {
         this.cargando = false;
-        this.mensajeExito = resultado.mensaje;
+        this.mostrarMensajeExito(resultado.mensaje);
         this.regresarALaLista();
       },
       error: (error) => {
@@ -116,6 +214,7 @@ export class BandejaAuxiliarComponent implements OnInit {
     });
   }
 
+  // ---------- FA02: Rechazo sin ampliación ----------
   mostrarFormularioRechazo(): void {
     this.mensaje = '';
     this.idMotivoRechazo = null;
@@ -129,16 +228,18 @@ export class BandejaAuxiliarComponent implements OnInit {
           this.motivos = resultado;
         },
         error: (error) => {
-          this.mensaje = this.mensajeError(error, 'El servicio no está disponible en este momento. Intente nuevamente más tarde.');
+          this.mensaje = this.mensajeError(error, 'No se encontró un caso con el código o número ingresado.');
         }
       });
     }
   }
 
+  // ---------- FA09: Cancelar ----------
   cancelarRechazo(): void {
     this.vista = 'detalle';
   }
 
+  // ---------- FA02 / FA03: confirmar el rechazo (con o sin ampliación) ----------
   confirmarRechazo(): void {
     if (!this.casoSeleccionado) {
       return;
@@ -164,7 +265,7 @@ export class BandejaAuxiliarComponent implements OnInit {
     }).subscribe({
       next: (resultado) => {
         this.cargando = false;
-        this.mensajeExito = resultado.mensaje;
+        this.mostrarMensajeExito(resultado.mensaje);
         this.regresarALaLista();
       },
       error: (error) => {
@@ -174,10 +275,53 @@ export class BandejaAuxiliarComponent implements OnInit {
     });
   }
 
+  // ---------- FA07: Regresar (retorna al paso 4, la lista) ----------
   regresarALaLista(): void {
     this.casoSeleccionado = null;
     this.vista = 'lista';
     this.cargarBandeja();
+  }
+
+  // ---------- Evidencia (RN14): botón para ver el archivo adjunto ----------
+  verEvidencia(): void {
+    if (!this.casoSeleccionado) {
+      return;
+    }
+
+    this.auxiliarService.verEvidencia(this.casoSeleccionado.id).subscribe({
+      next: (archivo) => {
+        const url = window.URL.createObjectURL(archivo);
+        if (archivo.type.startsWith('image/')) {
+          this.evidenciaUrl = url;
+          this.evidenciaEsImagen = true;
+        } else {
+          window.open(url, '_blank');
+        }
+      },
+      error: (error) => {
+        this.mensaje = this.mensajeError(error, 'No se encontró un caso con el código o número ingresado.');
+      }
+    });
+  }
+
+  // ---------- Cierra el modal de la evidencia (botón "X") ----------
+  cerrarEvidencia(): void {
+    if (this.evidenciaUrl) {
+      window.URL.revokeObjectURL(this.evidenciaUrl);
+    }
+    this.evidenciaUrl = null;
+    this.evidenciaEsImagen = false;
+  }
+
+  // Muestra el mensaje de éxito y lo oculta solo a los 10 segundos
+  private mostrarMensajeExito(texto: string): void {
+    this.mensajeExito = texto;
+    if (this.temporizadorExito) {
+      clearTimeout(this.temporizadorExito);
+    }
+    this.temporizadorExito = setTimeout(() => {
+      this.mensajeExito = '';
+    }, 10000);
   }
 
   private mensajeError(error: { error?: { mensaje?: string } }, respaldo: string): string {

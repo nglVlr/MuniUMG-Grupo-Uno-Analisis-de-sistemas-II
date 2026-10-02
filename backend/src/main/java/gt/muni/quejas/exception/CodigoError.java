@@ -24,7 +24,9 @@ public enum CodigoError {
     EVIDENCIA_VACIA(HttpStatus.BAD_REQUEST, "El archivo no debe estar vacío."),
     ERROR_INTERNO(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado"),
     CODIGO_SEGUIMIENTO_REQUERIDO(HttpStatus.BAD_REQUEST, "Debe completar todos los campos obligatorios del formulario."),
-    CASO_NO_ENCONTRADO(HttpStatus.NOT_FOUND, "El código es inválido, intente de nuevo.");
+    CASO_NO_ENCONTRADO(HttpStatus.NOT_FOUND, "El código es inválido, intente de nuevo."),
+    CASO_NO_ENCONTRADO_AUXILIAR(HttpStatus.NOT_FOUND, "No se encontró un caso con el código o número ingresado."),
+    TECNICO_NO_DISPONIBLE(HttpStatus.BAD_REQUEST, "No existe un Técnico activo en el departamento para asignar el caso.");
 
 
     private final HttpStatus httpStatus;

@@ -66,4 +66,11 @@ public class Caso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_tecnico")
     private Usuario tecnico;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_motivo_rechazo")
+    private MotivoRechazo motivoRechazo;
+
+    @Column(name = "comentario_rechazo", length = 500)
+    private String comentarioRechazo;
 }

@@ -3,27 +3,88 @@
     <header class="auxiliar__header">
       <p class="auxiliar__eyebrow">Municipalidad de Granados, B.V.</p>
       <h1 class="auxiliar__title">
-        @if (vista === 'lista') {
+        @if (vista === 'menu') {
           Bandeja Auxiliar
+        } @else if (vista === 'lista') {
+          Casos Asignados
         } @else if (vista === 'detalle') {
           Detalle del caso
         } @else {
           Rechazar caso
         }
       </h1>
-      <a routerLink="/inicio" class="auxiliar__volver">Volver a Inicio</a>
+      @if (vista === 'lista') {
+      <button type="button" class="auxiliar__volver" (click)="volverAlMenu()">Volver al menú</button>
+      }
     </header>
 
     @if (mensaje) {
     <div class="auxiliar__alert" role="alert">{{ mensaje }}</div>
     }
 
-    @if (mensajeExito) {
-    <div class="auxiliar__exito" role="status">{{ mensajeExito }}</div>
+    <!-- ================= MENÚ PRINCIPAL ================= -->
+    @if (vista === 'menu') {
+    <nav class="auxiliar__menu">
+      <button type="button" class="btn btn--submit" (click)="abrirCasosAsignados()">
+        Casos Asignados
+      </button>
+      <button type="button" class="btn btn--submit" disabled>
+        Casos en Revisión
+      </button>
+      <button type="button" class="btn btn--submit" disabled>
+        Reportes
+      </button>
+      <button type="button" class="btn btn--rechazar" (click)="cerrarSesion()">
+        Cerrar sesión
+      </button>
+    </nav>
     }
 
-    <!-- ================= LISTA (RN16) ================= -->
+    <!-- ================= LISTA (RN13 Formulario Asignación Auxiliar) ================= -->
     @if (vista === 'lista') {
+
+    <!-- FA04: Búsqueda de caso -->
+    <div class="auxiliar__filtros">
+      <input
+        type="text"
+        class="auxiliar__input"
+        placeholder="Buscar por código de caso"
+        [(ngModel)]="codigoBusqueda"
+        (keyup.enter)="buscarCaso()"
+      />
+      <button type="button" class="btn btn--submit" (click)="buscarCaso()">Buscar</button>
+    </div>
+
+    <!-- FA05: Filtro de casos (fecha, tipo, categoría) -->
+    <div class="auxiliar__filtros">
+      <div class="auxiliar__campo">
+        <label class="auxiliar__label">Filtrar por fecha</label>
+        <input type="date" class="auxiliar__input" [(ngModel)]="filtroFecha" (change)="aplicarFiltros()" />
+      </div>
+
+      <div class="auxiliar__campo">
+        <label class="auxiliar__label">Filtrar por tipo</label>
+        <select class="auxiliar__input" [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+          <option value="">Todos</option>
+          @for (tipo of tiposCaso; track tipo) {
+          <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="auxiliar__campo">
+        <label class="auxiliar__label">Filtrar por categoría</label>
+        <select class="auxiliar__input" [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+          <option value="">Todas</option>
+          @for (categoria of categoriasDisponibles; track categoria) {
+          <option [value]="categoria">{{ categoria }}</option>
+          }
+        </select>
+      </div>
+
+      <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+    </div>
+
     <table class="auxiliar__tabla">
       <thead>
         <tr>
@@ -50,9 +111,13 @@
         }
       </tbody>
     </table>
+
+    @if (mensajeExito) {
+    <div class="auxiliar__exito" role="status">{{ mensajeExito }}</div>
+    }
     }
 
-    <!-- ================= DETALLE (RN17) ================= -->
+    <!-- ================= DETALLE (RN14 Formulario Detalle Auxiliar) ================= -->
     @if (vista === 'detalle' && casoSeleccionado) {
     <div class="auxiliar__detalle">
       <div class="auxiliar__grid">
@@ -76,10 +141,6 @@
           <label class="auxiliar__label">Dirección</label>
           <input class="auxiliar__input" [value]="casoSeleccionado.direccion" readonly />
         </div>
-        <div class="auxiliar__campo">
-          <label class="auxiliar__label">Estado actual</label>
-          <input class="auxiliar__input" [value]="casoSeleccionado.estado" readonly />
-        </div>
       </div>
 
       <div class="auxiliar__campo">
@@ -87,9 +148,15 @@
         <textarea class="auxiliar__input auxiliar__textarea" rows="4" [value]="casoSeleccionado.descripcion" readonly></textarea>
       </div>
 
-      @if (casoSeleccionado.tieneEvidencia) {
-      <p class="auxiliar__nota">Este caso tiene evidencia adjunta.</p>
-      }
+      <!-- Evidencia: inicia desactivado, se activa solo si el caso tiene documento adjunto -->
+      <button
+        type="button"
+        class="btn btn--text auxiliar__nota"
+        [disabled]="!casoSeleccionado.tieneEvidencia"
+        (click)="verEvidencia()"
+      >
+        Ver evidencia
+      </button>
 
       <div class="auxiliar__acciones">
         @if (casoSeleccionado.estado === 'Registrado') {
@@ -112,7 +179,7 @@
     </div>
     }
 
-    <!-- ================= RECHAZO (RN18) ================= -->
+    <!-- ================= RECHAZO (RN15 Formulario Rechazo Auxiliar) ================= -->
     @if (vista === 'rechazo') {
     <form class="auxiliar__form" (ngSubmit)="confirmarRechazo()">
       <div class="auxiliar__campo">
@@ -150,4 +217,21 @@
     </form>
     }
   </div>
+
+  <!-- Modal de evidencia (imagen) con botón para cerrar -->
+  @if (evidenciaEsImagen && evidenciaUrl) {
+  <div class="evidencia-modal" (click)="cerrarEvidencia()">
+    <div class="evidencia-modal__contenido" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="evidencia-modal__cerrar"
+        (click)="cerrarEvidencia()"
+        aria-label="Cerrar"
+      >
+        &times;
+      </button>
+      <img [src]="evidenciaUrl" alt="Evidencia del caso" class="evidencia-modal__imagen" />
+    </div>
+  </div>
+  }
 </section>

@@ -7,6 +7,7 @@ public record DtoCasoBandeja(
         String codigoSeguimiento,
         LocalDateTime fechaIngreso,
         String tipoCaso,
+        String categoria,
         String estado
 ) {
 }

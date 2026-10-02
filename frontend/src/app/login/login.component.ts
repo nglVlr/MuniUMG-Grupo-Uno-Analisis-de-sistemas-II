@@ -90,7 +90,14 @@ export class LoginComponent implements OnInit{
       next: (respuesta) => {
         this.authService.guardarSesion(respuesta);
         this.cargando = false;
-        this.router.navigate(['/inicio']);
+
+        // Rol 2 = Auxiliar (según la tabla "rol"): lo mandamos directo a su
+        // propia bandeja en vez de la pantalla de inicio genérica.
+        if (respuesta.rol === 2) {
+          this.router.navigate(['/bandeja-auxiliar']);
+        } else {
+          this.router.navigate(['/inicio']);
+        }
       },
       error: (error) => this.mostrarFalloIngreso(error)
     });

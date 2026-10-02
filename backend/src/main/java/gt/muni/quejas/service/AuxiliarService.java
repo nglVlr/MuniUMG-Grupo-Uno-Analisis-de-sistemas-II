@@ -9,6 +9,7 @@ import gt.muni.quejas.exception.CodigoError;
 import gt.muni.quejas.exception.NegocioException;
 import gt.muni.quejas.model.Caso;
 import gt.muni.quejas.model.EstadoCaso;
+import gt.muni.quejas.model.Evidencia;
 import gt.muni.quejas.model.MotivoRechazo;
 import gt.muni.quejas.model.Usuario;
 import gt.muni.quejas.repository.CasoRepository;
@@ -25,7 +26,7 @@ import java.util.List;
 @Service
 public class AuxiliarService {
 
-    // Mensajes tal cual están en las Reglas de Negocio (AN01 y AN02)
+    // Mensajes tal de las Reglas de Negocio (AN01 y AN02)
     public static final String MENSAJE_CASO_ASIGNADO = "El caso fue asignado exitosamente.";
     public static final String MENSAJE_CASO_PROCESADO = "El caso fue procesado exitosamente.";
 
@@ -62,10 +63,12 @@ public class AuxiliarService {
         List<EstadoCaso> estadosVisibles = new ArrayList<>();
         estadosVisibles.add(estadoRegistrado);
         estadosVisibles.add(estadoEnRevision);
-        
-        List<Caso> casos = casoRepository.findByEstadoOrderByCreateAtAsc(estadoRegistrado);
 
-        // Convertimos cada Caso en un DtoCasoBandeja con un for normal
+        // Un caso "Aceptado" pasa a En Revisión y debe seguir viéndose en la bandeja
+        // hasta que se le asigne Técnico, por eso consultamos ambos estados.
+        List<Caso> casos = casoRepository.findByEstadoInOrderByCreateAtAsc(estadosVisibles);
+
+        // Convertimos cada Caso en un DtoCasoBandeja
         List<DtoCasoBandeja> resultado = new ArrayList<>();
         for (int i = 0; i < casos.size(); i++) {
             Caso caso = casos.get(i);
@@ -74,6 +77,7 @@ public class AuxiliarService {
                     caso.getCodigoSeguimiento(),
                     caso.getCreateAt(),
                     caso.getTipoCaso(),
+                    caso.getCategoria().getNombre(),
                     caso.getEstado().getEstado()
             );
             resultado.add(fila);
@@ -142,19 +146,24 @@ public class AuxiliarService {
 
         EstadoCaso enAtencion = buscarEstado(EstadoCaso.EN_ATENCION);
 
-        // Buscamos, con un for normal, al técnico con menos casos "En Atención"
+        // Buscamos, con un for normal, al técnico con menos casos "En Atención",
+        // usando el contador cantidadCasosAsignados en vez de contar con una
+        // consulta por cada técnico.
         Usuario tecnicoElegido = null;
-        long menorCantidadCasos = -1;
+        int menorCantidadCasos = -1;
 
         for (int i = 0; i < tecnicosActivos.size(); i++) {
             Usuario tecnicoActual = tecnicosActivos.get(i);
-            long cantidadCasos = casoRepository.countByTecnicoAndEstado(tecnicoActual, enAtencion);
+            int cantidadCasos = tecnicoActual.getCantidadCasosAsignados();
 
             if (tecnicoElegido == null || cantidadCasos < menorCantidadCasos) {
                 tecnicoElegido = tecnicoActual;
                 menorCantidadCasos = cantidadCasos;
             }
         }
+
+        tecnicoElegido.setCantidadCasosAsignados(tecnicoElegido.getCantidadCasosAsignados() + 1);
+        usuarioRepository.save(tecnicoElegido);
 
         caso.setTecnico(tecnicoElegido);
         caso.setEstado(enAtencion);
@@ -240,6 +249,13 @@ public class AuxiliarService {
             resultado.add(new DtoMotivoRechazo(motivo.getId(), motivo.getMotivo()));
         }
         return resultado;
+    }
+
+    // ---------- FA06: Ver documento adjunto ----------
+    @Transactional(readOnly = true)
+    public Evidencia obtenerEvidencia(Long idCaso) {
+        return evidenciaRepository.findFirstByCasoId(idCaso)
+                .orElseThrow(() -> new NegocioException(CodigoError.CASO_NO_ENCONTRADO_AUXILIAR));
     }
 
     // ---------- Métodos de apoyo ----------

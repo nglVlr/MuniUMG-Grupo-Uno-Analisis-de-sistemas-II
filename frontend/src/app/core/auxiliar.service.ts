@@ -9,6 +9,7 @@ export interface CasoBandeja {
   codigoSeguimiento: string;
   fechaIngreso: string;
   tipoCaso: string;
+  categoria: string;
   estado: string;
 }
 
@@ -96,7 +97,10 @@ export class AuxiliarService {
       { headers: this.obtenerCabeceras() }
     );
   }
-   verEvidencia(id: number): Observable<Blob> {
+
+  // FA06: Ver documento adjunto. Pedimos el archivo como "blob" (datos binarios)
+  // para poder abrirlo en una pestaña nueva.
+  verEvidencia(id: number): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/auxiliar/casos/${id}/evidencia`, {
       headers: this.obtenerCabeceras(),
       responseType: 'blob'
