@@ -1,221 +1,316 @@
 <section class="auxiliar">
   <div class="auxiliar__card">
+    <!-- Encabezado: escudo, titulo de la vista y usuario con la sesion abierta -->
     <header class="auxiliar__header">
-      <p class="auxiliar__eyebrow">Municipalidad de Granados, B.V.</p>
-      <h1 class="auxiliar__title">
+      <div class="auxiliar__marca">
+        <img
+          class="auxiliar__escudo"
+          src="assets/img/escudo-granados.png"
+          alt="Escudo de la Municipalidad de Granados"
+        />
+        <div>
+          <p class="auxiliar__eyebrow">Municipalidad de Granados, B.V.</p>
+          <h1 class="auxiliar__title">
         @if (vista === 'menu') {
           Bandeja Auxiliar
         } @else if (vista === 'lista') {
           Casos Asignados
+        } @else if (vista === 'cuenta') {
+          Mi Cuenta
+        } @else if (vista === 'seguimiento') {
+          Seguimiento del Caso
         } @else if (vista === 'detalle') {
           Detalle del caso
         } @else {
           Rechazar caso
         }
-      </h1>
-      @if (vista === 'lista') {
-      <button type="button" class="auxiliar__volver" (click)="volverAlMenu()">Volver al menú</button>
-      }
+          </h1>
+        </div>
+      </div>
+
+      <div class="auxiliar__header-acciones">
+        <span class="auxiliar__usuario">
+          <span class="auxiliar__usuario-rol">Auxiliar &middot;</span>
+          <strong>{{ nombreUsuario }}</strong>
+        </span>
+        @if (vista === 'lista' || vista === 'seguimiento' || vista === 'cuenta') {
+        <button type="button" class="auxiliar__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
+        }
+      </div>
     </header>
 
-    @if (mensaje) {
-    <div class="auxiliar__alert" role="alert">{{ mensaje }}</div>
-    }
+    <div class="auxiliar__cuerpo">
 
-    <!-- ================= MENÚ PRINCIPAL ================= -->
-    @if (vista === 'menu') {
-    <nav class="auxiliar__menu">
-      <button type="button" class="btn btn--submit" (click)="abrirCasosAsignados()">
-        Casos Asignados
-      </button>
-      <button type="button" class="btn btn--submit" disabled>
-        Casos en Revisión
-      </button>
-      <button type="button" class="btn btn--submit" disabled>
-        Reportes
-      </button>
-      <button type="button" class="btn btn--rechazar" (click)="cerrarSesion()">
-        Cerrar sesión
-      </button>
-    </nav>
-    }
+      @if (mensaje) {
+      <div class="auxiliar__alert" role="alert">{{ mensaje }}</div>
+      }
 
-    <!-- ================= LISTA (RN13 Formulario Asignación Auxiliar) ================= -->
-    @if (vista === 'lista') {
-
-    <!-- FA04: Búsqueda de caso -->
-    <div class="auxiliar__filtros">
-      <input
-        type="text"
-        class="auxiliar__input"
-        placeholder="Buscar por código de caso"
-        [(ngModel)]="codigoBusqueda"
-        (keyup.enter)="buscarCaso()"
-      />
-      <button type="button" class="btn btn--submit" (click)="buscarCaso()">Buscar</button>
-    </div>
-
-    <!-- FA05: Filtro de casos (fecha, tipo, categoría) -->
-    <div class="auxiliar__filtros">
-      <div class="auxiliar__campo">
-        <label class="auxiliar__label">Filtrar por fecha</label>
-        <input type="date" class="auxiliar__input" [(ngModel)]="filtroFecha" (change)="aplicarFiltros()" />
-      </div>
-
-      <div class="auxiliar__campo">
-        <label class="auxiliar__label">Filtrar por tipo</label>
-        <select class="auxiliar__input" [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
-          <option value="">Todos</option>
-          @for (tipo of tiposCaso; track tipo) {
-          <option [value]="tipo">{{ tipo }}</option>
-          }
-        </select>
-      </div>
-
-      <div class="auxiliar__campo">
-        <label class="auxiliar__label">Filtrar por categoría</label>
-        <select class="auxiliar__input" [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
-          <option value="">Todas</option>
-          @for (categoria of categoriasDisponibles; track categoria) {
-          <option [value]="categoria">{{ categoria }}</option>
-          }
-        </select>
-      </div>
-
-      <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
-    </div>
-
-    <table class="auxiliar__tabla">
-      <thead>
-        <tr>
-          <th>Código de seguimiento</th>
-          <th>Fecha de ingreso</th>
-          <th>Tipo de caso</th>
-          <th>Estado</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (caso of casos; track caso.id) {
-        <tr>
-          <td>{{ caso.codigoSeguimiento }}</td>
-          <td>{{ caso.fechaIngreso | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td>{{ caso.tipoCaso }}</td>
-          <td>{{ caso.estado }}</td>
-          <td>
-            <button type="button" class="btn btn--submit" (click)="verDetalle(caso.id)">
-              Ver detalle
-            </button>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-
-    @if (mensajeExito) {
-    <div class="auxiliar__exito" role="status">{{ mensajeExito }}</div>
-    }
-    }
-
-    <!-- ================= DETALLE (RN14 Formulario Detalle Auxiliar) ================= -->
-    @if (vista === 'detalle' && casoSeleccionado) {
-    <div class="auxiliar__detalle">
-      <div class="auxiliar__grid">
-        <div class="auxiliar__campo">
-          <label class="auxiliar__label">Código de seguimiento</label>
-          <input class="auxiliar__input" [value]="casoSeleccionado.codigoSeguimiento" readonly />
-        </div>
-        <div class="auxiliar__campo">
-          <label class="auxiliar__label">Fecha de ingreso</label>
-          <input class="auxiliar__input" [value]="casoSeleccionado.fechaIngreso | date: 'dd/MM/yyyy HH:mm'" readonly />
-        </div>
-        <div class="auxiliar__campo">
-          <label class="auxiliar__label">Tipo de caso</label>
-          <input class="auxiliar__input" [value]="casoSeleccionado.tipoCaso" readonly />
-        </div>
-        <div class="auxiliar__campo">
-          <label class="auxiliar__label">Categoría</label>
-          <input class="auxiliar__input" [value]="casoSeleccionado.categoria" readonly />
-        </div>
-        <div class="auxiliar__campo">
-          <label class="auxiliar__label">Dirección</label>
-          <input class="auxiliar__input" [value]="casoSeleccionado.direccion" readonly />
-        </div>
-      </div>
-
-      <div class="auxiliar__campo">
-        <label class="auxiliar__label">Descripción del caso</label>
-        <textarea class="auxiliar__input auxiliar__textarea" rows="4" [value]="casoSeleccionado.descripcion" readonly></textarea>
-      </div>
-
-      <!-- Evidencia: inicia desactivado, se activa solo si el caso tiene documento adjunto -->
-      <button
-        type="button"
-        class="btn btn--text auxiliar__nota"
-        [disabled]="!casoSeleccionado.tieneEvidencia"
-        (click)="verEvidencia()"
-      >
-        Ver evidencia
-      </button>
-
-      <div class="auxiliar__acciones">
-        @if (casoSeleccionado.estado === 'Registrado') {
-        <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="aceptarCaso()">
-          Aceptar
+      <!-- ================= MENÚ PRINCIPAL ================= -->
+      @if (vista === 'menu') {
+      <nav class="auxiliar__menu">
+        <button type="button" class="auxiliar__opcion" (click)="abrirCasosAsignados()">
+          <span class="auxiliar__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            </svg>
+          </span>
+          <span class="auxiliar__opcion-texto">
+            <span class="auxiliar__opcion-titulo">Casos Asignados</span>
+            <span class="auxiliar__opcion-detalle">Revisión y asignación de los casos recibidos</span>
+          </span>
         </button>
-        <button type="button" class="btn btn--rechazar" [disabled]="cargando" (click)="mostrarFormularioRechazo()">
-          Rechazar
-        </button>
-        }
 
-        @if (casoSeleccionado.estado === 'En Revisión') {
-        <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="asignarTecnico()">
-          Asignar Técnico
+        <button type="button" class="auxiliar__opcion" disabled>
+          <span class="auxiliar__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+            </svg>
+          </span>
+          <span class="auxiliar__opcion-texto">
+            <span class="auxiliar__opcion-titulo">Casos en Revisión</span>
+            <span class="auxiliar__opcion-detalle">Disponible en una próxima versión</span>
+          </span>
         </button>
-        }
 
-        <button type="button" class="btn btn--text" (click)="regresarALaLista()">Regresar</button>
+        <button type="button" class="auxiliar__opcion" (click)="abrirMiCuenta()">
+          <span class="auxiliar__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <span class="auxiliar__opcion-texto">
+            <span class="auxiliar__opcion-titulo">Mi Cuenta</span>
+            <span class="auxiliar__opcion-detalle">Datos personales y cambio de contraseña</span>
+          </span>
+        </button>
+
+        <button type="button" class="auxiliar__opcion" (click)="abrirSeguimiento()">
+          <span class="auxiliar__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <span class="auxiliar__opcion-texto">
+            <span class="auxiliar__opcion-titulo">Seguimiento del Caso</span>
+            <span class="auxiliar__opcion-detalle">Consulta de un caso por su código</span>
+          </span>
+        </button>
+
+        <button type="button" class="auxiliar__opcion" disabled>
+          <span class="auxiliar__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </span>
+          <span class="auxiliar__opcion-texto">
+            <span class="auxiliar__opcion-titulo">Reportes</span>
+            <span class="auxiliar__opcion-detalle">Disponible en una próxima versión</span>
+          </span>
+        </button>
+
+        <button type="button" class="auxiliar__opcion auxiliar__opcion--salir" (click)="cerrarSesion()">
+          <span class="auxiliar__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span class="auxiliar__opcion-texto">
+            <span class="auxiliar__opcion-titulo">Cerrar sesión</span>
+            <span class="auxiliar__opcion-detalle">Salir del sistema de forma segura</span>
+          </span>
+        </button>
+      </nav>
+      }
+
+      <!-- ================= LISTA (RN13 Formulario Asignación Auxiliar) ================= -->
+      @if (vista === 'lista') {
+
+      <!-- FA04: Búsqueda de caso -->
+      <div class="auxiliar__filtros">
+        <input
+          type="text"
+          class="auxiliar__input"
+          placeholder="Buscar por código de caso"
+          [(ngModel)]="codigoBusqueda"
+          (keyup.enter)="buscarCaso()"
+        />
+        <button type="button" class="btn btn--submit" (click)="buscarCaso()">Buscar</button>
       </div>
-    </div>
-    }
 
-    <!-- ================= RECHAZO (RN15 Formulario Rechazo Auxiliar) ================= -->
-    @if (vista === 'rechazo') {
-    <form class="auxiliar__form" (ngSubmit)="confirmarRechazo()">
-      <div class="auxiliar__campo">
-        <label class="auxiliar__label" for="motivoRechazo">Motivo de rechazo</label>
-        <select id="motivoRechazo" name="motivoRechazo" class="auxiliar__input" [(ngModel)]="idMotivoRechazo" required>
-          <option [ngValue]="null">Seleccione</option>
-          @for (motivo of motivos; track motivo.id) {
-          <option [ngValue]="motivo.id">{{ motivo.motivo }}</option>
+      <!-- FA05: Filtro de casos (fecha, tipo, categoría) -->
+      <div class="auxiliar__filtros">
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Filtrar por fecha</label>
+          <input type="date" class="auxiliar__input" [(ngModel)]="filtroFecha" (change)="aplicarFiltros()" />
+        </div>
+
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Filtrar por tipo</label>
+          <select class="auxiliar__input" [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+            <option value="">Todos</option>
+            @for (tipo of tiposCaso; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Filtrar por categoría</label>
+          <select class="auxiliar__input" [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+            <option value="">Todas</option>
+            @for (categoria of categoriasDisponibles; track categoria) {
+            <option [value]="categoria">{{ categoria }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+
+      <div class="auxiliar__tabla-scroll">
+        <table class="auxiliar__tabla">
+          <thead>
+            <tr>
+              <th>Código de seguimiento</th>
+              <th>Fecha de ingreso</th>
+              <th>Tipo de caso</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (caso of casos; track caso.id) {
+            <tr>
+              <td>{{ caso.codigoSeguimiento }}</td>
+              <td>{{ caso.fechaIngreso | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ caso.tipoCaso }}</td>
+              <td>{{ caso.estado }}</td>
+              <td>
+                <button type="button" class="btn btn--submit" (click)="verDetalle(caso.id)">
+                  Ver detalle
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (mensajeExito) {
+      <div class="auxiliar__exito" role="status">{{ mensajeExito }}</div>
+      }
+      }
+
+      <!-- ================= DETALLE (RN14 Formulario Detalle Auxiliar) ================= -->
+      @if (vista === 'detalle' && casoSeleccionado) {
+      <div class="auxiliar__detalle">
+        <div class="auxiliar__grid">
+          <div class="auxiliar__campo">
+            <label class="auxiliar__label">Código de seguimiento</label>
+            <input class="auxiliar__input" [value]="casoSeleccionado.codigoSeguimiento" readonly />
+          </div>
+          <div class="auxiliar__campo">
+            <label class="auxiliar__label">Fecha de ingreso</label>
+            <input class="auxiliar__input" [value]="casoSeleccionado.fechaIngreso | date: 'dd/MM/yyyy HH:mm'" readonly />
+          </div>
+          <div class="auxiliar__campo">
+            <label class="auxiliar__label">Tipo de caso</label>
+            <input class="auxiliar__input" [value]="casoSeleccionado.tipoCaso" readonly />
+          </div>
+          <div class="auxiliar__campo">
+            <label class="auxiliar__label">Categoría</label>
+            <input class="auxiliar__input" [value]="casoSeleccionado.categoria" readonly />
+          </div>
+          <div class="auxiliar__campo">
+            <label class="auxiliar__label">Dirección</label>
+            <input class="auxiliar__input" [value]="casoSeleccionado.direccion" readonly />
+          </div>
+        </div>
+
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label">Descripción del caso</label>
+          <textarea class="auxiliar__input auxiliar__textarea" rows="4" [value]="casoSeleccionado.descripcion" readonly></textarea>
+        </div>
+
+        <!-- Evidencia: inicia desactivado, se activa solo si el caso tiene documento adjunto -->
+        <button
+          type="button"
+          class="btn btn--text auxiliar__nota"
+          [disabled]="!casoSeleccionado.tieneEvidencia"
+          (click)="verEvidencia()"
+        >
+          Ver evidencia
+        </button>
+
+        <div class="auxiliar__acciones">
+          @if (casoSeleccionado.estado === 'Registrado') {
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="aceptarCaso()">
+            Aceptar
+          </button>
+          <button type="button" class="btn btn--rechazar" [disabled]="cargando" (click)="mostrarFormularioRechazo()">
+            Rechazar
+          </button>
           }
-        </select>
-      </div>
 
-      <div class="auxiliar__campo">
-        <label class="auxiliar__label" for="comentarioRechazo">Comentario</label>
-        <textarea
-          id="comentarioRechazo"
-          name="comentarioRechazo"
-          class="auxiliar__input auxiliar__textarea"
-          rows="4"
-          maxlength="500"
-          [(ngModel)]="comentarioRechazo"
-          required
-        ></textarea>
-      </div>
+          @if (casoSeleccionado.estado === 'En Revisión') {
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="asignarTecnico()">
+            Asignar Técnico
+          </button>
+          }
 
-      <div class="auxiliar__campo auxiliar__campo--linea">
-        <label class="auxiliar__label" for="aplicaAmpliacion">¿Aplica ampliación?</label>
-        <input id="aplicaAmpliacion" name="aplicaAmpliacion" type="checkbox" [(ngModel)]="aplicaAmpliacion" />
+          <button type="button" class="btn btn--text" (click)="regresarALaLista()">Regresar</button>
+        </div>
       </div>
+      }
 
-      <div class="auxiliar__acciones">
-        <button type="submit" class="btn btn--submit" [disabled]="cargando">Aceptar</button>
-        <button type="button" class="btn btn--text" (click)="cancelarRechazo()">Cancelar</button>
-      </div>
-    </form>
-    }
+      <!-- ================= RECHAZO (RN15 Formulario Rechazo Auxiliar) ================= -->
+      @if (vista === 'rechazo') {
+      <form class="auxiliar__form" (ngSubmit)="confirmarRechazo()">
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label" for="motivoRechazo">Motivo de rechazo</label>
+          <select id="motivoRechazo" name="motivoRechazo" class="auxiliar__input" [(ngModel)]="idMotivoRechazo" required>
+            <option [ngValue]="null">Seleccione</option>
+            @for (motivo of motivos; track motivo.id) {
+            <option [ngValue]="motivo.id">{{ motivo.motivo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="auxiliar__campo">
+          <label class="auxiliar__label" for="comentarioRechazo">Comentario</label>
+          <textarea
+            id="comentarioRechazo"
+            name="comentarioRechazo"
+            class="auxiliar__input auxiliar__textarea"
+            rows="4"
+            maxlength="500"
+            [(ngModel)]="comentarioRechazo"
+            required
+          ></textarea>
+        </div>
+
+        <div class="auxiliar__campo auxiliar__campo--linea">
+          <label class="auxiliar__label" for="aplicaAmpliacion">¿Aplica ampliación?</label>
+          <input id="aplicaAmpliacion" name="aplicaAmpliacion" type="checkbox" [(ngModel)]="aplicaAmpliacion" />
+        </div>
+
+        <div class="auxiliar__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Aceptar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarRechazo()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= CU-12 ADMINISTRAR CUENTA ================= -->
+      @if (vista === 'cuenta') {
+      <app-mi-cuenta />
+      }
+
+      <!-- ================= SEGUIMIENTO DEL CASO (solo lectura) ================= -->
+      @if (vista === 'seguimiento') {
+      <app-seguimiento-caso />
+      }
+    </div>
   </div>
 
   <!-- Modal de evidencia (imagen) con botón para cerrar -->

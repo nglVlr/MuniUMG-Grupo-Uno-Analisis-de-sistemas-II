@@ -20,7 +20,11 @@ public class EstadoCaso {
     public static final String REGISTRADO = "Registrado";
     public static final String EN_REVISION = "En Revisión";
     public static final String EN_ATENCION = "En Atención";
+    public static final String EN_SUPERVISION = "En Supervisión";
     public static final String PENDIENTE_APROBACION_RECHAZO = "Pendiente de Aprobación de Rechazo";
+    public static final String PENDIENTE_FIRMA = "Pendiente de Firma";
+    public static final String RESUELTO = "Resuelto";
+    public static final String RECHAZADO = "Rechazado";
     public static final String REQUIERE_AMPLIACION = "Requiere Ampliación";
 
     @Id

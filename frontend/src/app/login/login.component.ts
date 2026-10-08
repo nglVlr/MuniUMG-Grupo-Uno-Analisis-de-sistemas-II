@@ -93,8 +93,16 @@ export class LoginComponent implements OnInit{
 
         // Rol 2 = Auxiliar (según la tabla "rol"): lo mandamos directo a su
         // propia bandeja en vez de la pantalla de inicio genérica.
-        if (respuesta.rol === 2) {
+        if (respuesta.rol === 1) {
+          this.router.navigate(['/bandeja-admin']);
+        } else if (respuesta.rol === 2) {
           this.router.navigate(['/bandeja-auxiliar']);
+        } else if (respuesta.rol === 3) {
+          this.router.navigate(['/bandeja-tecnico']);
+        } else if (respuesta.rol === 4) {
+          this.router.navigate(['/bandeja-supervisor']);
+        } else if (respuesta.rol === 5) {
+          this.router.navigate(['/bandeja-jefatura']);
         } else {
           this.router.navigate(['/inicio']);
         }

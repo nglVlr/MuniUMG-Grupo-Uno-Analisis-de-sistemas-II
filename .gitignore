@@ -15,3 +15,6 @@ backend/data/
 .idea/
 *.iml
 .vscode/
+
+# Archivos de trabajo del skill de casos de uso
+.claude/cu-tools/

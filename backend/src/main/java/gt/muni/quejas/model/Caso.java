@@ -57,6 +57,24 @@ public class Caso {
     @Column(name = "informe_inicial_ruta", length = 500)
     private String informeInicialRuta;
 
+    @Column(name = "informe_atencion_ruta", length = 500)
+    private String informeAtencionRuta;
+
+    @Column(name = "informe_supervision_ruta", length = 500)
+    private String informeSupervisionRuta;
+
+    @Column(name = "observaciones_supervision", length = 1000)
+    private String observacionesSupervision;
+
+    @Column(name = "oficio_ruta", length = 500)
+    private String oficioRuta;
+
+    @Column(name = "observaciones_jefatura", length = 1000)
+    private String observacionesJefatura;
+
+    @Column(name = "informacion_ampliacion", length = 2000)
+    private String informacionAmpliacion;
+
     @Column(name = "ip_origen", nullable = false, length = 50)
     private String ipOrigen;
 

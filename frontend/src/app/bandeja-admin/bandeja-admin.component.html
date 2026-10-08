@@ -1,0 +1,552 @@
+<section class="admin">
+  <div class="admin__card">
+    <!-- Encabezado: escudo, titulo de la vista y usuario con la sesion abierta -->
+    <header class="admin__header">
+      <div class="admin__marca">
+        <img
+          class="admin__escudo"
+          src="assets/img/escudo-granados.png"
+          alt="Escudo de la Municipalidad de Granados"
+        />
+        <div>
+          <p class="admin__eyebrow">Municipalidad de Granados, B.V.</p>
+          <h1 class="admin__title">
+        @if (vista === 'menu') {
+          Bandeja Administrador
+        } @else if (vista === 'usuarios') {
+          Mantenimiento de Usuarios
+        } @else if (vista === 'formulario') {
+          @if (editando) { Editar usuario } @else { Nuevo usuario }
+        } @else if (vista === 'estado') {
+          Estado de disponibilidad
+        } @else if (vista === 'catalogos') {
+          Administración de Catálogos
+        } @else if (vista === 'catalogoForm') {
+          @if (elementoEditando) { Editar elemento } @else { Nuevo elemento }
+        } @else if (vista === 'bitacora') {
+          Bitácora de actividades
+        } @else if (vista === 'reportes') {
+          Reportería
+        } @else if (vista === 'cuenta') {
+          Mi Cuenta
+        } @else {
+          Seguimiento del Caso
+        }
+          </h1>
+        </div>
+      </div>
+
+      <div class="admin__header-acciones">
+        <span class="admin__usuario">
+          <span class="admin__usuario-rol">Administrador &middot;</span>
+          <strong>{{ nombreUsuario }}</strong>
+        </span>
+        @if (vista === 'usuarios' || vista === 'catalogos' || vista === 'seguimiento' || vista === 'cuenta' || vista === 'reportes' || vista === 'bitacora') {
+        <button type="button" class="admin__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
+        }
+      </div>
+    </header>
+
+    <div class="admin__cuerpo">
+
+      @if (mensaje) {
+      <div class="admin__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <!-- ================= MENÚ PRINCIPAL ================= -->
+      @if (vista === 'menu') {
+      <nav class="admin__menu">
+        <button type="button" class="admin__opcion" (click)="abrirUsuarios()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Mantenimiento de Usuarios</span>
+            <span class="admin__opcion-detalle">Alta, edición y estado de los empleados</span>
+          </span>
+        </button>
+
+        <button type="button" class="admin__opcion" (click)="abrirCatalogos()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Administración de Catálogos</span>
+            <span class="admin__opcion-detalle">Departamentos, categorías y motivos de rechazo</span>
+          </span>
+        </button>
+
+        <button type="button" class="admin__opcion" (click)="abrirBitacora()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Bitácora de actividades</span>
+            <span class="admin__opcion-detalle">Registro de todas las acciones del sistema</span>
+          </span>
+        </button>
+
+        <button type="button" class="admin__opcion" (click)="abrirReportes()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Reportería</span>
+            <span class="admin__opcion-detalle">Estadísticas y trazabilidad de los casos</span>
+          </span>
+        </button>
+
+        <button type="button" class="admin__opcion" (click)="abrirMiCuenta()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Mi Cuenta</span>
+            <span class="admin__opcion-detalle">Datos personales y cambio de contraseña</span>
+          </span>
+        </button>
+
+        <button type="button" class="admin__opcion" (click)="abrirSeguimiento()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Seguimiento del Caso</span>
+            <span class="admin__opcion-detalle">Consulta de un caso por su código</span>
+          </span>
+        </button>
+
+        <button type="button" class="admin__opcion admin__opcion--salir" (click)="cerrarSesion()">
+          <span class="admin__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span class="admin__opcion-texto">
+            <span class="admin__opcion-titulo">Cerrar sesión</span>
+            <span class="admin__opcion-detalle">Salir del sistema de forma segura</span>
+          </span>
+        </button>
+      </nav>
+      }
+
+      <!-- ================= PASO 2: LISTADO DE USUARIOS ================= -->
+      @if (vista === 'usuarios') {
+
+      <!-- FA03: Filtros de búsqueda -->
+      <div class="admin__filtros">
+        <div class="admin__campo">
+          <label class="admin__label">Buscar por nombre o correo</label>
+          <input
+            type="text"
+            class="admin__input"
+            [(ngModel)]="filtroNombre"
+            (keyup)="aplicarFiltros()"
+          />
+        </div>
+
+        <div class="admin__campo">
+          <label class="admin__label">Filtrar por rol</label>
+          <select class="admin__input" [(ngModel)]="filtroRol" (change)="aplicarFiltros()">
+            <option value="">Todos</option>
+            @for (rol of catalogos.roles; track rol.id) {
+            <option [value]="rol.nombre">{{ rol.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="admin__campo">
+          <label class="admin__label">Filtrar por departamento</label>
+          <select class="admin__input" [(ngModel)]="filtroDepartamento" (change)="aplicarFiltros()">
+            <option value="">Todos</option>
+            @for (departamento of catalogos.departamentos; track departamento.id) {
+            <option [value]="departamento.nombre">{{ departamento.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+
+      <div class="admin__acciones">
+        <button type="button" class="btn btn--submit" (click)="abrirNuevoUsuario()">Nuevo Usuario</button>
+      </div>
+
+      <div class="admin__tabla-scroll">
+        <table class="admin__tabla">
+          <thead>
+            <tr>
+              <th>CUI</th>
+              <th>Nombre</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Departamento</th>
+              <th>Estado</th>
+              <th>Casos activos</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (usuario of usuarios; track usuario.cui) {
+            <tr>
+              <td>{{ usuario.cui }}</td>
+              <td>{{ usuario.nombre }}</td>
+              <td>{{ usuario.correo }}</td>
+              <td>{{ usuario.rol }}</td>
+              <td>{{ usuario.departamento }}</td>
+              <td>{{ usuario.estado }}</td>
+              <td>{{ usuario.casosActivos }}</td>
+              <td>
+                <button type="button" class="btn btn--submit" (click)="abrirEdicion(usuario)">Editar</button>
+                <button type="button" class="btn btn--text" (click)="abrirCambioEstado(usuario)">Estado</button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (mensajeExito) {
+      <div class="admin__exito" role="status">{{ mensajeExito }}</div>
+      }
+      }
+
+      <!-- ================= PASO 4: FORMULARIO DE USUARIO ================= -->
+      @if (vista === 'formulario') {
+      <form class="admin__form" (ngSubmit)="guardarUsuario()">
+        <div class="admin__grid">
+          <div class="admin__campo">
+            <label class="admin__label" for="cui">CUI</label>
+            <input
+              id="cui"
+              name="cui"
+              type="text"
+              class="admin__input"
+              maxlength="13"
+              [(ngModel)]="formulario.cui"
+              [readonly]="editando !== null"
+              required
+            />
+          </div>
+
+          <div class="admin__campo">
+            <label class="admin__label" for="nombre">Nombre</label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              class="admin__input"
+              maxlength="150"
+              [(ngModel)]="formulario.nombre"
+              required
+            />
+          </div>
+
+          <div class="admin__campo">
+            <label class="admin__label" for="correo">Usuario (correo electrónico)</label>
+            <input
+              id="correo"
+              name="correo"
+              type="email"
+              class="admin__input"
+              maxlength="100"
+              [(ngModel)]="formulario.correo"
+              required
+            />
+          </div>
+
+          <div class="admin__campo">
+            <label class="admin__label" for="password">
+              @if (editando) { Contraseña (dejar vacía para no cambiarla) } @else { Contraseña }
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="admin__input"
+              [(ngModel)]="formulario.password"
+            />
+          </div>
+
+          <div class="admin__campo">
+            <label class="admin__label" for="idRol">Rol</label>
+            <select id="idRol" name="idRol" class="admin__input" [(ngModel)]="formulario.idRol" required>
+              <option [ngValue]="null">Seleccione</option>
+              @for (rol of catalogos.roles; track rol.id) {
+              <option [ngValue]="rol.id">{{ rol.nombre }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="admin__campo">
+            <label class="admin__label" for="idDepartamento">Departamento</label>
+            <select id="idDepartamento" name="idDepartamento" class="admin__input" [(ngModel)]="formulario.idDepartamento" required>
+              <option [ngValue]="null">Seleccione</option>
+              @for (departamento of catalogos.departamentos; track departamento.id) {
+              <option [ngValue]="departamento.id">{{ departamento.nombre }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="admin__campo">
+            <label class="admin__label" for="idEstado">Estado</label>
+            <select id="idEstado" name="idEstado" class="admin__input" [(ngModel)]="formulario.idEstado" required>
+              <option [ngValue]="null">Seleccione</option>
+              @for (estado of catalogos.estados; track estado.id) {
+              <option [ngValue]="estado.id">{{ estado.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="admin__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Guardar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= FA01 Y FA04: ESTADO Y REASIGNACIÓN ================= -->
+      @if (vista === 'estado' && usuarioEstado) {
+      <div class="admin__detalle">
+        <div class="admin__grid">
+          <div class="admin__campo">
+            <label class="admin__label">Usuario</label>
+            <input class="admin__input" [value]="usuarioEstado.nombre" readonly />
+          </div>
+          <div class="admin__campo">
+            <label class="admin__label">Rol</label>
+            <input class="admin__input" [value]="usuarioEstado.rol" readonly />
+          </div>
+          <div class="admin__campo">
+            <label class="admin__label">Casos activos</label>
+            <input class="admin__input" [value]="usuarioEstado.casosActivos" readonly />
+          </div>
+          <div class="admin__campo">
+            <label class="admin__label" for="idEstadoNuevo">Nuevo estado</label>
+            <select id="idEstadoNuevo" name="idEstadoNuevo" class="admin__input" [(ngModel)]="idEstadoNuevo">
+              @for (estado of catalogos.estados; track estado.id) {
+              <option [ngValue]="estado.id">{{ estado.nombre }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- FA04: hay que reasignar los casos antes de continuar -->
+        @if (mostrarReasignacion) {
+        <div class="admin__campo">
+          <label class="admin__label" for="cuiDestino">Reasignar sus casos al Técnico</label>
+          <select id="cuiDestino" name="cuiDestino" class="admin__input" [(ngModel)]="cuiDestino">
+            <option value="">Seleccione</option>
+            @for (tecnico of tecnicosDestino; track tecnico.cui) {
+            <option [value]="tecnico.cui">{{ tecnico.nombre }} ({{ tecnico.casosActivos }} casos)</option>
+            }
+          </select>
+        </div>
+        }
+
+        <div class="admin__acciones">
+          @if (mostrarReasignacion) {
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="confirmarReasignacion()">
+            Reasignar y continuar
+          </button>
+          } @else {
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="confirmarCambioEstado()">
+            Guardar
+          </button>
+          }
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </div>
+      }
+
+      <!-- ================= CU-11 PASOS 2 AL 4: CATÁLOGOS ================= -->
+      @if (vista === 'catalogos') {
+      <div class="admin__filtros">
+        <button
+          type="button"
+          class="btn"
+          [class.btn--submit]="catalogoActual === 'departamentos'"
+          [class.btn--text]="catalogoActual !== 'departamentos'"
+          (click)="seleccionarCatalogo('departamentos')"
+        >
+          Departamentos
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn--submit]="catalogoActual === 'categorias'"
+          [class.btn--text]="catalogoActual !== 'categorias'"
+          (click)="seleccionarCatalogo('categorias')"
+        >
+          Categorías del Problema
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn--submit]="catalogoActual === 'motivos-rechazo'"
+          [class.btn--text]="catalogoActual !== 'motivos-rechazo'"
+          (click)="seleccionarCatalogo('motivos-rechazo')"
+        >
+          Motivos de Rechazo
+        </button>
+      </div>
+
+      <div class="admin__acciones">
+        <button type="button" class="btn btn--submit" (click)="abrirNuevoElemento()">Agregar elemento</button>
+      </div>
+
+      <div class="admin__tabla-scroll">
+        <table class="admin__tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              @if (catalogoActual === 'categorias') {
+              <th>Departamento responsable</th>
+              <th>Tipos de caso</th>
+              }
+              <th>Estado</th>
+              <th>En uso</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (elemento of elementos; track elemento.id) {
+            <tr>
+              <td>{{ elemento.nombre }}</td>
+              @if (catalogoActual === 'categorias') {
+              <td>{{ elemento.departamento }}</td>
+              <td>{{ elemento.tiposCaso?.join(', ') }}</td>
+              }
+              <td>{{ elemento.activo ? 'Activo' : 'Inactivo' }}</td>
+              <td>{{ elemento.enUso ? 'Sí' : 'No' }}</td>
+              <td>
+                <button type="button" class="btn btn--submit" (click)="abrirEdicionElemento(elemento)">Editar</button>
+                <button
+                  type="button"
+                  class="btn btn--rechazar"
+                  [disabled]="elemento.enUso || cargando"
+                  (click)="eliminarElemento(elemento)"
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (mensajeExito) {
+      <div class="admin__exito" role="status">{{ mensajeExito }}</div>
+      }
+      }
+
+      <!-- ================= CU-11 PASO 5: FORMULARIO DEL ELEMENTO ================= -->
+      @if (vista === 'catalogoForm') {
+      <form class="admin__form" (ngSubmit)="guardarElemento()">
+        <div class="admin__campo">
+          <label class="admin__label" for="nombreElemento">Nombre</label>
+          <input
+            id="nombreElemento"
+            name="nombreElemento"
+            type="text"
+            class="admin__input"
+            maxlength="150"
+            [(ngModel)]="formularioCatalogo.nombre"
+            required
+          />
+        </div>
+
+        <!-- FA02: la categoría necesita su departamento responsable y sus tipos de caso -->
+        @if (catalogoActual === 'categorias') {
+        <div class="admin__campo">
+          <label class="admin__label" for="departamentoElemento">Departamento responsable</label>
+          <select
+            id="departamentoElemento"
+            name="departamentoElemento"
+            class="admin__input"
+            [(ngModel)]="formularioCatalogo.idDepartamento"
+            required
+          >
+            <option [ngValue]="null">Seleccione</option>
+            @for (departamento of catalogos.departamentos; track departamento.id) {
+            <option [ngValue]="departamento.id">{{ departamento.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="admin__campo">
+          <label class="admin__label">Tipos de caso a los que aplica</label>
+          @for (tipo of tiposCasoDisponibles; track tipo) {
+          <label class="admin__label">
+            <input
+              type="checkbox"
+              [checked]="tieneTipoCaso(tipo)"
+              (change)="alternarTipoCaso(tipo)"
+            />
+            {{ tipo }}
+          </label>
+          }
+        </div>
+        }
+
+        <div class="admin__campo">
+          <label class="admin__label" for="activoElemento">
+            <input
+              id="activoElemento"
+              name="activoElemento"
+              type="checkbox"
+              [(ngModel)]="formularioCatalogo.activo"
+            />
+            Activo
+          </label>
+        </div>
+
+        <div class="admin__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Guardar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarCatalogo()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= CU-15 BITÁCORA DE ACTIVIDADES ================= -->
+      @if (vista === 'bitacora') {
+      <app-bitacora />
+      }
+
+      <!-- ================= CU-14 REPORTERÍA ================= -->
+      @if (vista === 'reportes') {
+      <app-reportes />
+      }
+
+      <!-- ================= CU-12 ADMINISTRAR CUENTA ================= -->
+      @if (vista === 'cuenta') {
+      <app-mi-cuenta />
+      }
+
+      <!-- ================= SEGUIMIENTO DEL CASO (solo lectura) ================= -->
+      @if (vista === 'seguimiento') {
+      <app-seguimiento-caso />
+      }
+    </div>
+  </div>
+</section>

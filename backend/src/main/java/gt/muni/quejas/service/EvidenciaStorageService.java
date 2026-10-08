@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -19,9 +20,17 @@ import java.util.UUID;
 @Service
 public class EvidenciaStorageService {
 
-    private static final Set<String> TIPOS_PERMITIDOS = Set.of("application/pdf");
+    // La evidencia del caso puede ser el documento en PDF o una fotografia del
+    // problema reportado; el soporte del reporte de atencion sigue siendo PDF.
+    private static final Set<String> TIPOS_DOCUMENTO = Set.of("application/pdf");
 
-    private static final Set<String> EXTENSIONES = Set.of(".pdf");
+    private static final Set<String> EXTENSIONES_DOCUMENTO = Set.of(".pdf");
+
+    private static final Set<String> TIPOS_IMAGEN = Set.of(
+            "image/jpeg", "image/png", "image/webp");
+
+    private static final Set<String> EXTENSIONES_IMAGEN = Set.of(
+            ".jpg", ".jpeg", ".png", ".webp");
 
     private final ArchivoProperties archivoProperties;
     private final EvidenciaRepository evidenciaRepository;
@@ -33,6 +42,11 @@ public class EvidenciaStorageService {
     }
 
     public void guardarSiPresente(Caso caso, MultipartFile archivo) {
+        guardarSiPresente(caso, archivo, Evidencia.TIPO_REGISTRO);
+    }
+
+    // CU-05 FA02: el soporte del reporte de atención se guarda con tipo ATENCION
+    public void guardarSiPresente(Caso caso, MultipartFile archivo, String tipo) {
         if (archivo == null) {
             return;
         }
@@ -44,8 +58,12 @@ public class EvidenciaStorageService {
         if (archivo.getSize() > maxBytes) {
             throw new NegocioException(CodigoError.EVIDENCIA_TAMANO);
         }
-        if (!formatoPermitido(archivo)) {
-            throw new NegocioException(CodigoError.EVIDENCIA_FORMATO);
+        // La fotografia solo se acepta como evidencia del caso, no como soporte
+        boolean admiteImagen = Evidencia.TIPO_REGISTRO.equals(tipo);
+        if (!formatoPermitido(archivo, admiteImagen)) {
+            throw new NegocioException(admiteImagen
+                    ? CodigoError.EVIDENCIA_FORMATO
+                    : CodigoError.SOPORTE_FORMATO);
         }
 
         Path directorio = Path.of(archivoProperties.getArchivos().getDirectorio(), "evidencias");
@@ -58,7 +76,7 @@ public class EvidenciaStorageService {
 
             Evidencia evidencia = new Evidencia();
             evidencia.setCaso(caso);
-            evidencia.setTipo(Evidencia.TIPO_REGISTRO);
+            evidencia.setTipo(tipo);
             evidencia.setNombreArchivo(original);
             evidencia.setContentType(archivo.getContentType() == null ? "application/octet-stream" : archivo.getContentType());
             evidencia.setTamanoBytes(archivo.getSize());
@@ -69,12 +87,19 @@ public class EvidenciaStorageService {
         }
     }
 
-    private boolean formatoPermitido(MultipartFile archivo) {
+    private boolean formatoPermitido(MultipartFile archivo, boolean admiteImagen) {
+        Set<String> tipos = new HashSet<>(TIPOS_DOCUMENTO);
+        Set<String> extensiones = new HashSet<>(EXTENSIONES_DOCUMENTO);
+        if (admiteImagen) {
+            tipos.addAll(TIPOS_IMAGEN);
+            extensiones.addAll(EXTENSIONES_IMAGEN);
+        }
+
         String contentType = archivo.getContentType() == null ? "" : archivo.getContentType().toLowerCase(Locale.ROOT);
-        if (TIPOS_PERMITIDOS.contains(contentType)) {
+        if (tipos.contains(contentType)) {
             return true;
         }
         String nombre = archivo.getOriginalFilename() == null ? "" : archivo.getOriginalFilename().toLowerCase(Locale.ROOT);
-        return EXTENSIONES.stream().anyMatch(nombre::endsWith);
+        return extensiones.stream().anyMatch(nombre::endsWith);
     }
 }

@@ -10,6 +10,10 @@ import java.util.Optional;
 
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
+    long countByDepartamentoId(Long idDepartamento);
+
+    boolean existsByNombreIgnoreCase(String nombre);
+
     @Query("""
             select distinct c from Categoria c
             left join fetch c.departamento

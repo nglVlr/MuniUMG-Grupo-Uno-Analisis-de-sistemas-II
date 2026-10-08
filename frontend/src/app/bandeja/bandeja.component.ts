@@ -3,10 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Categoria, CategoriaService, TipoCaso } from '../core/categoria.service';
-import { CasoService, CiudadanoVerificado, ConsultaCasoRespuesta } from '../core/caso.service';
+import {
+  CasoService,
+  CasoAmpliacionDetalle,
+  CasoEnAmpliacion,
+  CiudadanoVerificado,
+  ConsultaCasoRespuesta
+} from '../core/caso.service';
 import { CiudadanoSesionService } from '../core/ciudadano-sesion.service';
 
-type VistaBandeja = 'menus' | 'formulario' | 'exito' | 'consulta' | 'consulta-resultado';
+type VistaBandeja = 'menus' | 'formulario' | 'exito' | 'consulta' | 'consulta-resultado' | 'ampliacion-lista' | 'ampliacion-detalle';
 
 @Component({
   selector: 'app-bandeja',
@@ -36,6 +42,15 @@ export class BandejaComponent implements OnInit {
   direccionProblema = '';
   descripcion = '';
   evidencia: File | null = null;
+  // Vista previa de la fotografía adjunta, para confirmar que es la correcta
+  evidenciaPrevia: string | null = null;
+
+  // CU-18 Ampliacion de casos
+  casosEnAmpliacion: CasoEnAmpliacion[] = [];
+  casoAmpliacion: CasoAmpliacionDetalle | null = null;
+  informacionAmpliacion = '';
+  evidenciaAmpliacion: File | null = null;
+  evidenciaAmpliacionPrevia: string | null = null;
 
   codigoConsulta = '';
   resultadoConsulta: ConsultaCasoRespuesta | null = null;
@@ -79,7 +94,124 @@ export class BandejaComponent implements OnInit {
     this.vista = 'consulta';
   }
 
+  // ---------- CU-18 pasos 4 y 5: casos que requieren ampliacion ----------
   ampliarCaso(): void {
+    this.mensaje = '';
+    this.mensajeExito = '';
+    this.casosEnAmpliacion = [];
+    this.casoAmpliacion = null;
+    this.vista = 'ampliacion-lista';
+
+    const token = this.ciudadano?.tokenSesion;
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.cargando = true;
+    this.casoService.listarCasosEnAmpliacion(token).subscribe({
+      next: (resultado) => {
+        this.cargando = false;
+        this.casosEnAmpliacion = resultado;
+      },
+      error: (error) => {
+        this.cargando = false;
+        // FA02: no existen casos que requieran ampliacion
+        this.mensaje = this.mensajeErrorAmpliacion(error,
+          'No existen casos que requieran ampliación para el número de identificación ingresado.');
+      }
+    });
+  }
+
+  // ---------- CU-18 pasos 6 y 7: detalle e instrucciones del Auxiliar ----------
+  verCasoEnAmpliacion(id: number): void {
+    const token = this.ciudadano?.tokenSesion;
+    if (!token) {
+      return;
+    }
+    this.mensaje = '';
+    this.informacionAmpliacion = '';
+    this.evidenciaAmpliacion = null;
+    this.limpiarPrevia('ampliacion');
+    this.cargando = true;
+
+    this.casoService.obtenerCasoEnAmpliacion(id, token).subscribe({
+      next: (resultado) => {
+        this.cargando = false;
+        this.casoAmpliacion = resultado;
+        this.vista = 'ampliacion-detalle';
+      },
+      error: (error) => {
+        this.cargando = false;
+        this.mensaje = this.mensajeErrorAmpliacion(error, 'El código es inválido, intente de nuevo.');
+      }
+    });
+  }
+
+  seleccionarEvidenciaAmpliacion(evento: Event): void {
+    const entrada = evento.target as HTMLInputElement;
+    const archivo = entrada.files && entrada.files.length > 0 ? entrada.files[0] : null;
+    this.mensaje = '';
+    this.evidenciaAmpliacion = null;
+    this.limpiarPrevia('ampliacion');
+    if (!archivo) {
+      return;
+    }
+
+    const error = this.validarEvidencia(archivo);
+    if (error) {
+      entrada.value = '';
+      this.mensaje = error;
+      return;
+    }
+
+    this.evidenciaAmpliacion = archivo;
+    this.evidenciaAmpliacionPrevia = this.previaDeImagen(archivo);
+  }
+
+  // ---------- CU-18 pasos 9 al 14: Reenviar Caso ----------
+  reenviarCaso(): void {
+    const token = this.ciudadano?.tokenSesion;
+    if (!this.casoAmpliacion || !token) {
+      return;
+    }
+    this.mensaje = '';
+
+    // FA04: la informacion solicitada es obligatoria
+    if (!this.informacionAmpliacion.trim()) {
+      this.mensaje = 'Debe completar la información obligatoria solicitada.';
+      return;
+    }
+
+    this.cargando = true;
+    this.casoService.reenviarCaso(
+      this.casoAmpliacion.id,
+      token,
+      this.informacionAmpliacion.trim(),
+      this.evidenciaAmpliacion
+    ).subscribe({
+      next: (resultado) => {
+        this.cargando = false;
+        this.mensajeExito = resultado.mensaje;
+        this.casoAmpliacion = null;
+        this.casosEnAmpliacion = [];
+        this.vista = 'exito';
+      },
+      error: (error) => {
+        this.cargando = false;
+        this.mensaje = this.mensajeErrorAmpliacion(error, 'Debe completar la información obligatoria solicitada.');
+      }
+    });
+  }
+
+  volverAlListadoAmpliacion(): void {
+    this.mensaje = '';
+    this.casoAmpliacion = null;
+    this.vista = 'ampliacion-lista';
+  }
+
+  private mensajeErrorAmpliacion(error: { error?: { mensaje?: string } }, respaldo: string): string {
+    return error?.error?.mensaje ?? respaldo;
   }
 
   cancelar(): void {
@@ -121,26 +253,64 @@ export class BandejaComponent implements OnInit {
     const archivo = input.files && input.files.length > 0 ? input.files[0] : null;
     this.mensaje = '';
     this.evidencia = null;
+    this.limpiarPrevia('registro');
     if (!archivo) {
       return;
     }
-    const esPdf = archivo.type === 'application/pdf' || archivo.name.toLowerCase().endsWith('.pdf');
-    if (archivo.size === 0) {
+
+    const error = this.validarEvidencia(archivo);
+    if (error) {
       input.value = '';
-      this.mensaje = 'El archivo no debe estar vacío.';
+      this.mensaje = error;
       return;
+    }
+
+    this.evidencia = archivo;
+    this.evidenciaPrevia = this.previaDeImagen(archivo);
+  }
+
+  // ---------- Evidencia: se acepta el documento en PDF o una fotografía ----------
+
+  // Devuelve el mensaje de error, o cadena vacía si el archivo es válido
+  private validarEvidencia(archivo: File): string {
+    if (archivo.size === 0) {
+      return 'El archivo no debe estar vacío.';
     }
     if (archivo.size > 10 * 1024 * 1024) {
-      input.value = '';
-      this.mensaje = 'El archivo adjunto supera el tamaño máximo permitido de 10MB.';
-      return;
+      return 'El archivo adjunto supera el tamaño máximo permitido de 10MB.';
     }
-    if (!esPdf) {
-      input.value = '';
-      this.mensaje = 'El archivo debe ser un PDF.';
-      return;
+    if (!this.esPdf(archivo) && !this.esImagen(archivo)) {
+      return 'El archivo debe ser un PDF o una imagen (JPG, PNG o WEBP).';
     }
-    this.evidencia = archivo;
+    return '';
+  }
+
+  private esPdf(archivo: File): boolean {
+    return archivo.type === 'application/pdf' || archivo.name.toLowerCase().endsWith('.pdf');
+  }
+
+  private esImagen(archivo: File): boolean {
+    const tipos = ['image/jpeg', 'image/png', 'image/webp'];
+    const extensiones = ['.jpg', '.jpeg', '.png', '.webp'];
+    const nombre = archivo.name.toLowerCase();
+    return tipos.includes(archivo.type) || extensiones.some((ext) => nombre.endsWith(ext));
+  }
+
+  // Solo las fotografías se pueden mostrar antes de enviarlas
+  private previaDeImagen(archivo: File): string | null {
+    return this.esImagen(archivo) ? window.URL.createObjectURL(archivo) : null;
+  }
+
+  private limpiarPrevia(donde: 'registro' | 'ampliacion'): void {
+    const url = donde === 'registro' ? this.evidenciaPrevia : this.evidenciaAmpliacionPrevia;
+    if (url) {
+      window.URL.revokeObjectURL(url);
+    }
+    if (donde === 'registro') {
+      this.evidenciaPrevia = null;
+    } else {
+      this.evidenciaAmpliacionPrevia = null;
+    }
   }
 
   registrar(): void {
@@ -220,6 +390,7 @@ export class BandejaComponent implements OnInit {
     this.direccionProblema = '';
     this.descripcion = '';
     this.evidencia = null;
+    this.limpiarPrevia('registro');
   }
 
   private mensajeError(error: { error?: { mensaje?: string } }, respaldo: string): string {

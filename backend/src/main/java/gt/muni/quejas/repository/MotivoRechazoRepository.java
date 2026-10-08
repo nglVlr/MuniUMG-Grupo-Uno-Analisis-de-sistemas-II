@@ -8,4 +8,6 @@ import java.util.List;
 public interface MotivoRechazoRepository extends JpaRepository<MotivoRechazo, Long> {
 
     List<MotivoRechazo> findByActivoTrue();
+
+    boolean existsByMotivoIgnoreCase(String motivo);
 }

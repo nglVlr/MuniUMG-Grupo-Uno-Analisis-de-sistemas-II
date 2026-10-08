@@ -1,0 +1,298 @@
+<div class="reportes">
+  <!-- Plantilla reutilizable de tabla: la usan los cuatro bloques del reporte -->
+  <ng-template #tablaConteo let-titulo="titulo" let-columna="columna" let-filas="filas" let-conPill="conPill">
+    <section class="tarjeta">
+      <header class="tarjeta__head">
+        <h3 class="tarjeta__titulo">{{ titulo }}</h3>
+        <span class="tarjeta__chip">{{ filas.length }} {{ filas.length === 1 ? 'registro' : 'registros' }}</span>
+      </header>
+
+      @if (filas.length === 0) {
+      <p class="tarjeta__vacio">Sin datos para los filtros aplicados.</p>
+      } @else {
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>{{ columna }}</th>
+              <th class="tabla__num">Cantidad</th>
+              <th class="tabla__participacion">Participación</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (fila of filas; track fila.etiqueta) {
+            <tr>
+              <td>
+                @if (conPill) {
+                <span class="pill" [ngClass]="claseEstado(fila.etiqueta)">{{ fila.etiqueta }}</span>
+                } @else {
+                {{ fila.etiqueta }}
+                }
+              </td>
+              <td class="tabla__num">{{ fila.cantidad }}</td>
+              <td class="tabla__participacion">
+                <div class="barra">
+                  <div class="barra__pista">
+                    <div class="barra__relleno" [style.width.%]="porcentaje(fila, filas)"></div>
+                  </div>
+                  <span class="barra__valor">{{ porcentaje(fila, filas) }}%</span>
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="tabla__num">{{ total(filas) }}</td>
+              <td class="tabla__participacion">100%</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      }
+    </section>
+  </ng-template>
+
+  <!-- Las dos secciones del CU-14: estadisticas y trazabilidad -->
+  <div class="reportes__pestanas">
+    <button
+      type="button"
+      class="btn"
+      [class.btn--submit]="pestana === 'estadisticas'"
+      [class.btn--text]="pestana !== 'estadisticas'"
+      (click)="cambiarPestana('estadisticas')"
+    >
+      Reportes Estadísticos
+    </button>
+    <button
+      type="button"
+      class="btn"
+      [class.btn--submit]="pestana === 'trazabilidad'"
+      [class.btn--text]="pestana !== 'trazabilidad'"
+      (click)="cambiarPestana('trazabilidad')"
+    >
+      Trazabilidad del Caso
+    </button>
+  </div>
+
+  @if (mensaje) {
+  <div class="reportes__alert" role="alert">{{ mensaje }}</div>
+  }
+
+  <!-- ================= REPORTES ESTADÍSTICOS ================= -->
+  @if (pestana === 'estadisticas') {
+  <div class="reportes__filtros">
+    <div class="reportes__campo">
+      <label class="reportes__label" for="fechaInicio">Desde</label>
+      <input id="fechaInicio" name="fechaInicio" type="date" class="reportes__input" [(ngModel)]="filtros.fechaInicio" />
+    </div>
+
+    <div class="reportes__campo">
+      <label class="reportes__label" for="fechaFin">Hasta</label>
+      <input id="fechaFin" name="fechaFin" type="date" class="reportes__input" [(ngModel)]="filtros.fechaFin" />
+    </div>
+
+    <div class="reportes__campo">
+      <label class="reportes__label" for="tipoCasoFiltro">Tipo de caso</label>
+      <select id="tipoCasoFiltro" name="tipoCasoFiltro" class="reportes__input" [(ngModel)]="filtros.tipoCaso">
+        <option value="">Todos</option>
+        @for (tipo of tiposCaso; track tipo) {
+        <option [value]="tipo">{{ tipo }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="reportes__campo">
+      <label class="reportes__label" for="estadoFiltro">Estado</label>
+      <select id="estadoFiltro" name="estadoFiltro" class="reportes__input" [(ngModel)]="filtros.estado">
+        <option value="">Todos</option>
+        @for (estado of estados; track estado) {
+        <option [value]="estado">{{ estado }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="generar()">Generar</button>
+  </div>
+
+  @if (reporte) {
+  <div class="reportes__detalle">
+    <!-- Encabezado del reporte con el periodo consultado -->
+    <div class="banda">
+      <div>
+        <p class="banda__eyebrow">Reporte estadístico de casos</p>
+        <h2 class="banda__titulo">
+          {{ reporte.fechaInicio | date: 'dd/MM/yyyy' }} &ndash; {{ reporte.fechaFin | date: 'dd/MM/yyyy' }}
+        </h2>
+      </div>
+      <div class="banda__acciones">
+        <button type="button" class="btn btn--claro" (click)="exportar('excel')">Descargar Excel</button>
+        <button type="button" class="btn btn--contorno" (click)="exportar('pdf')">Descargar PDF</button>
+      </div>
+    </div>
+
+    <!-- Resumen del periodo en tarjetas -->
+    <div class="kpis">
+      <div class="kpi">
+        <span class="kpi__label">Total de casos</span>
+        <strong class="kpi__valor">{{ reporte.totalCasos }}</strong>
+      </div>
+      <div class="kpi kpi--exito">
+        <span class="kpi__label">Casos resueltos</span>
+        <strong class="kpi__valor">{{ reporte.casosResueltos }}</strong>
+      </div>
+      <div class="kpi kpi--dorado">
+        <span class="kpi__label">Días promedio de atención</span>
+        <strong class="kpi__valor">{{ reporte.diasPromedioAtencion }}</strong>
+      </div>
+    </div>
+
+    <ng-container
+      *ngTemplateOutlet="
+        tablaConteo;
+        context: { titulo: 'Casos por estado', columna: 'Estado', filas: reporte.porEstado, conPill: true }
+      "
+    ></ng-container>
+
+    <ng-container
+      *ngTemplateOutlet="
+        tablaConteo;
+        context: { titulo: 'Casos por tipo de caso', columna: 'Tipo de caso', filas: reporte.porTipoCaso, conPill: false }
+      "
+    ></ng-container>
+
+    <ng-container
+      *ngTemplateOutlet="
+        tablaConteo;
+        context: { titulo: 'Casos por departamento', columna: 'Departamento', filas: reporte.porDepartamento, conPill: false }
+      "
+    ></ng-container>
+
+    <ng-container
+      *ngTemplateOutlet="
+        tablaConteo;
+        context: { titulo: 'Casos por categoría', columna: 'Categoría', filas: reporte.porCategoria, conPill: false }
+      "
+    ></ng-container>
+  </div>
+  }
+  }
+
+  <!-- ================= TRAZABILIDAD DEL CASO ================= -->
+  @if (pestana === 'trazabilidad') {
+  <div class="reportes__filtros">
+    <div class="reportes__campo reportes__campo--ancho">
+      <label class="reportes__label" for="codigoTrazabilidad">Código de seguimiento</label>
+      <input
+        id="codigoTrazabilidad"
+        name="codigoTrazabilidad"
+        type="text"
+        class="reportes__input"
+        placeholder="MG-XXXX-XXXX"
+        [(ngModel)]="codigoTrazabilidad"
+        (keyup.enter)="generarTrazabilidad()"
+      />
+    </div>
+    <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="generarTrazabilidad()">Generar</button>
+  </div>
+
+  @if (trazabilidad) {
+  <div class="reportes__detalle">
+    <div class="banda">
+      <div>
+        <p class="banda__eyebrow">Trazabilidad del caso</p>
+        <h2 class="banda__titulo">{{ trazabilidad.codigoSeguimiento }}</h2>
+      </div>
+      <div class="banda__acciones">
+        <button type="button" class="btn btn--claro" (click)="exportarTrazabilidad('excel')">Descargar Excel</button>
+        <button type="button" class="btn btn--contorno" (click)="exportarTrazabilidad('pdf')">Descargar PDF</button>
+      </div>
+    </div>
+
+    <!-- Datos del caso -->
+    <section class="tarjeta">
+      <header class="tarjeta__head">
+        <h3 class="tarjeta__titulo">Datos del caso</h3>
+        <span class="pill" [ngClass]="claseEstado(trazabilidad.estado)">{{ trazabilidad.estado }}</span>
+      </header>
+
+      <div class="tabla-scroll">
+        <table class="tabla tabla--datos">
+          <tbody>
+            <tr>
+              <th>Fecha de registro</th>
+              <td>{{ trazabilidad.fechaIngreso | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+            <tr>
+              <th>Tipo de caso</th>
+              <td>{{ trazabilidad.tipoCaso }}</td>
+            </tr>
+            <tr>
+              <th>Categoría</th>
+              <td>{{ trazabilidad.categoria }}</td>
+            </tr>
+            <tr>
+              <th>Departamento responsable</th>
+              <td>{{ trazabilidad.departamento }}</td>
+            </tr>
+            <tr>
+              <th>Ciudadano</th>
+              <td>{{ trazabilidad.nombreCiudadano }}</td>
+            </tr>
+            <tr>
+              <th>Técnico responsable</th>
+              <td>{{ trazabilidad.nombreTecnico || 'Sin asignar' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Historial del caso -->
+    <section class="tarjeta">
+      <header class="tarjeta__head">
+        <h3 class="tarjeta__titulo">Historial del caso</h3>
+        <span class="tarjeta__chip">
+          {{ trazabilidad.historial.length }}
+          {{ trazabilidad.historial.length === 1 ? 'movimiento' : 'movimientos' }}
+        </span>
+      </header>
+
+      @if (trazabilidad.historial.length === 0) {
+      <p class="tarjeta__vacio">El caso aún no registra movimientos.</p>
+      } @else {
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th class="tabla__num">#</th>
+              <th>Acción</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>IP de origen</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (linea of trazabilidad.historial; track $index) {
+            <tr>
+              <td class="tabla__num tabla__indice">{{ $index + 1 }}</td>
+              <td class="tabla__accion">{{ linea.accion }}</td>
+              <td>{{ linea.usuario }}</td>
+              <td>{{ linea.fecha }}</td>
+              <td>{{ linea.hora }}</td>
+              <td class="tabla__mono">{{ linea.ipOrigen }}</td>
+              <td class="tabla__detalle">{{ linea.detalle }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+    </section>
+  </div>
+  }
+  }
+</div>

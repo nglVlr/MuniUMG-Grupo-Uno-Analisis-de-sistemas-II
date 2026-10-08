@@ -36,8 +36,10 @@ public class CasoController {
     }
 
     @PostMapping("/verificacion/cerrar")
-    public ResponseEntity<DtoMensaje> cerrarSesion(@RequestBody DtoCerrarSesionCiudadano dto) {
-        verificacionCiudadanoService.cerrarSesion(dto == null ? null : dto.tokenSesion());
+    public ResponseEntity<DtoMensaje> cerrarSesion(@RequestBody DtoCerrarSesionCiudadano dto,
+                                                   HttpServletRequest request) {
+        verificacionCiudadanoService.cerrarSesion(
+                dto == null ? null : dto.tokenSesion(), ClienteHttp.ipOrigen(request));
         return ResponseEntity.ok(new DtoMensaje("Sesión cerrada"));
     }
 

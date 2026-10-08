@@ -10,6 +10,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -112,6 +113,19 @@ public class ManejadorGlobalExcepciones {
                 request.getRequestURI()
         );
         return ResponseEntity.status(CodigoError.EVIDENCIA_TAMANO.getHttpStatus()).body(error);
+    }
+
+    // Un metodo HTTP que el endpoint no soporta es 405, no un error interno
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<DtoError> manejarMetodoNoSoportado(HttpRequestMethodNotSupportedException ex,
+                                                             HttpServletRequest request) {
+        DtoError error = DtoError.of(
+                HttpStatus.METHOD_NOT_ALLOWED.value(),
+                "METODO_NO_PERMITIDO",
+                "La operación solicitada no está permitida sobre este recurso",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(error);
     }
 
     @ExceptionHandler(Exception.class)

@@ -108,15 +108,25 @@
       </div>
 
       <div class="registro__field">
-        <label class="registro__label" for="evidencia">Evidencia</label>
+        <label class="registro__label" for="evidencia">
+          Evidencia (documento PDF o fotografía JPG, PNG o WEBP, máximo 10 MB)
+        </label>
         <input
           id="evidencia"
           name="evidencia"
           class="registro__file"
           type="file"
-          accept=".pdf,application/pdf"
+          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
           (change)="onEvidenciaSeleccionada($event)"
         />
+
+        <!-- Si se adjunta una fotografía, se muestra antes de registrar el caso -->
+        @if (evidenciaPrevia) {
+        <figure class="registro__previa">
+          <img [src]="evidenciaPrevia" alt="Vista previa de la evidencia adjunta" class="registro__previa-imagen" />
+          <figcaption class="registro__previa-nombre">{{ evidencia?.name }}</figcaption>
+        </figure>
+        }
       </div>
 
       @if (mensaje) {
@@ -189,6 +199,131 @@
         <button type="button" class="btn btn--submit" (click)="regresarConsulta()">Regresar</button>
       </div>
     </div>
+    }
+
+    <!-- ================= CU-18 PASO 5: CASOS QUE REQUIEREN AMPLIACION ================= -->
+    @if (vista === 'ampliacion-lista') {
+    <div class="registro__form">
+      <h2 class="registro__subtitle">Casos que requieren ampliación</h2>
+
+      @if (casosEnAmpliacion.length > 0) {
+      <table class="registro__tabla">
+        <thead>
+          <tr>
+            <th>Código de seguimiento</th>
+            <th>Fecha de ingreso</th>
+            <th>Tipo de caso</th>
+            <th>Categoría</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (caso of casosEnAmpliacion; track caso.id) {
+          <tr>
+            <td>{{ caso.codigoSeguimiento }}</td>
+            <td>{{ caso.fechaIngreso | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ caso.tipoCaso }}</td>
+            <td>{{ caso.categoria }}</td>
+            <td>
+              <button type="button" class="btn btn--submit" (click)="verCasoEnAmpliacion(caso.id)">
+                Ver detalle
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      }
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="button" class="btn btn--submit" (click)="cancelar()">Regresar</button>
+      </div>
+    </div>
+    }
+
+    <!-- ================= CU-18 PASOS 7 AL 9: AMPLIAR Y REENVIAR ================= -->
+    @if (vista === 'ampliacion-detalle' && casoAmpliacion) {
+    <form class="registro__form" (ngSubmit)="reenviarCaso()">
+      <h2 class="registro__subtitle">Ampliación del caso {{ casoAmpliacion.codigoSeguimiento }}</h2>
+
+      <div class="registro__grid">
+        <div class="registro__field">
+          <label class="registro__label" for="ampTipo">Tipo de caso</label>
+          <input id="ampTipo" class="registro__input" [value]="casoAmpliacion.tipoCaso" readonly />
+        </div>
+        <div class="registro__field">
+          <label class="registro__label" for="ampCategoria">Categoría</label>
+          <input id="ampCategoria" class="registro__input" [value]="casoAmpliacion.categoria" readonly />
+        </div>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="ampDescripcion">Descripción original</label>
+        <textarea id="ampDescripcion" class="registro__input registro__textarea" rows="3" [value]="casoAmpliacion.descripcion" readonly></textarea>
+      </div>
+
+      <!-- Instrucciones que dejo el Auxiliar al pedir la ampliacion -->
+      <div class="registro__field">
+        <label class="registro__label" for="ampMotivo">Motivo</label>
+        <input id="ampMotivo" class="registro__input" [value]="casoAmpliacion.motivoRechazo" readonly />
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="ampInstrucciones">Información que debe completar</label>
+        <textarea id="ampInstrucciones" class="registro__input registro__textarea" rows="3" [value]="casoAmpliacion.instruccionesAmpliacion" readonly></textarea>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="ampInformacion">Información solicitada</label>
+        <textarea
+          id="ampInformacion"
+          name="ampInformacion"
+          class="registro__input registro__textarea"
+          rows="5"
+          maxlength="2000"
+          [(ngModel)]="informacionAmpliacion"
+          required
+        ></textarea>
+      </div>
+
+      <div class="registro__field">
+        <label class="registro__label" for="ampEvidencia">
+          Evidencia adicional (documento PDF o fotografía JPG, PNG o WEBP, opcional)
+        </label>
+        <input
+          id="ampEvidencia"
+          name="ampEvidencia"
+          type="file"
+          class="registro__input"
+          accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp"
+          (change)="seleccionarEvidenciaAmpliacion($event)"
+        />
+
+        @if (evidenciaAmpliacionPrevia) {
+        <figure class="registro__previa">
+          <img
+            [src]="evidenciaAmpliacionPrevia"
+            alt="Vista previa de la evidencia adicional"
+            class="registro__previa-imagen"
+          />
+          <figcaption class="registro__previa-nombre">{{ evidenciaAmpliacion?.name }}</figcaption>
+        </figure>
+        }
+      </div>
+
+      @if (mensaje) {
+      <div class="registro__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <div class="registro__actions">
+        <button type="submit" class="btn btn--submit" [disabled]="cargando">Reenviar Caso</button>
+        <button type="button" class="btn btn--text" (click)="volverAlListadoAmpliacion()">Regresar</button>
+      </div>
+    </form>
     }
   </div>
 </section>

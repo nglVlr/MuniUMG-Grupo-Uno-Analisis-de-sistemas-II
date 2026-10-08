@@ -25,6 +25,11 @@ public class Notificacion {
     public static final String RESULTADO_ENVIADA = "ENVIADA";
     public static final String RESULTADO_ERROR = "ERROR";
     public static final String EVENTO_REGISTRO = "registro del caso";
+    public static final String EVENTO_AMPLIACION = "requerimiento de ampliación";
+    public static final String EVENTO_ASIGNACION = "asignación a Técnico";
+    public static final String EVENTO_DEVOLUCION = "devolución del caso";
+    public static final String EVENTO_RESOLUCION = "resolución del caso";
+    public static final String EVENTO_RECHAZO = "rechazo del caso";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

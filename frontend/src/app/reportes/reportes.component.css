@@ -1,0 +1,591 @@
+/* Este componente se dibuja dentro de la tarjeta de cada bandeja, por eso no
+   lleva los estilos de pagina completa (alto de pantalla, centrado ni fondo). */
+.reportes {
+  display: block;
+  width: 100%;
+}
+
+.reportes__subtitulo {
+  color: var(--ink);
+  font-size: 17px;
+  margin: 24px 0 10px;
+}
+
+.reportes__vacio {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 8px 0 0;
+}
+
+.reportes__header {
+  margin-bottom: 20px;
+}
+
+.reportes__eyebrow {
+  color: var(--ink-soft);
+  font-size: 13px;
+  margin: 0;
+}
+
+.reportes__title {
+  color: var(--ink);
+  margin: 4px 0 8px;
+}
+
+.reportes__volver {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.reportes__menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 320px;
+}
+
+.reportes__alert {
+  background: #fdecea;
+  color: #611a15;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.reportes__exito {
+  background: #e6f4ea;
+  color: #1e4620;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.reportes__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.reportes__campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.reportes__campo--linea {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.reportes__label {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.reportes__input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cfc9b8;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.reportes__input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.18);
+}
+
+.reportes__input[readonly] {
+  background: #f5f3ec;
+  color: var(--ink-soft);
+}
+
+.reportes__textarea {
+  resize: vertical;
+}
+
+.reportes__nota {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+
+.reportes__acciones {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reportes__pestanas {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 5px;
+  border-radius: 999px;
+  background: var(--cream);
+  border: 1px solid #e5e0d5;
+  flex-wrap: wrap;
+}
+
+/* La pestaña inactiva se ve como opción, no como enlace */
+.reportes__pestanas .btn--text {
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.reportes__pestanas .btn--text:hover {
+  color: var(--bg-deep);
+}
+
+.reportes__filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  background: var(--cream);
+  border: 1px solid #e5e0d5;
+}
+
+.reportes__filtros .reportes__campo {
+  flex: 1 1 160px;
+  margin-bottom: 0;
+}
+
+/* Va despues de la regla anterior, para que el campo ancho no se estire */
+.reportes__filtros .reportes__campo--ancho {
+  flex: 0 1 340px;
+  min-width: 240px;
+}
+
+/* ================= Encabezado del reporte ================= */
+.banda {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px 22px;
+  margin: 8px 0 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+  border-top: 3px solid var(--gold);
+  box-shadow: 0 8px 20px rgba(14, 43, 37, 0.18);
+}
+
+.banda__eyebrow {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+
+.banda__titulo {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--cream);
+}
+
+.banda__acciones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ================= Resumen del periodo ================= */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e0d5;
+  border-left: 4px solid var(--bg-deep);
+  box-shadow: 0 2px 6px rgba(20, 33, 29, 0.05);
+}
+
+.kpi--exito {
+  border-left-color: #2e7d4f;
+}
+
+.kpi--dorado {
+  border-left-color: var(--gold);
+}
+
+.kpi__label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.kpi__valor {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* ================= Tarjeta que envuelve cada tabla ================= */
+.tarjeta {
+  background: #ffffff;
+  border: 1px solid #e5e0d5;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 14px rgba(20, 33, 29, 0.06);
+}
+
+.tarjeta__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--cream);
+  border-bottom: 1px solid #e5e0d5;
+}
+
+.tarjeta__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--bg-deep);
+}
+
+.tarjeta__chip {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(201, 162, 39, 0.16);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  color: #7a6214;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.tarjeta__vacio {
+  margin: 0;
+  padding: 18px;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+/* Las tablas anchas se desplazan dentro de su tarjeta, no de la pagina */
+.tabla-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* ================= Tabla ================= */
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabla thead th {
+  text-align: left;
+  padding: 11px 16px;
+  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+  color: var(--cream);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tabla tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid #edeae1;
+  color: var(--ink);
+  vertical-align: middle;
+}
+
+/* Filas alternas en crema, igual que en el archivo de Excel */
+.tabla tbody tr:nth-child(even) {
+  background: #fbfaf6;
+}
+
+.tabla tbody tr:hover {
+  background: rgba(201, 162, 39, 0.1);
+}
+
+.tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla tfoot td {
+  padding: 12px 16px;
+  background: rgba(201, 162, 39, 0.18);
+  border-top: 2px solid var(--gold);
+  color: var(--bg-deep);
+  font-weight: 600;
+}
+
+.tabla__num,
+.tabla thead th.tabla__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tabla thead th.tabla__num {
+  width: 140px;
+}
+
+.tabla__indice {
+  color: var(--ink-soft);
+  width: 48px;
+}
+
+.tabla__participacion {
+  width: 220px;
+}
+
+.tabla__accion {
+  font-weight: 600;
+}
+
+.tabla__mono {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 13px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.tabla__detalle {
+  color: var(--ink-soft);
+  min-width: 260px;
+}
+
+/* Tabla de dos columnas para los datos del caso */
+.tabla--datos tbody th {
+  width: 240px;
+  text-align: left;
+  padding: 11px 16px;
+  background: var(--cream);
+  border-bottom: 1px solid #edeae1;
+  border-right: 1px solid #edeae1;
+  color: var(--bg-deep);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tabla--datos tbody tr:last-child th {
+  border-bottom: none;
+}
+
+.tabla--datos tbody tr:nth-child(even) {
+  background: transparent;
+}
+
+.tabla--datos tbody tr:hover {
+  background: transparent;
+}
+
+/* ================= Barra de participacion ================= */
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barra__pista {
+  flex: 1;
+  height: 8px;
+  min-width: 80px;
+  border-radius: 999px;
+  background: #eceade;
+  overflow: hidden;
+}
+
+.barra__relleno {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--bg-deep-2) 0%, var(--gold) 100%);
+}
+
+.barra__valor {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+  width: 36px;
+  text-align: right;
+}
+
+/* ================= Etiquetas de estado ================= */
+.pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pill--resuelto {
+  background: #e6f4ea;
+  border-color: #a8d5b9;
+  color: #1e4620;
+}
+
+.pill--rechazado {
+  background: #fdecea;
+  border-color: #f0b3b0;
+  color: #7d1a16;
+}
+
+.pill--registrado {
+  background: #eef1f0;
+  border-color: #cfd8d5;
+  color: #35433e;
+}
+
+.pill--proceso {
+  background: rgba(201, 162, 39, 0.16);
+  border-color: rgba(201, 162, 39, 0.45);
+  color: #6f5810;
+}
+
+.pill--pendiente {
+  background: #fdf0e1;
+  border-color: #efc99a;
+  color: #7a4a0d;
+}
+
+.pill--ampliacion {
+  background: #eceaf7;
+  border-color: #c3bde6;
+  color: #3c3470;
+}
+
+/* ================= Botones ================= */
+.btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--submit {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+.btn--submit:hover:not(:disabled) {
+  background: var(--gold-bright);
+}
+
+.btn--rechazar {
+  background: transparent;
+  border-color: #b3261e;
+  color: #b3261e;
+}
+
+.btn--text {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  text-decoration: underline;
+}
+
+/* Botones sobre la banda verde del encabezado */
+.btn--claro {
+  background: var(--gold);
+  color: var(--bg-deep);
+  font-weight: 600;
+}
+
+.btn--claro:hover:not(:disabled) {
+  background: var(--gold-bright);
+}
+
+.btn--contorno {
+  background: transparent;
+  border-color: rgba(247, 244, 236, 0.5);
+  color: var(--cream);
+}
+
+.btn--contorno:hover:not(:disabled) {
+  border-color: var(--gold-bright);
+  color: var(--gold-bright);
+}
+
+.evidencia-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.evidencia-modal__contenido {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.evidencia-modal__imagen {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 8px;
+}
+
+.evidencia-modal__cerrar {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

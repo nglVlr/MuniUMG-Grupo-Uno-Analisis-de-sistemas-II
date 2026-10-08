@@ -1,0 +1,124 @@
+<div class="bitacora">
+  <!-- CU-15 paso 2: filtros disponibles -->
+  <div class="bitacora__filtros">
+    <div class="bitacora__campo">
+      <label class="bitacora__label" for="bitDesde">Desde</label>
+      <input id="bitDesde" name="bitDesde" type="date" class="bitacora__input" [(ngModel)]="filtros.desde" />
+    </div>
+
+    <div class="bitacora__campo">
+      <label class="bitacora__label" for="bitHasta">Hasta</label>
+      <input id="bitHasta" name="bitHasta" type="date" class="bitacora__input" [(ngModel)]="filtros.hasta" />
+    </div>
+
+    <div class="bitacora__campo">
+      <label class="bitacora__label" for="bitUsuario">Usuario</label>
+      <input
+        id="bitUsuario"
+        name="bitUsuario"
+        type="text"
+        class="bitacora__input"
+        placeholder="CUI o DPI"
+        [(ngModel)]="filtros.usuario"
+        (keyup.enter)="buscar()"
+      />
+    </div>
+
+    <div class="bitacora__campo">
+      <label class="bitacora__label" for="bitAccion">Tipo de acción</label>
+      <select id="bitAccion" name="bitAccion" class="bitacora__input" [(ngModel)]="filtros.accion">
+        <option value="">Todas</option>
+        @for (accion of acciones; track accion) {
+        <option [value]="accion">{{ accion }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="bitacora__campo">
+      <label class="bitacora__label" for="bitEntidad">Entidad</label>
+      <select id="bitEntidad" name="bitEntidad" class="bitacora__input" [(ngModel)]="filtros.entidad">
+        <option value="">Todas</option>
+        @for (entidad of entidades; track entidad) {
+        <option [value]="entidad">{{ entidad }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="bitacora__campo">
+      <label class="bitacora__label" for="bitRol">Rol</label>
+      <select id="bitRol" name="bitRol" class="bitacora__input" [(ngModel)]="filtros.rol">
+        <option value="">Todos</option>
+        @for (rol of roles; track rol) {
+        <option [value]="rol">{{ rol }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="buscar()">Consultar</button>
+    <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+  </div>
+
+  @if (mensaje) {
+  <div class="bitacora__alert" role="alert">{{ mensaje }}</div>
+  }
+
+  @if (resultado && resultado.totalRegistros > 0) {
+  <div class="bitacora__detalle">
+    <p class="bitacora__vacio">
+      {{ resultado.totalRegistros }} registros, página {{ resultado.pagina + 1 }} de {{ resultado.totalPaginas }}
+    </p>
+
+    <div class="bitacora__tabla-scroll">
+      <table class="bitacora__tabla">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Acción</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Entidad</th>
+            <th>Caso</th>
+            <th>IP de origen</th>
+            <th>Antes</th>
+            <th>Después</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (registro of resultado.registros; track registro.id) {
+          <tr>
+            <td>{{ registro.fecha }}</td>
+            <td>{{ registro.hora }}</td>
+            <td>{{ registro.accion }}</td>
+            <td>{{ registro.usuario }}</td>
+            <td>{{ registro.rol }}</td>
+            <td>{{ registro.entidad }}</td>
+            <td>{{ registro.codigoSeguimiento }}</td>
+            <td>{{ registro.ipOrigen }}</td>
+            <td>{{ registro.valorAnterior }}</td>
+            <td>{{ registro.valorNuevo }}</td>
+            <td>{{ registro.detalle }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bitacora__acciones">
+      <button type="button" class="btn btn--text" [disabled]="filtros.pagina === 0" (click)="paginaAnterior()">
+        Anterior
+      </button>
+      <button
+        type="button"
+        class="btn btn--text"
+        [disabled]="filtros.pagina + 1 >= resultado.totalPaginas"
+        (click)="paginaSiguiente()"
+      >
+        Siguiente
+      </button>
+      <button type="button" class="btn btn--text" (click)="exportar()">Exportar a CSV</button>
+    </div>
+  </div>
+  }
+</div>

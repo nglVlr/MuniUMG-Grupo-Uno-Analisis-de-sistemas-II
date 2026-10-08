@@ -19,4 +19,7 @@ public class Departamento {
 
     @Column(nullable = false, unique = true, length = 120)
     private String nombre;
+
+    @Column(nullable = false)
+    private boolean activo = true;
 }

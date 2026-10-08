@@ -1,0 +1,174 @@
+<div class="seguimiento">
+  <!-- Busqueda del caso por codigo de seguimiento -->
+  <div class="seguimiento__filtros">
+    <input
+      type="text"
+      class="seguimiento__input"
+      placeholder="Código de seguimiento (MG-XXXX-XXXX)"
+      [(ngModel)]="codigoBusqueda"
+      (keyup.enter)="buscar()"
+    />
+    <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="buscar()">Buscar</button>
+    <button type="button" class="btn btn--text" (click)="limpiar()">Limpiar</button>
+  </div>
+
+  @if (mensaje) {
+  <div class="seguimiento__alert" role="alert">{{ mensaje }}</div>
+  }
+
+  @if (expediente) {
+  <div class="seguimiento__detalle">
+    <h2 class="seguimiento__subtitulo">Datos del caso</h2>
+    <div class="seguimiento__grid">
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Código de seguimiento</label>
+        <input class="seguimiento__input" [value]="expediente.codigoSeguimiento" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Fecha de ingreso</label>
+        <input class="seguimiento__input" [value]="expediente.fechaIngreso | date: 'dd/MM/yyyy HH:mm'" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Estado actual</label>
+        <input class="seguimiento__input" [value]="expediente.estado" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Tipo de caso</label>
+        <input class="seguimiento__input" [value]="expediente.tipoCaso" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Categoría</label>
+        <input class="seguimiento__input" [value]="expediente.categoria" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Departamento responsable</label>
+        <input class="seguimiento__input" [value]="expediente.departamento" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Ciudadano</label>
+        <input class="seguimiento__input" [value]="expediente.nombreCiudadano" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Técnico responsable</label>
+        <input class="seguimiento__input" [value]="expediente.nombreTecnico" readonly />
+      </div>
+      <div class="seguimiento__campo">
+        <label class="seguimiento__label">Dirección</label>
+        <input class="seguimiento__input" [value]="expediente.direccion" readonly />
+      </div>
+    </div>
+
+    <div class="seguimiento__campo">
+      <label class="seguimiento__label">Descripción del caso</label>
+      <textarea class="seguimiento__input seguimiento__textarea" rows="3" [value]="expediente.descripcion" readonly></textarea>
+    </div>
+
+    <!-- Decision del Auxiliar, cuando el caso fue rechazado -->
+    @if (expediente.motivoRechazo) {
+    <h2 class="seguimiento__subtitulo">Decisión del Auxiliar</h2>
+    <div class="seguimiento__campo">
+      <label class="seguimiento__label">Motivo de rechazo</label>
+      <input class="seguimiento__input" [value]="expediente.motivoRechazo" readonly />
+    </div>
+    <div class="seguimiento__campo">
+      <label class="seguimiento__label">Comentario</label>
+      <textarea class="seguimiento__input seguimiento__textarea" rows="2" [value]="expediente.comentarioRechazo" readonly></textarea>
+    </div>
+    }
+
+    <!-- Observaciones de las devoluciones -->
+    @if (expediente.observacionesSupervision) {
+    <div class="seguimiento__campo">
+      <label class="seguimiento__label">Observaciones del Supervisor</label>
+      <textarea class="seguimiento__input seguimiento__textarea" rows="2" [value]="expediente.observacionesSupervision" readonly></textarea>
+    </div>
+    }
+
+    @if (expediente.observacionesJefatura) {
+    <div class="seguimiento__campo">
+      <label class="seguimiento__label">Observaciones de la Jefatura</label>
+      <textarea class="seguimiento__input seguimiento__textarea" rows="2" [value]="expediente.observacionesJefatura" readonly></textarea>
+    </div>
+    }
+
+    <!-- Actividades registradas por el Tecnico -->
+    <h2 class="seguimiento__subtitulo">Actividades del Técnico</h2>
+    @if (expediente.actividades.length === 0) {
+    <p class="seguimiento__vacio">Caso sin actividades registradas.</p>
+    } @else {
+    <div class="seguimiento__tabla-scroll">
+      <table class="seguimiento__tabla">
+        <thead>
+          <tr>
+            <th>Código de actividad</th>
+            <th>Detalle</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (actividad of expediente.actividades; track actividad.codigoActividad) {
+          <tr>
+            <td>{{ actividad.codigoActividad }}</td>
+            <td>{{ actividad.detalle }}</td>
+            <td>{{ actividad.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+    <!-- Documentos generados durante el ciclo de vida del caso -->
+    <h2 class="seguimiento__subtitulo">Documentos del expediente</h2>
+    <div class="seguimiento__acciones">
+      <button type="button" class="btn btn--text" [disabled]="!expediente.tieneEvidencia" (click)="verDocumento('evidencia')">
+        Evidencia del ciudadano
+      </button>
+      <button type="button" class="btn btn--text" [disabled]="!expediente.tieneInformeInicial" (click)="verDocumento('informe-inicial')">
+        Informe de revisión inicial
+      </button>
+      <button type="button" class="btn btn--text" [disabled]="!expediente.tieneSoporteAtencion" (click)="verDocumento('soporte-atencion')">
+        Soporte de atención
+      </button>
+      <button type="button" class="btn btn--text" [disabled]="!expediente.tieneReporteAtencion" (click)="verDocumento('reporte-atencion')">
+        Reporte de atención
+      </button>
+      <button type="button" class="btn btn--text" [disabled]="!expediente.tieneReporteSupervision" (click)="verDocumento('reporte-supervision')">
+        Reporte de supervisión
+      </button>
+      <button type="button" class="btn btn--text" [disabled]="!expediente.tieneOficio" (click)="verDocumento('oficio')">
+        Oficio de resolución
+      </button>
+    </div>
+
+    <!-- Bitacora de cambios del caso -->
+    <h2 class="seguimiento__subtitulo">Historial de cambios</h2>
+    <div class="seguimiento__tabla-scroll">
+      <table class="seguimiento__tabla">
+        <thead>
+          <tr>
+            <th>Acción</th>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>IP de origen</th>
+            <th>Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (linea of expediente.historial; track $index) {
+          <tr>
+            <td>{{ linea.accion }}</td>
+            <td>{{ linea.usuario }}</td>
+            <td>{{ linea.fecha }}</td>
+            <td>{{ linea.hora }}</td>
+            <td>{{ linea.ipOrigen }}</td>
+            <td>{{ linea.detalle }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+  }
+</div>

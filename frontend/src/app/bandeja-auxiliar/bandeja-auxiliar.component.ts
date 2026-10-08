@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SeguimientoCasoComponent } from '../seguimiento-caso/seguimiento-caso.component';
+import { MiCuentaComponent } from '../mi-cuenta/mi-cuenta.component';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import {
@@ -10,12 +12,12 @@ import {
   MotivoRechazo
 } from '../core/auxiliar.service';
 
-type VistaAuxiliar = 'menu' | 'lista' | 'detalle' | 'rechazo';
+type VistaAuxiliar = 'menu' | 'lista' | 'detalle' | 'rechazo' | 'seguimiento' | 'cuenta';
 
 @Component({
   selector: 'app-bandeja-auxiliar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SeguimientoCasoComponent, MiCuentaComponent],
   templateUrl: './bandeja-auxiliar.component.html',
   styleUrl: './bandeja-auxiliar.component.css'
 })
@@ -47,11 +49,16 @@ export class BandejaAuxiliarComponent {
   evidenciaUrl: string | null = null;
   evidenciaEsImagen = false;
 
+  // El encabezado de la bandeja muestra quien tiene la sesión abierta
+  nombreUsuario = '';
+
   constructor(
     private auxiliarService: AuxiliarService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.nombreUsuario = this.authService.obtenerNombreUsuario();
+  }
 
   // ---------- El usuario selecciona el menú "Casos Asignados" ----------
   abrirCasosAsignados(): void {
@@ -64,9 +71,23 @@ export class BandejaAuxiliarComponent {
     this.vista = 'menu';
   }
 
+  // CU-12: datos propios del usuario
+  abrirMiCuenta(): void {
+    this.mensaje = '';
+    this.mensajeExito = '';
+    this.vista = 'cuenta';
+  }
+
+  // Seguimiento del caso: consulta de solo lectura del expediente
+  abrirSeguimiento(): void {
+    this.mensaje = '';
+    this.mensajeExito = '';
+    this.vista = 'seguimiento';
+  }
+
   // ---------- FA06: Cerrar sesión ----------
   cerrarSesion(): void {
-    this.authService.cerrarSesion();
+    this.authService.cerrarSesionConBitacora();
     this.router.navigate(['']);
   }
 

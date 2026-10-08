@@ -22,8 +22,8 @@ public class Usuario implements UserDetails {
 
     public static final int MAX_INTENTOS_FALLIDOS = 5;
 
+    // El CUI es la clave natural del usuario: lo ingresa el Admin, no se genera
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(length = 13)
     private String cui;
 

@@ -48,4 +48,17 @@ public class BitacoraCambio {
 
     @Column(length = 500)
     private String detalle;
+
+    // CU-15: rol de quien hizo la accion y que entidad se vio afectada
+    @Column(length = 50)
+    private String rol;
+
+    @Column(length = 50)
+    private String entidad;
+
+    @Column(name = "valor_anterior", length = 250)
+    private String valorAnterior;
+
+    @Column(name = "valor_nuevo", length = 250)
+    private String valorNuevo;
 }

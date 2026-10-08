@@ -137,6 +137,33 @@
   box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.15);
 }
 
+/* Vista previa de la fotografía adjuntada como evidencia */
+.registro__previa {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0 0;
+  padding: 12px;
+  border: 1px solid #e5e0d5;
+  border-radius: 12px;
+  background: var(--cream);
+}
+
+.registro__previa-imagen {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 9px;
+  border: 1px solid #d8d1bf;
+  background: #fff;
+}
+
+.registro__previa-nombre {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  word-break: break-all;
+}
+
 .registro__input[readonly] {
   background: #f3f1ea;
   color: var(--ink-soft);

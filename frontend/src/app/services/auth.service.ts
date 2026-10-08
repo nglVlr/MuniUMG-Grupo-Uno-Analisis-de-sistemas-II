@@ -48,6 +48,17 @@ export class AuthService {
     localStorage.setItem('cui', respuesta.cui);
   }
 
+  // CU-15: avisa al backend para que registre el cierre en bitacora
+  cerrarSesionConBitacora(): void {
+    const token = this.obtenerToken();
+    if (token) {
+      this.http.post('api/logout', {}, {
+        headers: { Authorization: 'Bearer ' + token }
+      }).subscribe({ error: () => undefined });
+    }
+    this.cerrarSesion();
+  }
+
   cerrarSesion(): void {
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('correo');
@@ -58,6 +69,11 @@ export class AuthService {
 
   obtenerToken(): string | null {
     return localStorage.getItem('jwtToken');
+  }
+
+  // El encabezado de cada bandeja muestra quien tiene la sesion abierta
+  obtenerNombreUsuario(): string {
+    return localStorage.getItem('nombreUsuario') ?? '';
   }
 
   obtenerRol(): number | null {

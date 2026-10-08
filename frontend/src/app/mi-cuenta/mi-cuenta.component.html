@@ -1,0 +1,102 @@
+<div class="cuenta">
+  @if (mensaje) {
+  <div class="cuenta__alert" role="alert">{{ mensaje }}</div>
+  }
+
+  @if (cuenta) {
+  <!-- ================= PASO 2: DATOS DEL USUARIO ================= -->
+  <div class="cuenta__grid">
+    <div class="cuenta__campo">
+      <label class="cuenta__label">CUI</label>
+      <input class="cuenta__input" [value]="cuenta.cui" readonly />
+    </div>
+    <div class="cuenta__campo">
+      <label class="cuenta__label">Usuario (correo electrónico)</label>
+      <input class="cuenta__input" [value]="cuenta.correo" readonly />
+    </div>
+    <div class="cuenta__campo">
+      <label class="cuenta__label">Rol</label>
+      <input class="cuenta__input" [value]="cuenta.rol" readonly />
+    </div>
+    <div class="cuenta__campo">
+      <label class="cuenta__label">Departamento</label>
+      <input class="cuenta__input" [value]="cuenta.departamento" readonly />
+    </div>
+  </div>
+
+  <!-- ================= PASO 3: EL USUARIO EDITA SUS DATOS ================= -->
+  @if (!mostrarPassword) {
+  <form class="cuenta__form" (ngSubmit)="guardarDatos()">
+    <div class="cuenta__campo">
+      <label class="cuenta__label" for="nombreCuenta">Nombre</label>
+      <input
+        id="nombreCuenta"
+        name="nombreCuenta"
+        type="text"
+        class="cuenta__input"
+        maxlength="150"
+        [(ngModel)]="nombre"
+        required
+      />
+    </div>
+
+    <div class="cuenta__acciones">
+      <button type="submit" class="btn btn--submit" [disabled]="cargando">Guardar</button>
+      <button type="button" class="btn btn--text" (click)="abrirCambioPassword()">Cambiar Contraseña</button>
+    </div>
+  </form>
+  }
+
+  <!-- ================= FA01: CAMBIO DE CONTRASEÑA ================= -->
+  @if (mostrarPassword) {
+  <form class="cuenta__form" (ngSubmit)="guardarPassword()">
+    <div class="cuenta__campo">
+      <label class="cuenta__label" for="passwordActual">Contraseña actual</label>
+      <input
+        id="passwordActual"
+        name="passwordActual"
+        type="password"
+        class="cuenta__input"
+        [(ngModel)]="passwordActual"
+        required
+      />
+    </div>
+
+    <div class="cuenta__campo">
+      <label class="cuenta__label" for="passwordNueva">Nueva contraseña (mínimo 6 caracteres alfanuméricos)</label>
+      <input
+        id="passwordNueva"
+        name="passwordNueva"
+        type="password"
+        class="cuenta__input"
+        minlength="6"
+        [(ngModel)]="passwordNueva"
+        required
+      />
+    </div>
+
+    <div class="cuenta__campo">
+      <label class="cuenta__label" for="passwordConfirmacion">Confirmar nueva contraseña</label>
+      <input
+        id="passwordConfirmacion"
+        name="passwordConfirmacion"
+        type="password"
+        class="cuenta__input"
+        minlength="6"
+        [(ngModel)]="passwordConfirmacion"
+        required
+      />
+    </div>
+
+    <div class="cuenta__acciones">
+      <button type="submit" class="btn btn--submit" [disabled]="cargando">Guardar</button>
+      <button type="button" class="btn btn--text" (click)="cancelarCambioPassword()">Cancelar</button>
+    </div>
+  </form>
+  }
+
+  @if (mensajeExito) {
+  <div class="cuenta__exito" role="status">{{ mensajeExito }}</div>
+  }
+  }
+</div>

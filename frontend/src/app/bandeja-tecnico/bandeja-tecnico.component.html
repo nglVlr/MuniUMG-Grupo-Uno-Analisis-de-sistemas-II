@@ -1,0 +1,386 @@
+<section class="tecnico">
+  <div class="tecnico__card">
+    <!-- Encabezado: escudo, titulo de la vista y usuario con la sesion abierta -->
+    <header class="tecnico__header">
+      <div class="tecnico__marca">
+        <img
+          class="tecnico__escudo"
+          src="assets/img/escudo-granados.png"
+          alt="Escudo de la Municipalidad de Granados"
+        />
+        <div>
+          <p class="tecnico__eyebrow">Municipalidad de Granados, B.V.</p>
+          <h1 class="tecnico__title">
+        @if (vista === 'menu') {
+          Bandeja Técnicos
+        } @else if (vista === 'lista') {
+          Casos Asignados
+        } @else if (vista === 'cuenta') {
+          Mi Cuenta
+        } @else if (vista === 'seguimiento') {
+          Seguimiento del Caso
+        } @else if (vista === 'detalle') {
+          Detalle del caso
+        } @else if (vista === 'actividades') {
+          Actividades del caso
+        } @else if (vista === 'nueva') {
+          Nueva actividad
+        } @else {
+          Finalizar caso
+        }
+          </h1>
+        </div>
+      </div>
+
+      <div class="tecnico__header-acciones">
+        <span class="tecnico__usuario">
+          <span class="tecnico__usuario-rol">Técnico &middot;</span>
+          <strong>{{ nombreUsuario }}</strong>
+        </span>
+        @if (vista === 'lista' || vista === 'seguimiento' || vista === 'cuenta') {
+        <button type="button" class="tecnico__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
+        }
+      </div>
+    </header>
+
+    <div class="tecnico__cuerpo">
+
+      @if (mensaje) {
+      <div class="tecnico__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <!-- ================= PASO 2: MENÚ PRINCIPAL ================= -->
+      @if (vista === 'menu') {
+      <nav class="tecnico__menu">
+        <button type="button" class="tecnico__opcion" (click)="abrirCasosAsignados()">
+          <span class="tecnico__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" /><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+            </svg>
+          </span>
+          <span class="tecnico__opcion-texto">
+            <span class="tecnico__opcion-titulo">Casos Asignados</span>
+            <span class="tecnico__opcion-detalle">Atención, actividades y cierre de los casos</span>
+          </span>
+        </button>
+
+        <button type="button" class="tecnico__opcion" (click)="abrirMiCuenta()">
+          <span class="tecnico__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <span class="tecnico__opcion-texto">
+            <span class="tecnico__opcion-titulo">Mi Cuenta</span>
+            <span class="tecnico__opcion-detalle">Datos personales y cambio de contraseña</span>
+          </span>
+        </button>
+
+        <button type="button" class="tecnico__opcion" (click)="abrirSeguimiento()">
+          <span class="tecnico__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <span class="tecnico__opcion-texto">
+            <span class="tecnico__opcion-titulo">Seguimiento del Caso</span>
+            <span class="tecnico__opcion-detalle">Consulta de un caso por su código</span>
+          </span>
+        </button>
+
+        <button type="button" class="tecnico__opcion" disabled>
+          <span class="tecnico__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </span>
+          <span class="tecnico__opcion-texto">
+            <span class="tecnico__opcion-titulo">Reportes</span>
+            <span class="tecnico__opcion-detalle">Disponible en una próxima versión</span>
+          </span>
+        </button>
+
+        <button type="button" class="tecnico__opcion tecnico__opcion--salir" (click)="cerrarSesion()">
+          <span class="tecnico__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span class="tecnico__opcion-texto">
+            <span class="tecnico__opcion-titulo">Cerrar sesión</span>
+            <span class="tecnico__opcion-detalle">Salir del sistema de forma segura</span>
+          </span>
+        </button>
+      </nav>
+      }
+
+      <!-- ================= PASOS 4 Y 5: LISTA DE CASOS ASIGNADOS ================= -->
+      @if (vista === 'lista') {
+
+      <!-- FA04: Búsqueda de caso -->
+      <div class="tecnico__filtros">
+        <input
+          type="text"
+          class="tecnico__input"
+          placeholder="Buscar por código del caso"
+          [(ngModel)]="codigoBusqueda"
+          (keyup.enter)="buscarCaso()"
+        />
+        <button type="button" class="btn btn--submit" (click)="buscarCaso()">Buscar</button>
+      </div>
+
+      <!-- FA05: Filtro de casos (fecha, tipo, categoría) -->
+      <div class="tecnico__filtros">
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Filtrar por fecha</label>
+          <input type="date" class="tecnico__input" [(ngModel)]="filtroFecha" (change)="aplicarFiltros()" />
+        </div>
+
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Filtrar por tipo</label>
+          <select class="tecnico__input" [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+            <option value="">Todos</option>
+            @for (tipo of tiposCaso; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Filtrar por categoría</label>
+          <select class="tecnico__input" [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+            <option value="">Todas</option>
+            @for (categoria of categoriasDisponibles; track categoria) {
+            <option [value]="categoria">{{ categoria }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+
+      <div class="tecnico__tabla-scroll">
+        <table class="tecnico__tabla">
+          <thead>
+            <tr>
+              <th>Código de seguimiento</th>
+              <th>Fecha de ingreso</th>
+              <th>Tipo de caso</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (caso of casos; track caso.id) {
+            <tr>
+              <td>{{ caso.codigoSeguimiento }}</td>
+              <td>{{ caso.fechaIngreso | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ caso.tipoCaso }}</td>
+              <td>{{ caso.estado }}</td>
+              <td>
+                <button type="button" class="btn btn--submit" (click)="verDetalle(caso.id)">
+                  Ver detalle
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (mensajeExito) {
+      <div class="tecnico__exito" role="status">{{ mensajeExito }}</div>
+      }
+      }
+
+      <!-- ================= PASOS 7 Y 8: DETALLE TÉCNICO ================= -->
+      @if (vista === 'detalle' && casoSeleccionado) {
+      <div class="tecnico__detalle">
+        <div class="tecnico__grid">
+          <div class="tecnico__campo">
+            <label class="tecnico__label">Código de seguimiento</label>
+            <input class="tecnico__input" [value]="casoSeleccionado.codigoSeguimiento" readonly />
+          </div>
+          <div class="tecnico__campo">
+            <label class="tecnico__label">Fecha de ingreso</label>
+            <input class="tecnico__input" [value]="casoSeleccionado.fechaIngreso | date: 'dd/MM/yyyy HH:mm'" readonly />
+          </div>
+          <div class="tecnico__campo">
+            <label class="tecnico__label">Tipo de caso</label>
+            <input class="tecnico__input" [value]="casoSeleccionado.tipoCaso" readonly />
+          </div>
+          <div class="tecnico__campo">
+            <label class="tecnico__label">Categoría</label>
+            <input class="tecnico__input" [value]="casoSeleccionado.categoria" readonly />
+          </div>
+          <div class="tecnico__campo">
+            <label class="tecnico__label">Dirección</label>
+            <input class="tecnico__input" [value]="casoSeleccionado.direccion" readonly />
+          </div>
+        </div>
+
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Descripción del caso</label>
+          <textarea class="tecnico__input tecnico__textarea" rows="4" [value]="casoSeleccionado.descripcion" readonly></textarea>
+        </div>
+
+        <!-- Evidencia: inicia desactivado, se activa solo si el caso tiene documento adjunto -->
+        <button
+          type="button"
+          class="btn btn--text tecnico__nota"
+          [disabled]="!casoSeleccionado.tieneEvidencia"
+          (click)="verEvidencia()"
+        >
+          Ver evidencia
+        </button>
+
+        <div class="tecnico__acciones">
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="abrirActividades()">
+            Registrar Actividad
+          </button>
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="abrirFinalizar()">
+            Finalizar
+          </button>
+          <button type="button" class="btn btn--text" (click)="regresarALaLista()">Regresar</button>
+        </div>
+      </div>
+      }
+
+      <!-- ================= PASOS 10 Y 11: ACTIVIDADES DEL CASO (RN19) ================= -->
+      @if (vista === 'actividades' && casoSeleccionado) {
+      <div class="tecnico__detalle">
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Código de seguimiento</label>
+          <input class="tecnico__input" [value]="casoSeleccionado.codigoSeguimiento" readonly />
+        </div>
+
+        @if (mensajeActividades) {
+        <div class="tecnico__alert" role="alert">{{ mensajeActividades }}</div>
+        }
+
+        <div class="tecnico__tabla-scroll">
+          <table class="tecnico__tabla">
+            <thead>
+              <tr>
+                <th>Código de actividad</th>
+                <th>Detalle</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (actividad of actividades; track actividad.codigoActividad) {
+              <tr>
+                <td>{{ actividad.codigoActividad }}</td>
+                <td>{{ actividad.detalle }}</td>
+                <td>{{ actividad.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tecnico__acciones">
+          <button type="button" class="btn btn--submit" (click)="abrirNuevaActividad()">Agregar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </div>
+      }
+
+      <!-- ================= PASOS 13 Y 14: NUEVA ACTIVIDAD (RN20) ================= -->
+      @if (vista === 'nueva' && casoSeleccionado) {
+      <form class="tecnico__form" (ngSubmit)="guardarActividad()">
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Fecha</label>
+          <input class="tecnico__input" [value]="hoy | date: 'dd/MM/yyyy'" readonly />
+        </div>
+
+        <div class="tecnico__campo">
+          <label class="tecnico__label" for="detalleActividad">Detalle</label>
+          <textarea
+            id="detalleActividad"
+            name="detalleActividad"
+            class="tecnico__input tecnico__textarea"
+            rows="4"
+            maxlength="500"
+            [(ngModel)]="detalleActividad"
+            required
+          ></textarea>
+        </div>
+
+        <div class="tecnico__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Guardar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= FA02: FINALIZAR CASO (RN20 con soporte) ================= -->
+      @if (vista === 'finalizar' && casoSeleccionado) {
+      <form class="tecnico__form" (ngSubmit)="confirmarFinalizar()">
+        <div class="tecnico__campo">
+          <label class="tecnico__label">Fecha</label>
+          <input class="tecnico__input" [value]="hoy | date: 'dd/MM/yyyy'" readonly />
+        </div>
+
+        <div class="tecnico__campo">
+          <label class="tecnico__label" for="detalleFinal">Detalle</label>
+          <textarea
+            id="detalleFinal"
+            name="detalleFinal"
+            class="tecnico__input tecnico__textarea"
+            rows="4"
+            maxlength="500"
+            [(ngModel)]="detalleActividad"
+            required
+          ></textarea>
+        </div>
+
+        <div class="tecnico__campo">
+          <label class="tecnico__label" for="soporte">Soporte (PDF, máximo 10 MB)</label>
+          <input
+            id="soporte"
+            name="soporte"
+            type="file"
+            class="tecnico__input"
+            accept="application/pdf"
+            (change)="seleccionarSoporte($event)"
+            required
+          />
+        </div>
+
+        <div class="tecnico__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Aceptar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= CU-12 ADMINISTRAR CUENTA ================= -->
+      @if (vista === 'cuenta') {
+      <app-mi-cuenta />
+      }
+
+      <!-- ================= SEGUIMIENTO DEL CASO (solo lectura) ================= -->
+      @if (vista === 'seguimiento') {
+      <app-seguimiento-caso />
+      }
+    </div>
+  </div>
+
+  <!-- Modal de evidencia (imagen) con botón para cerrar -->
+  @if (evidenciaEsImagen && evidenciaUrl) {
+  <div class="evidencia-modal" (click)="cerrarEvidencia()">
+    <div class="evidencia-modal__contenido" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="evidencia-modal__cerrar"
+        (click)="cerrarEvidencia()"
+        aria-label="Cerrar"
+      >
+        &times;
+      </button>
+      <img [src]="evidenciaUrl" alt="Evidencia del caso" class="evidencia-modal__imagen" />
+    </div>
+  </div>
+  }
+</section>

@@ -1,0 +1,404 @@
+<section class="supervisor">
+  <div class="supervisor__card">
+    <!-- Encabezado: escudo, titulo de la vista y usuario con la sesion abierta -->
+    <header class="supervisor__header">
+      <div class="supervisor__marca">
+        <img
+          class="supervisor__escudo"
+          src="assets/img/escudo-granados.png"
+          alt="Escudo de la Municipalidad de Granados"
+        />
+        <div>
+          <p class="supervisor__eyebrow">Municipalidad de Granados, B.V.</p>
+          <h1 class="supervisor__title">
+        @if (vista === 'menu') {
+          Bandeja Supervisores
+        } @else if (vista === 'lista') {
+          Casos en Supervisión
+        } @else if (vista === 'reportes') {
+          Reportería
+        } @else if (vista === 'cuenta') {
+          Mi Cuenta
+        } @else if (vista === 'seguimiento') {
+          Seguimiento del Caso
+        } @else if (vista === 'detalle') {
+          Detalle del caso
+        } @else if (vista === 'devolver') {
+          Devolver al Técnico
+        } @else {
+          Regresar a Revisión
+        }
+          </h1>
+        </div>
+      </div>
+
+      <div class="supervisor__header-acciones">
+        <span class="supervisor__usuario">
+          <span class="supervisor__usuario-rol">Supervisor &middot;</span>
+          <strong>{{ nombreUsuario }}</strong>
+        </span>
+        @if (vista === 'lista' || vista === 'seguimiento' || vista === 'cuenta' || vista === 'reportes') {
+        <button type="button" class="supervisor__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
+        }
+      </div>
+    </header>
+
+    <div class="supervisor__cuerpo">
+
+      @if (mensaje) {
+      <div class="supervisor__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <!-- ================= PASO 2: MENÚ PRINCIPAL ================= -->
+      @if (vista === 'menu') {
+      <nav class="supervisor__menu">
+        <button type="button" class="supervisor__opcion" (click)="abrirCasosEnSupervision()">
+          <span class="supervisor__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          </span>
+          <span class="supervisor__opcion-texto">
+            <span class="supervisor__opcion-titulo">Casos en Supervisión</span>
+            <span class="supervisor__opcion-detalle">Aprobación o devolución del trabajo del Técnico</span>
+          </span>
+        </button>
+
+        <button type="button" class="supervisor__opcion" (click)="abrirReportes()">
+          <span class="supervisor__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+          </span>
+          <span class="supervisor__opcion-texto">
+            <span class="supervisor__opcion-titulo">Reportería</span>
+            <span class="supervisor__opcion-detalle">Estadísticas y trazabilidad de los casos</span>
+          </span>
+        </button>
+
+        <button type="button" class="supervisor__opcion" (click)="abrirMiCuenta()">
+          <span class="supervisor__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <span class="supervisor__opcion-texto">
+            <span class="supervisor__opcion-titulo">Mi Cuenta</span>
+            <span class="supervisor__opcion-detalle">Datos personales y cambio de contraseña</span>
+          </span>
+        </button>
+
+        <button type="button" class="supervisor__opcion" (click)="abrirSeguimiento()">
+          <span class="supervisor__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <span class="supervisor__opcion-texto">
+            <span class="supervisor__opcion-titulo">Seguimiento del Caso</span>
+            <span class="supervisor__opcion-detalle">Consulta de un caso por su código</span>
+          </span>
+        </button>
+
+        <button type="button" class="supervisor__opcion supervisor__opcion--salir" (click)="cerrarSesion()">
+          <span class="supervisor__opcion-icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span class="supervisor__opcion-texto">
+            <span class="supervisor__opcion-titulo">Cerrar sesión</span>
+            <span class="supervisor__opcion-detalle">Salir del sistema de forma segura</span>
+          </span>
+        </button>
+      </nav>
+      }
+
+      <!-- ================= PASOS 4 Y 5: LISTA DE LA BANDEJA ================= -->
+      @if (vista === 'lista') {
+
+      <!-- FA06: Búsqueda de caso -->
+      <div class="supervisor__filtros">
+        <input
+          type="text"
+          class="supervisor__input"
+          placeholder="Buscar por código del caso"
+          [(ngModel)]="codigoBusqueda"
+          (keyup.enter)="buscarCaso()"
+        />
+        <button type="button" class="btn btn--submit" (click)="buscarCaso()">Buscar</button>
+      </div>
+
+      <!-- FA07: Filtro de casos (fecha, tipo, categoría) -->
+      <div class="supervisor__filtros">
+        <div class="supervisor__campo">
+          <label class="supervisor__label">Filtrar por fecha</label>
+          <input type="date" class="supervisor__input" [(ngModel)]="filtroFecha" (change)="aplicarFiltros()" />
+        </div>
+
+        <div class="supervisor__campo">
+          <label class="supervisor__label">Filtrar por tipo</label>
+          <select class="supervisor__input" [(ngModel)]="filtroTipo" (change)="aplicarFiltros()">
+            <option value="">Todos</option>
+            @for (tipo of tiposCaso; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="supervisor__campo">
+          <label class="supervisor__label">Filtrar por categoría</label>
+          <select class="supervisor__input" [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()">
+            <option value="">Todas</option>
+            @for (categoria of categoriasDisponibles; track categoria) {
+            <option [value]="categoria">{{ categoria }}</option>
+            }
+          </select>
+        </div>
+
+        <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+      </div>
+
+      <div class="supervisor__tabla-scroll">
+        <table class="supervisor__tabla">
+          <thead>
+            <tr>
+              <th>Código de seguimiento</th>
+              <th>Fecha de ingreso</th>
+              <th>Tipo de caso</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (caso of casos; track caso.id) {
+            <tr>
+              <td>{{ caso.codigoSeguimiento }}</td>
+              <td>{{ caso.fechaIngreso | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ caso.tipoCaso }}</td>
+              <td>{{ caso.estado }}</td>
+              <td>
+                <button type="button" class="btn btn--submit" (click)="verDetalle(caso.id)">
+                  Ver detalle
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (mensajeExito) {
+      <div class="supervisor__exito" role="status">{{ mensajeExito }}</div>
+      }
+      }
+
+      <!-- ================= PASOS 7 Y 8: DETALLE DEL CASO ================= -->
+      @if (vista === 'detalle' && casoSeleccionado) {
+      <div class="supervisor__detalle">
+        <div class="supervisor__grid">
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Código de seguimiento</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.codigoSeguimiento" readonly />
+          </div>
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Fecha de ingreso</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.fechaIngreso | date: 'dd/MM/yyyy HH:mm'" readonly />
+          </div>
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Tipo de caso</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.tipoCaso" readonly />
+          </div>
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Categoría</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.categoria" readonly />
+          </div>
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Dirección</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.direccion" readonly />
+          </div>
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Estado</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.estado" readonly />
+          </div>
+        </div>
+
+        <div class="supervisor__campo">
+          <label class="supervisor__label">Descripción del caso</label>
+          <textarea class="supervisor__input supervisor__textarea" rows="3" [value]="casoSeleccionado.descripcion" readonly></textarea>
+        </div>
+
+        <!-- Caso que viene del rechazo del Auxiliar -->
+        @if (casoSeleccionado.estado === 'Pendiente de Aprobación de Rechazo') {
+        <div class="supervisor__grid">
+          <div class="supervisor__campo">
+            <label class="supervisor__label">Motivo de rechazo</label>
+            <input class="supervisor__input" [value]="casoSeleccionado.motivoRechazo" readonly />
+          </div>
+        </div>
+        <div class="supervisor__campo">
+          <label class="supervisor__label">Comentario del Auxiliar</label>
+          <textarea class="supervisor__input supervisor__textarea" rows="3" [value]="casoSeleccionado.comentarioRechazo" readonly></textarea>
+        </div>
+        }
+
+        <!-- Reporte de atención del Técnico y sus actividades -->
+        @if (casoSeleccionado.estado === 'En Supervisión') {
+        <div class="supervisor__campo">
+          <label class="supervisor__label">Técnico responsable</label>
+          <input class="supervisor__input" [value]="casoSeleccionado.nombreTecnico" readonly />
+        </div>
+
+        <div class="supervisor__tabla-scroll">
+          <table class="supervisor__tabla">
+            <thead>
+              <tr>
+                <th>Código de actividad</th>
+                <th>Detalle</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (actividad of casoSeleccionado.actividades; track actividad.codigoActividad) {
+              <tr>
+                <td>{{ actividad.codigoActividad }}</td>
+                <td>{{ actividad.detalle }}</td>
+                <td>{{ actividad.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+
+        <div class="supervisor__acciones">
+          <button
+            type="button"
+            class="btn btn--text"
+            [disabled]="!casoSeleccionado.tieneEvidencia"
+            (click)="verEvidencia()"
+          >
+            Ver evidencia
+          </button>
+          <button
+            type="button"
+            class="btn btn--text"
+            [disabled]="!casoSeleccionado.tieneSoporteAtencion"
+            (click)="verSoporteAtencion()"
+          >
+            Ver soporte de atención
+          </button>
+          <button
+            type="button"
+            class="btn btn--text"
+            [disabled]="!casoSeleccionado.tieneReporteAtencion"
+            (click)="verReporteAtencion()"
+          >
+            Ver reporte de atención
+          </button>
+        </div>
+
+        <div class="supervisor__acciones">
+          @if (casoSeleccionado.estado === 'En Supervisión') {
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="aprobarReporte()">
+            Aprobar
+          </button>
+          <button type="button" class="btn btn--rechazar" [disabled]="cargando" (click)="abrirDevolucion()">
+            Devolver al Técnico
+          </button>
+          }
+
+          @if (casoSeleccionado.estado === 'Pendiente de Aprobación de Rechazo') {
+          <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="aprobarRechazo()">
+            Aprobar Rechazo
+          </button>
+          <button type="button" class="btn btn--rechazar" [disabled]="cargando" (click)="abrirRegresoARevision()">
+            Regresar a Revisión
+          </button>
+          }
+
+          <button type="button" class="btn btn--text" (click)="regresarALaLista()">Regresar</button>
+        </div>
+      </div>
+      }
+
+      <!-- ================= FA02: DEVOLVER AL TÉCNICO ================= -->
+      @if (vista === 'devolver' && casoSeleccionado) {
+      <form class="supervisor__form" (ngSubmit)="confirmarDevolucion()">
+        <div class="supervisor__campo">
+          <label class="supervisor__label" for="observacionesDevolucion">Observaciones</label>
+          <textarea
+            id="observacionesDevolucion"
+            name="observacionesDevolucion"
+            class="supervisor__input supervisor__textarea"
+            rows="5"
+            maxlength="1000"
+            [(ngModel)]="observaciones"
+            required
+          ></textarea>
+        </div>
+
+        <div class="supervisor__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Aceptar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= FA04: REGRESAR A REVISIÓN ================= -->
+      @if (vista === 'regresar' && casoSeleccionado) {
+      <form class="supervisor__form" (ngSubmit)="confirmarRegresoARevision()">
+        <div class="supervisor__campo">
+          <label class="supervisor__label" for="observacionesRegreso">Observaciones</label>
+          <textarea
+            id="observacionesRegreso"
+            name="observacionesRegreso"
+            class="supervisor__input supervisor__textarea"
+            rows="5"
+            maxlength="1000"
+            [(ngModel)]="observaciones"
+            required
+          ></textarea>
+        </div>
+
+        <div class="supervisor__acciones">
+          <button type="submit" class="btn btn--submit" [disabled]="cargando">Aceptar</button>
+          <button type="button" class="btn btn--text" (click)="cancelarFormulario()">Cancelar</button>
+        </div>
+      </form>
+      }
+
+      <!-- ================= CU-14 REPORTERÍA ================= -->
+      @if (vista === 'reportes') {
+      <app-reportes />
+      }
+
+      <!-- ================= CU-12 ADMINISTRAR CUENTA ================= -->
+      @if (vista === 'cuenta') {
+      <app-mi-cuenta />
+      }
+
+      <!-- ================= SEGUIMIENTO DEL CASO (solo lectura) ================= -->
+      @if (vista === 'seguimiento') {
+      <app-seguimiento-caso />
+      }
+    </div>
+  </div>
+
+  <!-- Modal de evidencia (imagen) con botón para cerrar -->
+  @if (evidenciaEsImagen && evidenciaUrl) {
+  <div class="evidencia-modal" (click)="cerrarEvidencia()">
+    <div class="evidencia-modal__contenido" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="evidencia-modal__cerrar"
+        (click)="cerrarEvidencia()"
+        aria-label="Cerrar"
+      >
+        &times;
+      </button>
+      <img [src]="evidenciaUrl" alt="Evidencia del caso" class="evidencia-modal__imagen" />
+    </div>
+  </div>
+  }
+</section>

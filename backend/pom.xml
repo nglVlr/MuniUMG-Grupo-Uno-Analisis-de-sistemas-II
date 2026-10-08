@@ -96,6 +96,13 @@
             <version>2.0.3</version>
         </dependency>
 
+        <!-- Generacion de los reportes en formato Excel (.xlsx) -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
     </dependencies>
 
     <build>

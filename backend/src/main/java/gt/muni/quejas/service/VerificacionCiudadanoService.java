@@ -125,13 +125,17 @@ public class VerificacionCiudadanoService {
     }
 
     @Transactional
-    public void cerrarSesion(String tokenSesion) {
+    public void cerrarSesion(String tokenSesion, String ipOrigen) {
         if (tokenSesion == null || tokenSesion.isBlank()) {
             return;
         }
         tokenRepository.findByTokenSesion(tokenSesion.trim()).ifPresent(token -> {
             token.setSesionUsada(true);
             tokenRepository.save(token);
+
+            // CU-15: el cierre de sesión del ciudadano queda en bitácora
+            bitacoraCambioService.registrarIngreso(
+                    BitacoraCambioService.CIERRE_SESION, token.getCiudadano().getDpi(), ipOrigen, "Ciudadano");
         });
     }
 

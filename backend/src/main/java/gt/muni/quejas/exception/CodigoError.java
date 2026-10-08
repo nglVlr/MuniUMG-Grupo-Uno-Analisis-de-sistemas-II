@@ -20,13 +20,24 @@ public enum CodigoError {
     CATEGORIA_REQUERIDA(HttpStatus.BAD_REQUEST, "Debe seleccionar la categoría del problema reportado."),
     DIRECCION_REQUERIDA(HttpStatus.BAD_REQUEST, "Debe indicar la dirección o ubicación del problema reportado."),
     EVIDENCIA_TAMANO(HttpStatus.BAD_REQUEST, "El archivo adjunto supera el tamaño máximo permitido de 10MB."),
-    EVIDENCIA_FORMATO(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF."),
+    EVIDENCIA_FORMATO(HttpStatus.BAD_REQUEST, "El archivo debe ser un PDF o una imagen (JPG, PNG o WEBP)."),
+    SOPORTE_FORMATO(HttpStatus.BAD_REQUEST, "El soporte debe ser un archivo PDF."),
     EVIDENCIA_VACIA(HttpStatus.BAD_REQUEST, "El archivo no debe estar vacío."),
     ERROR_INTERNO(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado"),
     CODIGO_SEGUIMIENTO_REQUERIDO(HttpStatus.BAD_REQUEST, "Debe completar todos los campos obligatorios del formulario."),
     CASO_NO_ENCONTRADO(HttpStatus.NOT_FOUND, "El código es inválido, intente de nuevo."),
     CASO_NO_ENCONTRADO_AUXILIAR(HttpStatus.NOT_FOUND, "No se encontró un caso con el código o número ingresado."),
-    TECNICO_NO_DISPONIBLE(HttpStatus.BAD_REQUEST, "No existe un Técnico activo en el departamento para asignar el caso.");
+    TECNICO_NO_DISPONIBLE(HttpStatus.BAD_REQUEST, "No existe un Técnico activo en el departamento para asignar el caso."),
+    REPORTE_ATENCION_INCOMPLETO(HttpStatus.BAD_REQUEST, "El reporte de atención no contiene toda la información obligatoria."),
+    USUARIO_CON_CASOS_ACTIVOS(HttpStatus.BAD_REQUEST, "El usuario tiene casos activos asignados. Debe reasignarlos antes de continuar."),
+    USUARIO_DUPLICADO(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con ese CUI o correo electrónico."),
+    DATOS_USUARIO_INVALIDOS(HttpStatus.BAD_REQUEST, "Los datos ingresados no son válidos, o las contraseñas no coinciden."),
+    ELEMENTO_EN_USO(HttpStatus.BAD_REQUEST, "El elemento no puede eliminarse porque se encuentra en uso; puede inactivarlo."),
+    ELEMENTO_DUPLICADO(HttpStatus.BAD_REQUEST, "Ya existe un elemento con ese nombre en el catálogo."),
+    SIN_CASOS_AMPLIACION(HttpStatus.NOT_FOUND, "No existen casos que requieran ampliación para el número de identificación ingresado."),
+    INFORMACION_AMPLIACION_REQUERIDA(HttpStatus.BAD_REQUEST, "Debe completar la información obligatoria solicitada."),
+    RANGO_FECHAS_INVALIDO(HttpStatus.BAD_REQUEST, "El rango de fechas ingresado no es válido."),
+    SIN_REGISTROS_FILTROS(HttpStatus.NOT_FOUND, "No existen registros para los filtros aplicados.");
 
 
     private final HttpStatus httpStatus;

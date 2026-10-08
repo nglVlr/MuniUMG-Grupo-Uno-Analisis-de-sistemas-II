@@ -36,7 +36,7 @@ public class AuxiliarService {
     private final MotivoRechazoRepository motivoRechazoRepository;
     private final EvidenciaRepository evidenciaRepository;
     private final BitacoraCambioService bitacoraCambioService;
-    private final EmailService emailService;
+    private final NotificacionCasoService notificacionCasoService;
 
     public AuxiliarService(CasoRepository casoRepository,
                            EstadoCasoRepository estadoCasoRepository,
@@ -44,14 +44,14 @@ public class AuxiliarService {
                            MotivoRechazoRepository motivoRechazoRepository,
                            EvidenciaRepository evidenciaRepository,
                            BitacoraCambioService bitacoraCambioService,
-                           EmailService emailService) {
+                           NotificacionCasoService notificacionCasoService) {
         this.casoRepository = casoRepository;
         this.estadoCasoRepository = estadoCasoRepository;
         this.usuarioRepository = usuarioRepository;
         this.motivoRechazoRepository = motivoRechazoRepository;
         this.evidenciaRepository = evidenciaRepository;
         this.bitacoraCambioService = bitacoraCambioService;
-        this.emailService = emailService;
+        this.notificacionCasoService = notificacionCasoService;
     }
 
     // ---------- Paso 2.3.2: RN16 Bandeja Auxiliar ----------
@@ -111,16 +111,20 @@ public class AuxiliarService {
     public DtoCasoDetalleAuxiliar aceptarCaso(Long idCaso, Usuario auxiliar, String ip) {
         Caso caso = buscarCasoRegistrado(idCaso);
 
+        String estadoAnterior = caso.getEstado().getEstado();
         EstadoCaso enRevision = buscarEstado(EstadoCaso.EN_REVISION);
         caso.setEstado(enRevision);
         casoRepository.save(caso);
 
-        bitacoraCambioService.registrar(
+        bitacoraCambioService.registrarCambio(
                 "Aceptación de caso",
                 auxiliar.getCui(),
+                BitacoraCambioService.ENTIDAD_CASO,
                 caso,
                 ip,
-                "El Auxiliar aceptó el caso"
+                "El Auxiliar aceptó el caso",
+                estadoAnterior,
+                enRevision.getEstado()
         );
 
         return obtenerDetalle(caso.getId());
@@ -165,16 +169,22 @@ public class AuxiliarService {
         tecnicoElegido.setCantidadCasosAsignados(tecnicoElegido.getCantidadCasosAsignados() + 1);
         usuarioRepository.save(tecnicoElegido);
 
+        String estadoAnterior = caso.getEstado().getEstado();
         caso.setTecnico(tecnicoElegido);
         caso.setEstado(enAtencion);
         casoRepository.save(caso);
 
-        bitacoraCambioService.registrar(
+        notificacionCasoService.notificarAsignacionTecnico(caso, auxiliar, ip);
+
+        bitacoraCambioService.registrarCambio(
                 "Asignación de Técnico",
                 auxiliar.getCui(),
+                BitacoraCambioService.ENTIDAD_CASO,
                 caso,
                 ip,
-                "Caso asignado al Técnico " + tecnicoElegido.getNombre()
+                "Caso asignado al Técnico " + tecnicoElegido.getNombre(),
+                estadoAnterior,
+                enAtencion.getEstado()
         );
 
         return new DtoMensaje(MENSAJE_CASO_ASIGNADO);
@@ -206,19 +216,17 @@ public class AuxiliarService {
             caso.setEstado(requiereAmpliacion);
             casoRepository.save(caso);
 
-            emailService.enviarCorreo(
-                    caso.getCiudadano().getCorreo(),
-                    "Su caso requiere ampliación de información - Municipalidad de Granados",
-                    "Su caso " + caso.getCodigoSeguimiento() + " requiere ampliación de información. "
-                            + "Comentario del Auxiliar: " + caso.getComentarioRechazo()
-            );
+            notificacionCasoService.notificarAmpliacion(caso, auxiliar, ip);
 
-            bitacoraCambioService.registrar(
+            bitacoraCambioService.registrarCambio(
                     "Rechazo con ampliación",
                     auxiliar.getCui(),
+                    BitacoraCambioService.ENTIDAD_CASO,
                     caso,
                     ip,
-                    "Motivo: " + motivo.getMotivo()
+                    "Motivo: " + motivo.getMotivo(),
+                    EstadoCaso.REGISTRADO,
+                    EstadoCaso.REQUIERE_AMPLIACION
             );
         } else {
             // FA02: rechazo normal, queda pendiente de que el Supervisor lo apruebe
@@ -226,12 +234,15 @@ public class AuxiliarService {
             caso.setEstado(pendienteAprobacion);
             casoRepository.save(caso);
 
-            bitacoraCambioService.registrar(
+            bitacoraCambioService.registrarCambio(
                     "Rechazo de caso",
                     auxiliar.getCui(),
+                    BitacoraCambioService.ENTIDAD_CASO,
                     caso,
                     ip,
-                    "Motivo: " + motivo.getMotivo()
+                    "Motivo: " + motivo.getMotivo(),
+                    EstadoCaso.REGISTRADO,
+                    EstadoCaso.PENDIENTE_APROBACION_RECHAZO
             );
         }
 
