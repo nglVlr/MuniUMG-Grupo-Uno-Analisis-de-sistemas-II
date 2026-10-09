@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SeguimientoCasoComponent } from '../seguimiento-caso/seguimiento-caso.component';
-import { MiCuentaComponent } from '../mi-cuenta/mi-cuenta.component';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import {
@@ -12,12 +10,12 @@ import {
   MotivoRechazo
 } from '../core/auxiliar.service';
 
-type VistaAuxiliar = 'menu' | 'lista' | 'detalle' | 'rechazo' | 'seguimiento' | 'cuenta';
+type VistaAuxiliar = 'menu' | 'lista' | 'detalle' | 'rechazo';
 
 @Component({
   selector: 'app-bandeja-auxiliar',
   standalone: true,
-  imports: [CommonModule, FormsModule, SeguimientoCasoComponent, MiCuentaComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './bandeja-auxiliar.component.html',
   styleUrl: './bandeja-auxiliar.component.css'
 })
@@ -69,20 +67,6 @@ export class BandejaAuxiliarComponent {
 
   volverAlMenu(): void {
     this.vista = 'menu';
-  }
-
-  // CU-12: datos propios del usuario
-  abrirMiCuenta(): void {
-    this.mensaje = '';
-    this.mensajeExito = '';
-    this.vista = 'cuenta';
-  }
-
-  // Seguimiento del caso: consulta de solo lectura del expediente
-  abrirSeguimiento(): void {
-    this.mensaje = '';
-    this.mensajeExito = '';
-    this.vista = 'seguimiento';
   }
 
   // ---------- FA06: Cerrar sesión ----------

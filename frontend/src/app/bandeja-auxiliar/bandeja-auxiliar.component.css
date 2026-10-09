@@ -125,11 +125,23 @@
 }
 
 /* ================= Menu principal ================= */
+/* El menu del Auxiliar tiene dos opciones: se fijan dos columnas con ancho
+   maximo y centradas, para que las tarjetas no se estiren a lo ancho de la
+   bandeja como pasaba con el auto-fit de seis opciones. */
 .auxiliar__menu {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
-  margin: 4px 0 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 8px auto 12px;
+  max-width: 760px;
+  width: 100%;
+}
+
+/* En pantallas angostas las dos tarjetas se apilan */
+@media (max-width: 680px) {
+  .auxiliar__menu {
+    grid-template-columns: 1fr;
+  }
 }
 
 .auxiliar__opcion {

@@ -85,7 +85,8 @@ public class BitacoraCambioService {
             registro.setEntidad(entidad);
             registro.setCaso(caso);
             registro.setFecha(LocalDate.now());
-            registro.setHora(LocalTime.now());
+            // Sin nanosegundos: la hora se muestra y se exporta tal como se guarda
+            registro.setHora(LocalTime.now().withNano(0));
             registro.setIpOrigen(ipOrigen);
             registro.setDetalle(detalle);
             registro.setValorAnterior(recortar(valorAnterior));

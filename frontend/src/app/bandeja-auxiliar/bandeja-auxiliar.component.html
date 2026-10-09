@@ -15,10 +15,6 @@
           Bandeja Auxiliar
         } @else if (vista === 'lista') {
           Casos Asignados
-        } @else if (vista === 'cuenta') {
-          Mi Cuenta
-        } @else if (vista === 'seguimiento') {
-          Seguimiento del Caso
         } @else if (vista === 'detalle') {
           Detalle del caso
         } @else {
@@ -33,7 +29,7 @@
           <span class="auxiliar__usuario-rol">Auxiliar &middot;</span>
           <strong>{{ nombreUsuario }}</strong>
         </span>
-        @if (vista === 'lista' || vista === 'seguimiento' || vista === 'cuenta') {
+        @if (vista === 'lista') {
         <button type="button" class="auxiliar__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
         }
       </div>
@@ -60,54 +56,6 @@
           </span>
         </button>
 
-        <button type="button" class="auxiliar__opcion" disabled>
-          <span class="auxiliar__opcion-icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-            </svg>
-          </span>
-          <span class="auxiliar__opcion-texto">
-            <span class="auxiliar__opcion-titulo">Casos en Revisión</span>
-            <span class="auxiliar__opcion-detalle">Disponible en una próxima versión</span>
-          </span>
-        </button>
-
-        <button type="button" class="auxiliar__opcion" (click)="abrirMiCuenta()">
-          <span class="auxiliar__opcion-icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-            </svg>
-          </span>
-          <span class="auxiliar__opcion-texto">
-            <span class="auxiliar__opcion-titulo">Mi Cuenta</span>
-            <span class="auxiliar__opcion-detalle">Datos personales y cambio de contraseña</span>
-          </span>
-        </button>
-
-        <button type="button" class="auxiliar__opcion" (click)="abrirSeguimiento()">
-          <span class="auxiliar__opcion-icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </span>
-          <span class="auxiliar__opcion-texto">
-            <span class="auxiliar__opcion-titulo">Seguimiento del Caso</span>
-            <span class="auxiliar__opcion-detalle">Consulta de un caso por su código</span>
-          </span>
-        </button>
-
-        <button type="button" class="auxiliar__opcion" disabled>
-          <span class="auxiliar__opcion-icono" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
-            </svg>
-          </span>
-          <span class="auxiliar__opcion-texto">
-            <span class="auxiliar__opcion-titulo">Reportes</span>
-            <span class="auxiliar__opcion-detalle">Disponible en una próxima versión</span>
-          </span>
-        </button>
-
         <button type="button" class="auxiliar__opcion auxiliar__opcion--salir" (click)="cerrarSesion()">
           <span class="auxiliar__opcion-icono" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -116,7 +64,7 @@
           </span>
           <span class="auxiliar__opcion-texto">
             <span class="auxiliar__opcion-titulo">Cerrar sesión</span>
-            <span class="auxiliar__opcion-detalle">Salir del sistema de forma segura</span>
+            <span class="auxiliar__opcion-detalle">Salir del sistema</span>
           </span>
         </button>
       </nav>
@@ -299,16 +247,6 @@
           <button type="button" class="btn btn--text" (click)="cancelarRechazo()">Cancelar</button>
         </div>
       </form>
-      }
-
-      <!-- ================= CU-12 ADMINISTRAR CUENTA ================= -->
-      @if (vista === 'cuenta') {
-      <app-mi-cuenta />
-      }
-
-      <!-- ================= SEGUIMIENTO DEL CASO (solo lectura) ================= -->
-      @if (vista === 'seguimiento') {
-      <app-seguimiento-caso />
       }
     </div>
   </div>

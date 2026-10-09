@@ -6,7 +6,11 @@ services:
     image: postgres:16-alpine
     container_name: quejas-db
     restart: unless-stopped
+    # La zona horaria debe ser la de Guatemala: CURRENT_TIMESTAMP alimenta
+    # los DEFAULT de create_at y por omision el motor queda en UTC.
+    command: postgres -c timezone=America/Guatemala
     environment:
+      TZ: America/Guatemala
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -29,6 +33,10 @@ services:
     container_name: quejas-backend
     restart: unless-stopped
     environment:
+      # LocalDate.now() y LocalTime.now() toman la zona del JVM; la imagen
+      # alpine no trae tzdata, por eso se fija tambien user.timezone.
+      TZ: America/Guatemala
+      JAVA_TOOL_OPTIONS: -Duser.timezone=America/Guatemala
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
