@@ -67,6 +67,20 @@ public class NotificacionCasoService {
                 caso, auxiliar.getCui(), ip);
     }
 
+    // ---------- CU-10 FA08: el Administrador reasigna el caso a otro Técnico ----------
+    public void notificarReasignacionTecnico(Caso caso, Usuario admin, String ip) {
+        if (caso.getTecnico() == null) {
+            return;
+        }
+        String cuerpo = "Le fue reasignado el caso " + caso.getCodigoSeguimiento()
+                + " del departamento de " + caso.getDepartamento().getNombre()
+                + ", que atendía otro Técnico. Ingrese al sistema para continuar su atención.";
+
+        notificar(Notificacion.EVENTO_ASIGNACION, caso.getTecnico().getCorreo(),
+                "Caso reasignado" + FIRMA, cuerpo,
+                caso, admin.getCui(), ip);
+    }
+
     // ---------- CU-06 FA02: el Supervisor devuelve el caso al Técnico ----------
     public void notificarDevolucionAlTecnico(Caso caso, String observaciones, Usuario supervisor, String ip) {
         if (caso.getTecnico() == null) {

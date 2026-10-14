@@ -4,7 +4,6 @@ import gt.muni.quejas.dto.DtoCambioEstadoUsuario;
 import gt.muni.quejas.dto.DtoCatalogosUsuario;
 import gt.muni.quejas.dto.DtoGuardarUsuario;
 import gt.muni.quejas.dto.DtoMensaje;
-import gt.muni.quejas.dto.DtoReasignacionCasos;
 import gt.muni.quejas.dto.DtoUsuarioAdmin;
 import gt.muni.quejas.model.Usuario;
 import gt.muni.quejas.service.AdminUsuarioService;
@@ -71,7 +70,8 @@ public class AdminUsuarioController {
         return ResponseEntity.ok(adminUsuarioService.editarUsuario(cui, dto, admin, ip));
     }
 
-    // CU-10 FA01: cambio del estado de disponibilidad
+    // CU-10 FA04: cambio del estado de disponibilidad
+    // FA08: cuiDestino viaja en el mismo cuerpo para reasignar los casos pendientes
     @PutMapping("/{cui}/estado")
     public ResponseEntity<DtoMensaje> cambiarEstado(
             @PathVariable String cui,
@@ -79,17 +79,7 @@ public class AdminUsuarioController {
             @AuthenticationPrincipal Usuario admin,
             HttpServletRequest request) {
         String ip = ClienteHttp.ipOrigen(request);
-        return ResponseEntity.ok(adminUsuarioService.cambiarEstado(cui, dto.idEstado(), admin, ip));
-    }
-
-    // CU-10 FA04: reasignar los casos activos antes de inactivar al usuario
-    @PostMapping("/{cui}/reasignar-casos")
-    public ResponseEntity<DtoMensaje> reasignarCasos(
-            @PathVariable String cui,
-            @RequestBody DtoReasignacionCasos dto,
-            @AuthenticationPrincipal Usuario admin,
-            HttpServletRequest request) {
-        String ip = ClienteHttp.ipOrigen(request);
-        return ResponseEntity.ok(adminUsuarioService.reasignarCasos(cui, dto.cuiDestino(), admin, ip));
+        return ResponseEntity.ok(
+                adminUsuarioService.cambiarEstado(cui, dto.idEstado(), dto.cuiDestino(), admin, ip));
     }
 }

@@ -23,6 +23,11 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
 
     List<Caso> findByDepartamentoIdAndEstadoInOrderByCreateAtAsc(Long idDepartamento, List<EstadoCaso> estados);
 
+    // CU-10 FA08: casos que el Técnico tiene a su cargo, para saber si puede inactivarse
+    long countByTecnicoAndEstadoIn(Usuario tecnico, List<EstadoCaso> estados);
+
+    List<Caso> findByTecnicoAndEstadoInOrderByCreateAtAsc(Usuario tecnico, List<EstadoCaso> estados);
+
     long countByCategoriaId(Long idCategoria);
 
     long countByDepartamentoId(Long idDepartamento);

@@ -46,6 +46,7 @@ public class AdminUsuarioService {
     private final EstadoCasoRepository estadoCasoRepository;
     private final PasswordEncoder passwordEncoder;
     private final BitacoraCambioService bitacoraCambioService;
+    private final NotificacionCasoService notificacionCasoService;
 
     public AdminUsuarioService(UsuarioRepository usuarioRepository,
                                RolRepository rolRepository,
@@ -54,7 +55,8 @@ public class AdminUsuarioService {
                                CasoRepository casoRepository,
                                EstadoCasoRepository estadoCasoRepository,
                                PasswordEncoder passwordEncoder,
-                               BitacoraCambioService bitacoraCambioService) {
+                               BitacoraCambioService bitacoraCambioService,
+                               NotificacionCasoService notificacionCasoService) {
         this.usuarioRepository = usuarioRepository;
         this.rolRepository = rolRepository;
         this.departamentoRepository = departamentoRepository;
@@ -63,9 +65,10 @@ public class AdminUsuarioService {
         this.estadoCasoRepository = estadoCasoRepository;
         this.passwordEncoder = passwordEncoder;
         this.bitacoraCambioService = bitacoraCambioService;
+        this.notificacionCasoService = notificacionCasoService;
     }
 
-    // ---------- CU-10 paso 2: listado de usuarios internos ----------
+    // ---------- CU-10 paso 4: listado de usuarios internos ----------
     @Transactional(readOnly = true)
     public List<DtoUsuarioAdmin> listarUsuarios(Usuario admin) {
         validarRolAdmin(admin);
@@ -84,7 +87,7 @@ public class AdminUsuarioService {
         return convertir(buscarUsuario(cui));
     }
 
-    // ---------- CU-10 paso 4: listas del formulario ----------
+    // ---------- CU-10 pasos 4 y 7: listas de los filtros y del formulario usuario ----------
     @Transactional(readOnly = true)
     public DtoCatalogosUsuario obtenerCatalogos(Usuario admin) {
         validarRolAdmin(admin);
@@ -111,7 +114,7 @@ public class AdminUsuarioService {
         return new DtoCatalogosUsuario(opcionesRol, opcionesDepartamento, opcionesEstado);
     }
 
-    // ---------- CU-10 pasos 5 al 9: Nuevo Usuario ----------
+    // ---------- CU-10 pasos 9 al 14: Nuevo Usuario ----------
     @Transactional
     public DtoMensaje crearUsuario(DtoGuardarUsuario dto, Usuario admin, String ip) {
         validarRolAdmin(admin);
@@ -150,7 +153,7 @@ public class AdminUsuarioService {
         return new DtoMensaje(MENSAJE_USUARIO_GUARDADO);
     }
 
-    // ---------- CU-10 pasos 5 al 9: editar un usuario existente ----------
+    // ---------- CU-10 FA03: editar un usuario existente ----------
     @Transactional
     public DtoMensaje editarUsuario(String cui, DtoGuardarUsuario dto, Usuario admin, String ip) {
         validarRolAdmin(admin);
@@ -166,14 +169,25 @@ public class AdminUsuarioService {
         }
 
         EstadoUsuarios estadoNuevo = buscarEstado(dto.idEstado());
+        Rol rolNuevo = buscarRol(dto.idRol());
+        Departamento departamentoNuevo = buscarDepartamento(dto.idDepartamento());
+
+        // FA11: el estado, el rol y el departamento definen la bandeja que atiende el
+        // usuario. Si tiene casos a su cargo primero hay que reasignarlos con el botón
+        // Estado (FA08); de lo contrario esos casos dejarían de aparecer en cualquier
+        // bandeja y nadie podría atenderlos.
         if (!estadoNuevo.getEstado().equals(usuario.getIdEstado().getEstado())) {
             validarSinCasosActivos(usuario, estadoNuevo);
+        }
+        if (!rolNuevo.getId().equals(usuario.getIdRol().getId())
+                || !departamentoNuevo.getId().equals(usuario.getIdDepartamento().getId())) {
+            validarSinCasosPendientes(usuario);
         }
 
         usuario.setNombre(dto.nombre().trim());
         usuario.setCorreo(correo);
-        usuario.setIdRol(buscarRol(dto.idRol()));
-        usuario.setIdDepartamento(buscarDepartamento(dto.idDepartamento()));
+        usuario.setIdRol(rolNuevo);
+        usuario.setIdDepartamento(departamentoNuevo);
         usuario.setIdEstado(estadoNuevo);
 
         // La contraseña solo cambia si el Admin escribió una nueva
@@ -194,16 +208,20 @@ public class AdminUsuarioService {
         return new DtoMensaje(MENSAJE_USUARIO_GUARDADO);
     }
 
-    // ---------- CU-10 FA01: cambio del estado de disponibilidad ----------
+    // ---------- CU-10 FA04: cambio del estado de disponibilidad ----------
+    // FA08: cuiDestino viene vacío en el primer intento; si el usuario tiene casos
+    // pendientes se devuelve el error y el Admin reenvía la petición con el destino.
     @Transactional
-    public DtoMensaje cambiarEstado(String cui, Long idEstado, Usuario admin, String ip) {
+    public DtoMensaje cambiarEstado(String cui, Long idEstado, String cuiDestino, Usuario admin, String ip) {
         validarRolAdmin(admin);
 
         Usuario usuario = buscarUsuario(cui);
         EstadoUsuarios estadoNuevo = buscarEstado(idEstado);
         String estadoAnterior = usuario.getIdEstado().getEstado();
 
-        validarSinCasosActivos(usuario, estadoNuevo);
+        if (!ESTADO_ACTIVO.equals(estadoNuevo.getEstado()) && contarCasosActivos(usuario) > 0) {
+            reasignarCasos(usuario, cuiDestino, admin, ip);
+        }
 
         usuario.setIdEstado(estadoNuevo);
 
@@ -226,41 +244,25 @@ public class AdminUsuarioService {
         return new DtoMensaje(MENSAJE_USUARIO_GUARDADO);
     }
 
-    // ---------- CU-10 FA04: reasignar los casos activos a otro Técnico ----------
-    @Transactional
-    public DtoMensaje reasignarCasos(String cuiOrigen, String cuiDestino, Usuario admin, String ip) {
-        validarRolAdmin(admin);
+    // ---------- CU-10 FA08: reasignar los casos del Técnico antes de inactivarlo ----------
+    private void reasignarCasos(Usuario origen, String cuiDestino, Usuario admin, String ip) {
+        List<Usuario> candidatos = buscarTecnicosDestino(origen);
 
-        Usuario origen = buscarUsuario(cuiOrigen);
+        // FA10: sin otro Técnico activo en el departamento los casos quedarían sin
+        // responsable, así que el Técnico no puede salir de Activo
+        if (candidatos.isEmpty()) {
+            throw new NegocioException(CodigoError.SIN_USUARIO_DESTINO);
+        }
         if (cuiDestino == null || cuiDestino.isBlank()) {
-            throw new NegocioException(CodigoError.CAMPOS_OBLIGATORIOS);
-        }
-        Usuario destino = buscarUsuario(cuiDestino.trim());
-
-        if (origen.getCui().equals(destino.getCui())) {
-            throw new NegocioException(CodigoError.DATOS_USUARIO_INVALIDOS);
-        }
-        // El destino debe poder recibir casos: Técnico activo del mismo departamento
-        if (!ROL_TECNICO.equals(destino.getIdRol().getRol())
-                || !ESTADO_ACTIVO.equals(destino.getIdEstado().getEstado())
-                || !destino.getIdDepartamento().getId().equals(origen.getIdDepartamento().getId())) {
-            throw new NegocioException(CodigoError.DATOS_USUARIO_INVALIDOS);
+            throw new NegocioException(CodigoError.USUARIO_CON_CASOS_ACTIVOS);
         }
 
-        EstadoCaso enAtencion = estadoCasoRepository.findByEstado(EstadoCaso.EN_ATENCION)
-                .orElseThrow(() -> new NegocioException(CodigoError.ERROR_INTERNO, "No existe el estado En Atención"));
+        Usuario destino = buscarDestinoEntreCandidatos(candidatos, cuiDestino.trim());
+        int reasignados = trasladarCasos(origen, destino, admin, ip);
 
-        List<Caso> casos = casoRepository.findByTecnicoAndEstadoOrderByCreateAtAsc(origen, enAtencion);
-        for (int i = 0; i < casos.size(); i++) {
-            Caso caso = casos.get(i);
-            caso.setTecnico(destino);
-            casoRepository.save(caso);
-        }
-
-        destino.setCantidadCasosAsignados(destino.getCantidadCasosAsignados() + casos.size());
-        origen.setCantidadCasosAsignados(0);
-        usuarioRepository.save(destino);
-        usuarioRepository.save(origen);
+        String resumen = reasignados == 1
+                ? "Se reasignó 1 caso de "
+                : "Se reasignaron " + reasignados + " casos de ";
 
         bitacoraCambioService.registrarCambio(
                 "Reasignación de casos",
@@ -268,20 +270,112 @@ public class AdminUsuarioService {
                 BitacoraCambioService.ENTIDAD_USUARIO,
                 null,
                 ip,
-                "Se reasignaron " + casos.size() + " casos de " + origen.getCorreo()
-                        + " a " + destino.getCorreo()
+                resumen + origen.getCorreo() + " al Técnico " + destino.getCorreo()
         );
+    }
 
-        return new DtoMensaje(MENSAJE_USUARIO_GUARDADO);
+    // El destino atiende la misma bandeja: un Técnico en estado Activo del mismo
+    // departamento, porque el caso se asigna siempre dentro de su departamento (CU-04)
+    private List<Usuario> buscarTecnicosDestino(Usuario origen) {
+        List<Usuario> tecnicos = usuarioRepository.buscarTecnicosActivosPorDepartamento(
+                origen.getIdDepartamento().getId());
+
+        List<Usuario> candidatos = new ArrayList<>();
+        for (int i = 0; i < tecnicos.size(); i++) {
+            if (!tecnicos.get(i).getCui().equals(origen.getCui())) {
+                candidatos.add(tecnicos.get(i));
+            }
+        }
+        return candidatos;
+    }
+
+    private Usuario buscarDestinoEntreCandidatos(List<Usuario> candidatos, String cuiDestino) {
+        for (int i = 0; i < candidatos.size(); i++) {
+            if (candidatos.get(i).getCui().equals(cuiDestino)) {
+                return candidatos.get(i);
+            }
+        }
+        throw new NegocioException(CodigoError.DATOS_USUARIO_INVALIDOS);
+    }
+
+    private int trasladarCasos(Usuario origen, Usuario destino, Usuario admin, String ip) {
+        List<Caso> casos = casoRepository.findByTecnicoAndEstadoInOrderByCreateAtAsc(
+                origen, estadosDeLaCarga());
+
+        int enAtencion = 0;
+        for (int i = 0; i < casos.size(); i++) {
+            Caso caso = casos.get(i);
+            caso.setTecnico(destino);
+            casoRepository.save(caso);
+
+            if (EstadoCaso.EN_ATENCION.equals(caso.getEstado().getEstado())) {
+                enAtencion++;
+            }
+
+            // RN35: el Técnico que recibe el caso se entera por correo, igual que
+            // cuando el Auxiliar le asigna uno nuevo (CU-09)
+            notificacionCasoService.notificarReasignacionTecnico(caso, admin, ip);
+        }
+
+        // El contador refleja únicamente los casos En Atención, que es la carga con la
+        // que el Auxiliar reparte los casos nuevos (CU-04)
+        destino.setCantidadCasosAsignados(destino.getCantidadCasosAsignados() + enAtencion);
+        origen.setCantidadCasosAsignados(0);
+        usuarioRepository.save(destino);
+        usuarioRepository.save(origen);
+
+        return casos.size();
+    }
+
+    // ---------- Carga del usuario (RN26) ----------
+    // Estados en los que el Técnico sigue siendo el responsable del caso, incluso
+    // mientras el Supervisor o la Jefatura lo tienen en su bandeja y pueden devolverlo.
+    private List<EstadoCaso> estadosDeLaCarga() {
+        List<String> nombres = new ArrayList<>();
+        nombres.add(EstadoCaso.EN_ATENCION);
+        nombres.add(EstadoCaso.EN_SUPERVISION);
+        nombres.add(EstadoCaso.PENDIENTE_FIRMA);
+        nombres.add(EstadoCaso.REQUIERE_AMPLIACION);
+
+        List<EstadoCaso> estados = new ArrayList<>();
+        for (int i = 0; i < nombres.size(); i++) {
+            estados.add(buscarEstadoCaso(nombres.get(i)));
+        }
+        return estados;
+    }
+
+    // Solo el Técnico tiene casos a su nombre. El Auxiliar, el Supervisor y el Jefe
+    // atienden bandejas compartidas por departamento (CU-04, CU-06, CU-07): ahí ningún
+    // caso depende de un usuario en particular, así que no tienen carga que reasignar.
+    private int contarCasosActivos(Usuario usuario) {
+        if (!esTecnico(usuario)) {
+            return 0;
+        }
+        return (int) casoRepository.countByTecnicoAndEstadoIn(usuario, estadosDeLaCarga());
+    }
+
+    private boolean esTecnico(Usuario usuario) {
+        return usuario.getIdRol() != null && ROL_TECNICO.equals(usuario.getIdRol().getRol());
+    }
+
+    private EstadoCaso buscarEstadoCaso(String nombre) {
+        return estadoCasoRepository.findByEstado(nombre)
+                .orElseThrow(() -> new NegocioException(
+                        CodigoError.ERROR_INTERNO, "No existe el estado " + nombre));
     }
 
     // ---------- Métodos de apoyo ----------
-    // FA04: no se puede inactivar, bloquear o ausentar a quien tiene casos en atención
+    // FA11: no se puede inactivar, bloquear o ausentar a quien tiene casos pendientes
+    // desde la edición del usuario. La reasignación se hace desde el botón Estado.
     private void validarSinCasosActivos(Usuario usuario, EstadoUsuarios estadoNuevo) {
         if (ESTADO_ACTIVO.equals(estadoNuevo.getEstado())) {
             return;
         }
-        if (usuario.getCantidadCasosAsignados() > 0) {
+        validarSinCasosPendientes(usuario);
+    }
+
+    private void validarSinCasosPendientes(Usuario usuario) {
+        if (contarCasosActivos(usuario) > 0) {
             throw new NegocioException(CodigoError.USUARIO_CON_CASOS_ACTIVOS);
         }
     }
@@ -327,7 +421,7 @@ public class AdminUsuarioService {
                 usuario.getIdDepartamento() == null ? "" : usuario.getIdDepartamento().getNombre(),
                 usuario.getIdEstado() == null ? null : usuario.getIdEstado().getId(),
                 usuario.getIdEstado() == null ? "" : usuario.getIdEstado().getEstado(),
-                usuario.getCantidadCasosAsignados()
+                contarCasosActivos(usuario)
         );
     }
 

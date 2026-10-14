@@ -148,10 +148,10 @@
       </nav>
       }
 
-      <!-- ================= PASO 2: LISTADO DE USUARIOS ================= -->
+      <!-- ================= PASO 4: LISTADO DE USUARIOS ================= -->
       @if (vista === 'usuarios') {
 
-      <!-- FA03: Filtros de búsqueda -->
+      <!-- FA02: Filtros de búsqueda -->
       <div class="admin__filtros">
         <div class="admin__campo">
           <label class="admin__label">Buscar por nombre o correo</label>
@@ -229,7 +229,7 @@
       }
       }
 
-      <!-- ================= PASO 4: FORMULARIO DE USUARIO ================= -->
+      <!-- ================= PASO 7: FORMULARIO DE USUARIO ================= -->
       @if (vista === 'formulario') {
       <form class="admin__form" (ngSubmit)="guardarUsuario()">
         <div class="admin__grid">
@@ -324,7 +324,7 @@
       </form>
       }
 
-      <!-- ================= FA01 Y FA04: ESTADO Y REASIGNACIÓN ================= -->
+      <!-- ================= FA04 Y FA08: ESTADO Y REASIGNACIÓN ================= -->
       @if (vista === 'estado' && usuarioEstado) {
       <div class="admin__detalle">
         <div class="admin__grid">
@@ -350,14 +350,18 @@
           </div>
         </div>
 
-        <!-- FA04: hay que reasignar los casos antes de continuar -->
+        <!-- FA08: hay que reasignar los casos a su cargo antes de continuar -->
         @if (mostrarReasignacion) {
         <div class="admin__campo">
-          <label class="admin__label" for="cuiDestino">Reasignar sus casos al Técnico</label>
+          <label class="admin__label" for="cuiDestino">
+            Reasignar sus casos a otro {{ usuarioEstado.rol }}
+          </label>
           <select id="cuiDestino" name="cuiDestino" class="admin__input" [(ngModel)]="cuiDestino">
             <option value="">Seleccione</option>
-            @for (tecnico of tecnicosDestino; track tecnico.cui) {
-            <option [value]="tecnico.cui">{{ tecnico.nombre }} ({{ tecnico.casosActivos }} casos)</option>
+            @for (destino of usuariosDestino; track destino.cui) {
+            <option [value]="destino.cui">
+              {{ destino.nombre }} - {{ destino.departamento }} ({{ destino.casosActivos }} casos)
+            </option>
             }
           </select>
         </div>

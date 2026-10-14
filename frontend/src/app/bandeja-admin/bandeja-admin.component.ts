@@ -39,16 +39,16 @@ export class BandejaAdminComponent {
   filtroRol = '';
   filtroDepartamento = '';
 
-  // Formulario de usuario (CU-10 paso 4)
+  // Formulario de usuario (CU-10 paso 7)
   editando: UsuarioAdmin | null = null;
   formulario: GuardarUsuario = this.formularioVacio();
 
-  // FA01 y FA04: cambio de estado y reasignación de casos
+  // FA04 y FA08: cambio de estado y reasignación de casos
   usuarioEstado: UsuarioAdmin | null = null;
   idEstadoNuevo: number | null = null;
   mostrarReasignacion = false;
   cuiDestino = '';
-  tecnicosDestino: UsuarioAdmin[] = [];
+  usuariosDestino: UsuarioAdmin[] = [];
 
   mensaje = '';
   mensajeExito = '';
@@ -74,7 +74,7 @@ export class BandejaAdminComponent {
     this.nombreUsuario = this.authService.obtenerNombreUsuario();
   }
 
-  // ---------- CU-10 paso 1: el Admin entra a Mantenimiento de Usuarios ----------
+  // ---------- CU-10 paso 3: el Admin entra a Mantenimiento de Usuarios ----------
   abrirUsuarios(): void {
     this.vista = 'usuarios';
     this.mensajeExito = '';
@@ -147,7 +147,7 @@ export class BandejaAdminComponent {
     });
   }
 
-  // ---------- CU-10 FA03: filtros por nombre, rol o departamento ----------
+  // ---------- CU-10 FA02: filtros por nombre, rol o departamento ----------
   aplicarFiltros(): void {
     const nombre = this.filtroNombre.trim().toLowerCase();
     const resultado: UsuarioAdmin[] = [];
@@ -182,7 +182,7 @@ export class BandejaAdminComponent {
     this.usuarios = this.usuariosOriginal;
   }
 
-  // ---------- CU-10 paso 3: Nuevo Usuario ----------
+  // ---------- CU-10 paso 6: Nuevo Usuario ----------
   abrirNuevoUsuario(): void {
     this.mensaje = '';
     this.editando = null;
@@ -190,7 +190,7 @@ export class BandejaAdminComponent {
     this.vista = 'formulario';
   }
 
-  // ---------- CU-10 paso 3: seleccionar un usuario existente ----------
+  // ---------- CU-10 FA03: seleccionar un usuario existente ----------
   abrirEdicion(usuario: UsuarioAdmin): void {
     this.mensaje = '';
     this.editando = usuario;
@@ -206,11 +206,11 @@ export class BandejaAdminComponent {
     this.vista = 'formulario';
   }
 
-  // ---------- CU-10 pasos 5 al 9: Guardar ----------
+  // ---------- CU-10 pasos 10 al 14: Guardar ----------
   guardarUsuario(): void {
     this.mensaje = '';
 
-    // FA02: campos obligatorios incompletos
+    // FA06: campos obligatorios incompletos
     if (!this.formulario.nombre.trim() || !this.formulario.correo.trim()
         || !this.formulario.idRol || !this.formulario.idDepartamento || !this.formulario.idEstado) {
       this.mensaje = 'Debe completar todos los campos obligatorios del formulario.';
@@ -241,27 +241,29 @@ export class BandejaAdminComponent {
     });
   }
 
-  // ---------- CU-10 FA01: cambiar el estado de disponibilidad ----------
+  // ---------- CU-10 FA04: cambiar el estado de disponibilidad ----------
   abrirCambioEstado(usuario: UsuarioAdmin): void {
     this.mensaje = '';
     this.usuarioEstado = usuario;
     this.idEstadoNuevo = usuario.idEstado;
     this.mostrarReasignacion = false;
     this.cuiDestino = '';
-    this.prepararTecnicosDestino(usuario);
+    this.prepararUsuariosDestino(usuario);
     this.vista = 'estado';
   }
 
-  confirmarCambioEstado(): void {
+  // cuiDestino llega con valor cuando el Admin ya eligió a quién pasarle los casos
+  confirmarCambioEstado(cuiDestino = ''): void {
     if (!this.usuarioEstado || !this.idEstadoNuevo) {
       return;
     }
     this.mensaje = '';
     this.cargando = true;
 
-    this.adminUsuarioService.cambiarEstado(this.usuarioEstado.cui, this.idEstadoNuevo).subscribe({
+    this.adminUsuarioService.cambiarEstado(this.usuarioEstado.cui, this.idEstadoNuevo, cuiDestino).subscribe({
       next: (resultado) => {
         this.cargando = false;
+        this.mostrarReasignacion = false;
         this.mostrarMensajeExito(resultado.mensaje);
         this.vista = 'usuarios';
         this.cargarUsuarios();
@@ -270,7 +272,7 @@ export class BandejaAdminComponent {
         this.cargando = false;
         this.mensaje = this.mensajeError(error, 'Los datos ingresados no son válidos, o las contraseñas no coinciden.');
 
-        // FA04: el usuario tiene casos activos, hay que reasignarlos primero
+        // FA08: el usuario tiene casos pendientes, hay que reasignarlos primero
         if (this.mensaje.startsWith('El usuario tiene casos activos')) {
           this.mostrarReasignacion = true;
         }
@@ -278,7 +280,7 @@ export class BandejaAdminComponent {
     });
   }
 
-  // ---------- CU-10 FA04: reasignar los casos pendientes ----------
+  // ---------- CU-10 FA08: reasignar los casos pendientes y continuar ----------
   confirmarReasignacion(): void {
     if (!this.usuarioEstado) {
       return;
@@ -290,20 +292,8 @@ export class BandejaAdminComponent {
       return;
     }
 
-    this.cargando = true;
-
-    this.adminUsuarioService.reasignarCasos(this.usuarioEstado.cui, this.cuiDestino).subscribe({
-      next: () => {
-        this.cargando = false;
-        this.mostrarReasignacion = false;
-        // Ya sin casos activos, se reintenta el cambio de estado
-        this.confirmarCambioEstado();
-      },
-      error: (error) => {
-        this.cargando = false;
-        this.mensaje = this.mensajeError(error, 'Los datos ingresados no son válidos, o las contraseñas no coinciden.');
-      }
-    });
+    // El backend traslada los casos y cambia el estado en una sola operación
+    this.confirmarCambioEstado(this.cuiDestino);
   }
 
   cancelarFormulario(): void {
@@ -311,19 +301,23 @@ export class BandejaAdminComponent {
     this.vista = 'usuarios';
   }
 
-  // Los casos solo se pueden pasar a un Técnico activo del mismo departamento
-  private prepararTecnicosDestino(usuario: UsuarioAdmin): void {
+  // Solo el Técnico tiene casos a su nombre, y se pasan a otro Técnico activo de su
+  // mismo departamento, porque el caso se atiende dentro del departamento (CU-04).
+  // Las bandejas del Auxiliar, del Supervisor y del Jefe son compartidas, así que esos
+  // usuarios nunca llegan a tener casos pendientes que reasignar.
+  private prepararUsuariosDestino(usuario: UsuarioAdmin): void {
     const resultado: UsuarioAdmin[] = [];
+
     for (let i = 0; i < this.usuariosOriginal.length; i++) {
       const candidato = this.usuariosOriginal[i];
-      if (candidato.rol === 'Tecnico'
-          && candidato.estado === 'Activo'
+      if (candidato.rol === usuario.rol
           && candidato.departamento === usuario.departamento
+          && candidato.estado === 'Activo'
           && candidato.cui !== usuario.cui) {
         resultado.push(candidato);
       }
     }
-    this.tecnicosDestino = resultado;
+    this.usuariosDestino = resultado;
   }
 
   // ---------- CU-11 pasos 1 al 4: catálogos y sus elementos ----------

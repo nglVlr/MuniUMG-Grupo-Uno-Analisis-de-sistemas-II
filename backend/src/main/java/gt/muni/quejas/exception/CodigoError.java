@@ -30,6 +30,7 @@ public enum CodigoError {
     TECNICO_NO_DISPONIBLE(HttpStatus.BAD_REQUEST, "No existe un Técnico activo en el departamento para asignar el caso."),
     REPORTE_ATENCION_INCOMPLETO(HttpStatus.BAD_REQUEST, "El reporte de atención no contiene toda la información obligatoria."),
     USUARIO_CON_CASOS_ACTIVOS(HttpStatus.BAD_REQUEST, "El usuario tiene casos activos asignados. Debe reasignarlos antes de continuar."),
+    SIN_USUARIO_DESTINO(HttpStatus.BAD_REQUEST, "No existe otro Técnico activo en el departamento que pueda recibir los casos."),
     USUARIO_DUPLICADO(HttpStatus.BAD_REQUEST, "Ya existe un usuario registrado con ese CUI o correo electrónico."),
     DATOS_USUARIO_INVALIDOS(HttpStatus.BAD_REQUEST, "Los datos ingresados no son válidos, o las contraseñas no coinciden."),
     ELEMENTO_EN_USO(HttpStatus.BAD_REQUEST, "El elemento no puede eliminarse porque se encuentra en uso; puede inactivarlo."),

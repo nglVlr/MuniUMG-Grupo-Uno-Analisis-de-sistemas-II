@@ -86,20 +86,12 @@ export class AdminUsuarioService {
     );
   }
 
-  // FA01: cambio del estado de disponibilidad
-  cambiarEstado(cui: string, idEstado: number): Observable<MensajeRespuesta> {
+  // FA04: cambio del estado de disponibilidad
+  // FA08: cuiDestino solo se envía cuando hay casos pendientes que reasignar
+  cambiarEstado(cui: string, idEstado: number, cuiDestino = ''): Observable<MensajeRespuesta> {
     return this.http.put<MensajeRespuesta>(
       `${environment.apiUrl}/admin/usuarios/${cui}/estado`,
-      { idEstado },
-      { headers: this.obtenerCabeceras() }
-    );
-  }
-
-  // FA04: reasignar los casos activos a otro Técnico disponible
-  reasignarCasos(cui: string, cuiDestino: string): Observable<MensajeRespuesta> {
-    return this.http.post<MensajeRespuesta>(
-      `${environment.apiUrl}/admin/usuarios/${cui}/reasignar-casos`,
-      { cuiDestino },
+      { idEstado, cuiDestino },
       { headers: this.obtenerCabeceras() }
     );
   }
