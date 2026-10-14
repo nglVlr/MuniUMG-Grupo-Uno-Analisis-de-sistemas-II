@@ -1,0 +1,201 @@
+<mxfile host="app.diagrams.net" agent="Claude Code" version="24.7.0">
+  <diagram id="paquetes-backend" name="Diagrama de paquetes - Backend">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Título -->
+        <mxCell id="titulo" value="Diagrama de paquetes — Backend Sistema de Quejas (Spring Boot)" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="10" width="900" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Paquete raíz -->
+        <mxCell id="pkg" value="&lt;b&gt;gt.muni.quejas&lt;/b&gt;" style="shape=folder;tabWidth=170;tabHeight=26;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=10;spacingTop=2;fontSize=13;fillColor=#FFFFFF;strokeColor=#333333;container=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="1240" height="960" as="geometry" />
+        </mxCell>
+
+        <!-- Clase principal -->
+        <mxCell id="app" value="&lt;b&gt;QuejasApplication&lt;/b&gt;&lt;br&gt;&lt;i&gt;@SpringBootApplication&lt;/i&gt;" style="rounded=0;html=1;whiteSpace=wrap;fontSize=11;fillColor=#FFFFFF;strokeColor=#333333;" vertex="1" parent="pkg">
+          <mxGeometry x="40" y="60" width="260" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- config -->
+        <mxCell id="config" value="&lt;b&gt;config&lt;/b&gt;&lt;br&gt;&lt;br&gt;AccessDeniedHandlerPersonalizado&lt;br&gt;ArchivoProperties&lt;br&gt;CacheConfiguration&lt;br&gt;EntryPointNoAutorizado&lt;br&gt;SecurityConfiguration&lt;br&gt;SecurityFilter" style="shape=folder;tabWidth=90;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="pkg">
+          <mxGeometry x="40" y="160" width="260" height="170" as="geometry" />
+        </mxCell>
+
+        <!-- util -->
+        <mxCell id="util" value="&lt;b&gt;util&lt;/b&gt;&lt;br&gt;&lt;br&gt;ClienteHttp&lt;br&gt;PasswordRn08&lt;br&gt;TipoCaso" style="shape=folder;tabWidth=90;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="pkg">
+          <mxGeometry x="40" y="400" width="260" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- controller -->
+        <mxCell id="controller" value="&lt;b&gt;controller&lt;/b&gt;&lt;br&gt;&lt;br&gt;AdminCatalogoController, AdminUsuarioController, AmpliacionCasoController, AuthenticationController, AuxiliarController, BitacoraController, CasoController, CategoriaController, CierreSesionController, JefaturaController, MiCuentaController, RecuperacionPasswordController, ReporteController, SeguimientoController, SupervisorController, TecnicoController" style="shape=folder;tabWidth=110;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingRight=8;spacingTop=3;fontSize=10;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="pkg">
+          <mxGeometry x="380" y="60" width="420" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- service -->
+        <mxCell id="service" value="&lt;b&gt;service&lt;/b&gt;&lt;br&gt;&lt;br&gt;AdminCatalogoService, AdminUsuarioService, AmpliacionCasoService, AutenticationService, AuxiliarService, BitacoraCambioService, BitacoraConsultaService, CasoService, CatalogoCacheService, EmailService, EvidenciaStorageService, InformeAtencionService, InformeInicialService, InformeSupervisionService, JefaturaService, MiCuentaService, NotificacionCasoService, OficioResolucionService, RecuperacionPasswordService, ReporteExcelService, ReportePdfService, ReporteService, SeguimientoService, SupervisorService, TecnicoService, TokenService, VerificacionCiudadanoService" style="shape=folder;tabWidth=110;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingRight=8;spacingTop=3;fontSize=10;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="pkg">
+          <mxGeometry x="380" y="300" width="420" height="200" as="geometry" />
+        </mxCell>
+
+        <!-- repository -->
+        <mxCell id="repository" value="&lt;b&gt;repository&lt;/b&gt;&lt;br&gt;&lt;br&gt;ActividadCasoRepository, BitacoraCambioRepository, CasoRepository, CategoriaRepository, CiudadanoRepository, CorrelativoSeguimientoRepository, DepartamentoRepository, EstadoCasoRepository, EstadoUsuarioRepository, EvidenciaRepository, MotivoRechazoRepository, NotificacionRepository, RolRepository, TokenRecuperacionRepository, TokenVerificacionCiudadanoRepository, UsuarioRepository" style="shape=folder;tabWidth=110;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingRight=8;spacingTop=3;fontSize=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pkg">
+          <mxGeometry x="380" y="580" width="420" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- model -->
+        <mxCell id="model" value="&lt;b&gt;model&lt;/b&gt; &lt;i&gt;(entidades JPA)&lt;/i&gt;&lt;br&gt;&lt;br&gt;ActividadCaso, BitacoraCambio, Caso, Categoria, Ciudadano, CorrelativoSeguimiento, Departamento, EstadoCaso, EstadoUsuarios, Evidencia, MotivoRechazo, Notificacion, Rol, TokenRecuperacion, TokenVerificacionCiudadano, Usuario" style="shape=folder;tabWidth=170;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingRight=8;spacingTop=3;fontSize=10;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="pkg">
+          <mxGeometry x="380" y="800" width="420" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- dto -->
+        <mxCell id="dto" value="&lt;b&gt;dto&lt;/b&gt;&lt;br&gt;&lt;br&gt;DtoActividad, DtoActualizarCuenta, DtoBitacora, DtoCambioEstadoUsuario, DtoCambioPassword, DtoCasoAmpliacion, DtoCasoBandeja, DtoCasoDetalleAuxiliar, DtoCasoDetalleSupervisor, DtoCatalogoElemento, DtoCatalogosUsuario, DtoCategoria, DtoCerrarSesionCiudadano, DtoCiudadano, DtoConfirmarRecuperacion, DtoConfirmarVerificacion, DtoConsultaCasoRespuesta, DtoConteo, DtoError, DtoExpediente, DtoGuardarCatalogo, DtoGuardarUsuario, DtoHistorialCaso, DtoJwtRespuesta, DtoJwtToken, DtoMensaje, DtoMiCuenta, DtoMotivoRechazo, DtoNuevaActividad, DtoObservaciones, DtoOpcionCatalogo, DtoPaginaBitacora, DtoRechazoAuxiliar, DtoRegistroCasoRespuesta, DtoReporteEstadistico, DtoSolicitudRecuperacion, DtoSolicitudVerificacion, DtoTrazabilidadCaso, DtoUsuario, DtoUsuarioAdmin" style="shape=folder;tabWidth=90;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingRight=8;spacingTop=3;fontSize=10;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="pkg">
+          <mxGeometry x="900" y="160" width="300" height="320" as="geometry" />
+        </mxCell>
+
+        <!-- exception -->
+        <mxCell id="exception" value="&lt;b&gt;exception&lt;/b&gt;&lt;br&gt;&lt;br&gt;CodigoError&lt;br&gt;DetalleError&lt;br&gt;ManejadorGlobalExcepciones&lt;br&gt;NegocioException" style="shape=folder;tabWidth=100;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="pkg">
+          <mxGeometry x="900" y="580" width="300" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Dependencias internas (import) -->
+        <mxCell id="e_app_config" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;" edge="1" parent="pkg" source="app" target="config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ctrl_service" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;" edge="1" parent="pkg" source="controller" target="service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ctrl_dto" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=1;exitY=0.5;entryX=0;entryY=0.15;" edge="1" parent="pkg" source="controller" target="dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ctrl_exc" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.15;entryX=0.5;entryY=0;" edge="1" parent="pkg" source="controller" target="exception">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="860" y="84" />
+              <mxPoint x="860" y="540" />
+              <mxPoint x="1050" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_ctrl_util" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.85;entryX=1;entryY=0.3;" edge="1" parent="pkg" source="controller" target="util">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="196" />
+              <mxPoint x="340" y="433" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_ctrl_model" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=0.85;exitY=1;entryX=1;entryY=0.3;" edge="1" parent="pkg" source="controller" target="model">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="737" y="260" />
+              <mxPoint x="840" y="260" />
+              <mxPoint x="840" y="839" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_srv_repo" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;" edge="1" parent="pkg" source="service" target="repository">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_srv_model" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.85;entryX=0;entryY=0.5;" edge="1" parent="pkg" source="service" target="model">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="470" />
+              <mxPoint x="340" y="865" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_srv_dto" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=1;exitY=0.3;entryX=0;entryY=0.7;" edge="1" parent="pkg" source="service" target="dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_srv_exc" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=1;exitY=0.85;entryX=0;entryY=0.3;" edge="1" parent="pkg" source="service" target="exception">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_srv_util" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=0;exitY=0.55;entryX=1;entryY=0.7;" edge="1" parent="pkg" source="service" target="util">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_srv_config" value="«import»&lt;br&gt;(ArchivoProperties)" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=0;exitY=0.15;entryX=1;entryY=0.85;" edge="1" parent="pkg" source="service" target="config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_cfg_service" value="«import»&lt;br&gt;(TokenService)" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.35;entryX=0.2;entryY=0;" edge="1" parent="pkg" source="config" target="service">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="464" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_cfg_repo" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.7;entryX=0;entryY=0.5;" edge="1" parent="pkg" source="config" target="repository">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="20" y="279" />
+              <mxPoint x="20" y="655" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_cfg_dto" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=0;entryX=0.5;entryY=0;" edge="1" parent="pkg" source="config" target="dto">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="170" y="135" />
+              <mxPoint x="340" y="135" />
+              <mxPoint x="340" y="40" />
+              <mxPoint x="1050" y="40" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_repo_model" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;" edge="1" parent="pkg" source="repository" target="model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_model_dto" value="«import»&lt;br&gt;(Usuario)" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;edgeStyle=orthogonalEdgeStyle;exitX=1;exitY=0.75;entryX=0.85;entryY=1;" edge="1" parent="pkg" source="model" target="dto">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1220" y="898" />
+              <mxPoint x="1220" y="520" />
+              <mxPoint x="1155" y="520" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_dto_exc" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=0.35;exitY=1;entryX=0.35;entryY=0;" edge="1" parent="pkg" source="dto" target="exception">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_exc_dto" value="«import»" style="endArrow=open;endSize=10;dashed=1;html=1;fontSize=9;exitX=0.65;exitY=0;entryX=0.65;entryY=1;" edge="1" parent="pkg" source="exception" target="dto">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Dependencias externas -->
+        <mxCell id="ext" value="&lt;b&gt;Dependencias externas (Maven)&lt;/b&gt;" style="shape=folder;tabWidth=230;tabHeight=26;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=10;spacingTop=2;fontSize=12;fillColor=#FAFAFA;strokeColor=#999999;dashed=1;container=1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="50" width="320" height="960" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_spring" value="&lt;b&gt;org.springframework&lt;/b&gt;&lt;br&gt;&lt;br&gt;boot-starter-web&lt;br&gt;boot-starter-security&lt;br&gt;boot-starter-data-jpa&lt;br&gt;boot-starter-validation&lt;br&gt;boot-starter-mail&lt;br&gt;boot-starter-cache" style="shape=folder;tabWidth=150;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#82b366;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="60" width="280" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_jakarta" value="&lt;b&gt;jakarta&lt;/b&gt;&lt;br&gt;&lt;br&gt;persistence (JPA)&lt;br&gt;servlet&lt;br&gt;validation" style="shape=folder;tabWidth=80;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#666666;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="240" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_jwt" value="&lt;b&gt;com.auth0&lt;/b&gt;&lt;br&gt;&lt;br&gt;java-jwt (tokens JWT)" style="shape=folder;tabWidth=90;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#666666;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="370" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_pdf" value="&lt;b&gt;com.lowagie&lt;/b&gt;&lt;br&gt;&lt;br&gt;OpenPDF (reportes PDF)" style="shape=folder;tabWidth=100;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#666666;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="470" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_poi" value="&lt;b&gt;org.apache.poi&lt;/b&gt;&lt;br&gt;&lt;br&gt;poi-ooxml (reportes Excel)" style="shape=folder;tabWidth=120;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#666666;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="570" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_caffeine" value="&lt;b&gt;com.github.benmanes&lt;/b&gt;&lt;br&gt;&lt;br&gt;Caffeine (caché)" style="shape=folder;tabWidth=150;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#666666;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="670" width="280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ext_db" value="&lt;b&gt;Persistencia&lt;/b&gt;&lt;br&gt;&lt;br&gt;postgresql (driver JDBC)&lt;br&gt;flyway-core (migraciones V1–V17)&lt;br&gt;lombok" style="shape=folder;tabWidth=100;tabHeight=22;tabPosition=left;html=1;whiteSpace=wrap;verticalAlign=top;align=left;spacingLeft=8;spacingTop=3;fontSize=10;fillColor=#FFFFFF;strokeColor=#666666;" vertex="1" parent="ext">
+          <mxGeometry x="20" y="770" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_pkg_ext" value="«use»" style="endArrow=open;endSize=12;dashed=1;html=1;fontSize=10;" edge="1" parent="1" source="pkg" target="ext">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
