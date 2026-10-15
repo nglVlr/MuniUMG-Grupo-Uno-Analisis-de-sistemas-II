@@ -150,15 +150,16 @@ public class AuxiliarService {
 
         EstadoCaso enAtencion = buscarEstado(EstadoCaso.EN_ATENCION);
 
-        // Buscamos, con un for normal, al técnico con menos casos "En Atención",
-        // usando el contador cantidadCasosAsignados en vez de contar con una
-        // consulta por cada técnico.
+        // Buscamos, con un for normal, al técnico con menos casos "En Atención".
+        // La carga se cuenta sobre los casos mismos y no con el contador del usuario:
+        // así la repartición siempre usa el dato real, aunque el contador quede
+        // desfasado por alguna carga de datos hecha fuera del sistema.
         Usuario tecnicoElegido = null;
-        int menorCantidadCasos = -1;
+        long menorCantidadCasos = -1;
 
         for (int i = 0; i < tecnicosActivos.size(); i++) {
             Usuario tecnicoActual = tecnicosActivos.get(i);
-            int cantidadCasos = tecnicoActual.getCantidadCasosAsignados();
+            long cantidadCasos = casoRepository.countByTecnicoAndEstado(tecnicoActual, enAtencion);
 
             if (tecnicoElegido == null || cantidadCasos < menorCantidadCasos) {
                 tecnicoElegido = tecnicoActual;
@@ -166,7 +167,9 @@ public class AuxiliarService {
             }
         }
 
-        tecnicoElegido.setCantidadCasosAsignados(tecnicoElegido.getCantidadCasosAsignados() + 1);
+        // El contador sigue el mismo movimiento que la carga real: sube aquí y baja
+        // cuando el Técnico termina la atención (CU-05)
+        tecnicoElegido.setCantidadCasosAsignados((int) menorCantidadCasos + 1);
         usuarioRepository.save(tecnicoElegido);
 
         String estadoAnterior = caso.getEstado().getEstado();

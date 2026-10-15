@@ -214,16 +214,16 @@ public class TecnicoService {
     }
 
     // El principal del token viene desconectado, por eso recargamos el Técnico
-    // desde el repositorio antes de bajarle el contador.
+    // desde el repositorio antes de bajarle el contador. El contador se deja igual a
+    // los casos que realmente le quedan En Atención, que ya no incluyen este caso.
     private void descontarCasoDelTecnico(Usuario tecnico) {
         Usuario tecnicoActual = usuarioRepository.findByCorreo(tecnico.getCorreo())
                 .orElseThrow(() -> new NegocioException(CodigoError.ACCESO_DENEGADO));
 
-        int cantidad = tecnicoActual.getCantidadCasosAsignados();
-        if (cantidad > 0) {
-            tecnicoActual.setCantidadCasosAsignados(cantidad - 1);
-            usuarioRepository.save(tecnicoActual);
-        }
+        long cantidad = casoRepository.countByTecnicoAndEstado(
+                tecnicoActual, buscarEstado(EstadoCaso.EN_ATENCION));
+        tecnicoActual.setCantidadCasosAsignados((int) cantidad);
+        usuarioRepository.save(tecnicoActual);
     }
 
     private String validarDetalle(String detalle, CodigoError codigoError) {

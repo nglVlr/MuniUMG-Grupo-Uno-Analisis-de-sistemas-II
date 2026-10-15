@@ -36,6 +36,9 @@ public class AdminUsuarioService {
 
     private static final String ROL_ADMIN = "Admin";
     private static final String ROL_TECNICO = "Tecnico";
+    private static final String ROL_AUXILIAR = "Auxiliar";
+    private static final String ROL_SUPERVISOR = "Supervisor";
+    private static final String ROL_JEFE = "Jefe";
     private static final String ESTADO_ACTIVO = "Activo";
 
     private final UsuarioRepository usuarioRepository;
@@ -219,8 +222,12 @@ public class AdminUsuarioService {
         EstadoUsuarios estadoNuevo = buscarEstado(idEstado);
         String estadoAnterior = usuario.getIdEstado().getEstado();
 
-        if (!ESTADO_ACTIVO.equals(estadoNuevo.getEstado()) && contarCasosActivos(usuario) > 0) {
-            reasignarCasos(usuario, cuiDestino, admin, ip);
+        if (!ESTADO_ACTIVO.equals(estadoNuevo.getEstado())) {
+            if (contarCasosPorReasignar(usuario) > 0) {
+                reasignarCasos(usuario, cuiDestino, admin, ip);
+            } else {
+                validarBandejaConResponsable(usuario);
+            }
         }
 
         usuario.setIdEstado(estadoNuevo);
@@ -300,17 +307,12 @@ public class AdminUsuarioService {
 
     private int trasladarCasos(Usuario origen, Usuario destino, Usuario admin, String ip) {
         List<Caso> casos = casoRepository.findByTecnicoAndEstadoInOrderByCreateAtAsc(
-                origen, estadosDeLaCarga());
+                origen, estadosACargoDelTecnico());
 
-        int enAtencion = 0;
         for (int i = 0; i < casos.size(); i++) {
             Caso caso = casos.get(i);
             caso.setTecnico(destino);
             casoRepository.save(caso);
-
-            if (EstadoCaso.EN_ATENCION.equals(caso.getEstado().getEstado())) {
-                enAtencion++;
-            }
 
             // RN35: el Técnico que recibe el caso se entera por correo, igual que
             // cuando el Auxiliar le asigna uno nuevo (CU-09)
@@ -319,18 +321,21 @@ public class AdminUsuarioService {
 
         // El contador refleja únicamente los casos En Atención, que es la carga con la
         // que el Auxiliar reparte los casos nuevos (CU-04)
-        destino.setCantidadCasosAsignados(destino.getCantidadCasosAsignados() + enAtencion);
-        origen.setCantidadCasosAsignados(0);
+        EstadoCaso enAtencion = buscarEstadoCaso(EstadoCaso.EN_ATENCION);
+        destino.setCantidadCasosAsignados(
+                (int) casoRepository.countByTecnicoAndEstado(destino, enAtencion));
+        origen.setCantidadCasosAsignados(
+                (int) casoRepository.countByTecnicoAndEstado(origen, enAtencion));
         usuarioRepository.save(destino);
         usuarioRepository.save(origen);
 
         return casos.size();
     }
 
-    // ---------- Carga del usuario (RN26) ----------
+    // ---------- Casos a nombre del Técnico (FA08) ----------
     // Estados en los que el Técnico sigue siendo el responsable del caso, incluso
     // mientras el Supervisor o la Jefatura lo tienen en su bandeja y pueden devolverlo.
-    private List<EstadoCaso> estadosDeLaCarga() {
+    private List<EstadoCaso> estadosACargoDelTecnico() {
         List<String> nombres = new ArrayList<>();
         nombres.add(EstadoCaso.EN_ATENCION);
         nombres.add(EstadoCaso.EN_SUPERVISION);
@@ -344,14 +349,53 @@ public class AdminUsuarioService {
         return estados;
     }
 
-    // Solo el Técnico tiene casos a su nombre. El Auxiliar, el Supervisor y el Jefe
-    // atienden bandejas compartidas por departamento (CU-04, CU-06, CU-07): ahí ningún
-    // caso depende de un usuario en particular, así que no tienen carga que reasignar.
+    // ---------- Casos activos del usuario (RN26) ----------
+    // Cada rol muestra los casos pendientes de la bandeja que atiende: el Técnico los
+    // suyos En Atención (CU-05), el Auxiliar los recién registrados de todos los
+    // departamentos (CU-04), el Supervisor y el Jefe los de su propio departamento
+    // (CU-06, CU-07), y el Administrador siempre cero porque no atiende casos.
     private int contarCasosActivos(Usuario usuario) {
+        String rol = usuario.getIdRol() == null ? "" : usuario.getIdRol().getRol();
+
+        if (ROL_TECNICO.equals(rol)) {
+            // Al terminar la atención el caso pasa a la bandeja del Supervisor y deja
+            // de contarle, aunque siga a su cargo
+            return (int) casoRepository.contarPorTecnicoYEstados(
+                    usuario, List.of(EstadoCaso.EN_ATENCION));
+        }
+        if (ROL_AUXILIAR.equals(rol)) {
+            return (int) casoRepository.contarPorEstados(
+                    List.of(EstadoCaso.REGISTRADO, EstadoCaso.EN_REVISION));
+        }
+        if (ROL_SUPERVISOR.equals(rol)) {
+            return (int) contarEnSuDepartamento(usuario,
+                    List.of(EstadoCaso.EN_SUPERVISION, EstadoCaso.PENDIENTE_APROBACION_RECHAZO));
+        }
+        if (ROL_JEFE.equals(rol)) {
+            return (int) contarEnSuDepartamento(usuario, List.of(EstadoCaso.PENDIENTE_FIRMA));
+        }
+        return 0;
+    }
+
+    private long contarEnSuDepartamento(Usuario usuario, List<String> estados) {
+        if (usuario.getIdDepartamento() == null) {
+            return 0;
+        }
+        return casoRepository.contarPorDepartamentoYEstados(
+                usuario.getIdDepartamento().getId(), estados);
+    }
+
+    // FA08: casos que quedarían a nombre del Técnico si saliera de Activo. Solo el
+    // Técnico tiene casos a su nombre: las demás bandejas son compartidas y ahí ningún
+    // caso depende de un usuario en particular, así que no hay nada que reasignar.
+    // Aquí sí cuentan los que ya están En Supervisión o Pendiente de Firma, porque el
+    // Supervisor o la Jefatura pueden devolverlos y regresarían a una bandeja que
+    // nadie atiende; por eso se reasignan aunque no le sumen casos activos.
+    private int contarCasosPorReasignar(Usuario usuario) {
         if (!esTecnico(usuario)) {
             return 0;
         }
-        return (int) casoRepository.countByTecnicoAndEstadoIn(usuario, estadosDeLaCarga());
+        return (int) casoRepository.countByTecnicoAndEstadoIn(usuario, estadosACargoDelTecnico());
     }
 
     private boolean esTecnico(Usuario usuario) {
@@ -375,8 +419,40 @@ public class AdminUsuarioService {
     }
 
     private void validarSinCasosPendientes(Usuario usuario) {
-        if (contarCasosActivos(usuario) > 0) {
+        if (contarCasosPorReasignar(usuario) > 0) {
             throw new NegocioException(CodigoError.USUARIO_CON_CASOS_ACTIVOS);
+        }
+        validarBandejaConResponsable(usuario);
+    }
+
+    // FA12: las bandejas del Auxiliar, del Supervisor y del Jefe son compartidas por
+    // rol, así que no tienen casos propios que reasignar (FA08 es solo del Técnico).
+    // Pero si el usuario deja de atender su bandeja y esta queda con casos pendientes
+    // sin ningún otro usuario Activo de ese rol, esos casos no aparecerían en ninguna
+    // bandeja y nadie podría continuarlos.
+    private void validarBandejaConResponsable(Usuario usuario) {
+        String rol = usuario.getIdRol() == null ? "" : usuario.getIdRol().getRol();
+
+        if (ROL_TECNICO.equals(rol) || ROL_ADMIN.equals(rol)) {
+            return;
+        }
+        if (contarCasosActivos(usuario) == 0) {
+            return;
+        }
+
+        // El Auxiliar atiende los casos de todos los departamentos (CU-04); el
+        // Supervisor y el Jefe solo los de su propio departamento (CU-06, CU-07)
+        Long idDepartamento = null;
+        if (!ROL_AUXILIAR.equals(rol)) {
+            if (usuario.getIdDepartamento() == null) {
+                return;
+            }
+            idDepartamento = usuario.getIdDepartamento().getId();
+        }
+
+        long otrosActivos = usuarioRepository.contarActivosDelRol(rol, idDepartamento, usuario.getCui());
+        if (otrosActivos == 0) {
+            throw new NegocioException(CodigoError.BANDEJA_SIN_RESPONSABLE);
         }
     }
 

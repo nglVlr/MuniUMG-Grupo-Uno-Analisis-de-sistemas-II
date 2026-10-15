@@ -28,6 +28,19 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
 
     List<Caso> findByTecnicoAndEstadoInOrderByCreateAtAsc(Usuario tecnico, List<EstadoCaso> estados);
 
+    // RN26: carga pendiente de cada rol. Se cuenta por el nombre del estado para no
+    // tener que buscar primero cada EstadoCaso de la lista.
+    @Query("select count(c) from Caso c where c.tecnico = :tecnico and c.estado.estado in :estados")
+    long contarPorTecnicoYEstados(@Param("tecnico") Usuario tecnico,
+                                  @Param("estados") List<String> estados);
+
+    @Query("select count(c) from Caso c where c.estado.estado in :estados")
+    long contarPorEstados(@Param("estados") List<String> estados);
+
+    @Query("select count(c) from Caso c where c.departamento.id = :idDepartamento and c.estado.estado in :estados")
+    long contarPorDepartamentoYEstados(@Param("idDepartamento") Long idDepartamento,
+                                       @Param("estados") List<String> estados);
+
     long countByCategoriaId(Long idCategoria);
 
     long countByDepartamentoId(Long idDepartamento);

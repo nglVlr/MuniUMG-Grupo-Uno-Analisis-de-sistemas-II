@@ -249,12 +249,15 @@ public class SupervisorService {
     }
 
     // ---------- Métodos de apoyo ----------
-    // El principal del token viene desconectado, por eso recargamos el Técnico
+    // El principal del token viene desconectado, por eso recargamos el Técnico. El
+    // contador se deja igual a sus casos En Atención, que ya incluyen el devuelto.
     private void sumarCasoAlTecnico(String correoTecnico) {
         Usuario tecnicoActual = usuarioRepository.findByCorreo(correoTecnico)
                 .orElseThrow(() -> new NegocioException(CodigoError.ERROR_INTERNO, "No existe el Técnico del caso"));
 
-        tecnicoActual.setCantidadCasosAsignados(tecnicoActual.getCantidadCasosAsignados() + 1);
+        long cantidad = casoRepository.countByTecnicoAndEstado(
+                tecnicoActual, buscarEstado(EstadoCaso.EN_ATENCION));
+        tecnicoActual.setCantidadCasosAsignados((int) cantidad);
         usuarioRepository.save(tecnicoActual);
     }
 
