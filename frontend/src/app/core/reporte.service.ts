@@ -14,8 +14,6 @@ export interface ReporteEstadistico {
   fechaInicio: string;
   fechaFin: string;
   totalCasos: number;
-  casosResueltos: number;
-  diasPromedioAtencion: number;
   porEstado: Conteo[];
   porTipoCaso: Conteo[];
   porDepartamento: Conteo[];
@@ -33,6 +31,12 @@ export interface TrazabilidadCaso {
   nombreCiudadano: string;
   nombreTecnico: string;
   historial: HistorialCaso[];
+}
+
+// RN32: opcion de la lista del filtro Departamento
+export interface OpcionDepartamento {
+  id: number;
+  nombre: string;
 }
 
 export interface FiltrosReporte {
@@ -74,6 +78,13 @@ export class ReporteService {
       params = params.set('estado', filtros.estado);
     }
     return params;
+  }
+
+  // RN32: departamentos que el usuario puede consultar en el filtro
+  listarDepartamentos(): Observable<OpcionDepartamento[]> {
+    return this.http.get<OpcionDepartamento[]>(`${environment.apiUrl}/reportes/departamentos`, {
+      headers: this.obtenerCabeceras()
+    });
   }
 
   generarEstadisticas(filtros: FiltrosReporte): Observable<ReporteEstadistico> {

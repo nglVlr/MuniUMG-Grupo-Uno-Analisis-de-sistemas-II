@@ -37,8 +37,6 @@ public class ReportePdfService {
             encabezado(document, "REPORTE ESTADÍSTICO DE CASOS");
             document.add(linea("Periodo", reporte.fechaInicio() + " al " + reporte.fechaFin()));
             document.add(linea("Total de casos", String.valueOf(reporte.totalCasos())));
-            document.add(linea("Casos resueltos", String.valueOf(reporte.casosResueltos())));
-            document.add(linea("Días promedio de atención", String.valueOf(reporte.diasPromedioAtencion())));
 
             bloque(document, "Casos por estado", reporte.porEstado());
             bloque(document, "Casos por tipo de caso", reporte.porTipoCaso());

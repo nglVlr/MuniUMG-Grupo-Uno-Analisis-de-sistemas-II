@@ -16,7 +16,6 @@
             <tr>
               <th>{{ columna }}</th>
               <th class="tabla__num">Cantidad</th>
-              <th class="tabla__participacion">Participación</th>
             </tr>
           </thead>
           <tbody>
@@ -30,14 +29,6 @@
                 }
               </td>
               <td class="tabla__num">{{ fila.cantidad }}</td>
-              <td class="tabla__participacion">
-                <div class="barra">
-                  <div class="barra__pista">
-                    <div class="barra__relleno" [style.width.%]="porcentaje(fila, filas)"></div>
-                  </div>
-                  <span class="barra__valor">{{ porcentaje(fila, filas) }}%</span>
-                </div>
-              </td>
             </tr>
             }
           </tbody>
@@ -45,7 +36,6 @@
             <tr>
               <td>Total</td>
               <td class="tabla__num">{{ total(filas) }}</td>
-              <td class="tabla__participacion">100%</td>
             </tr>
           </tfoot>
         </table>
@@ -113,6 +103,23 @@
       </select>
     </div>
 
+    <div class="reportes__campo">
+      <label class="reportes__label" for="departamentoFiltro">Departamento</label>
+      <select
+        id="departamentoFiltro"
+        name="departamentoFiltro"
+        class="reportes__input"
+        [(ngModel)]="filtros.idDepartamento"
+      >
+        @if (departamentos.length !== 1) {
+        <option [ngValue]="null">Todos</option>
+        }
+        @for (departamento of departamentos; track departamento.id) {
+        <option [ngValue]="departamento.id">{{ departamento.nombre }}</option>
+        }
+      </select>
+    </div>
+
     <button type="button" class="btn btn--submit" [disabled]="cargando" (click)="generar()">Generar</button>
   </div>
 
@@ -137,14 +144,6 @@
       <div class="kpi">
         <span class="kpi__label">Total de casos</span>
         <strong class="kpi__valor">{{ reporte.totalCasos }}</strong>
-      </div>
-      <div class="kpi kpi--exito">
-        <span class="kpi__label">Casos resueltos</span>
-        <strong class="kpi__valor">{{ reporte.casosResueltos }}</strong>
-      </div>
-      <div class="kpi kpi--dorado">
-        <span class="kpi__label">Días promedio de atención</span>
-        <strong class="kpi__valor">{{ reporte.diasPromedioAtencion }}</strong>
       </div>
     </div>
 

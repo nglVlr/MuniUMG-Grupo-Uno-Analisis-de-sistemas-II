@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   Conteo,
   FiltrosReporte,
+  OpcionDepartamento,
   ReporteEstadistico,
   ReporteService,
   TrazabilidadCaso
@@ -26,6 +27,9 @@ export class ReportesComponent implements OnInit {
     'Pendiente de Aprobación de Rechazo', 'Pendiente de Firma',
     'Resuelto', 'Rechazado', 'Requiere Ampliación'
   ];
+
+  // El catalogo de departamentos es administrable (CU-10), por eso se pide al backend
+  departamentos: OpcionDepartamento[] = [];
 
   filtros: FiltrosReporte = {
     fechaInicio: '',
@@ -50,6 +54,17 @@ export class ReportesComponent implements OnInit {
     const hoy = new Date();
     this.filtros.fechaFin = this.comoTexto(hoy);
     this.filtros.fechaInicio = this.comoTexto(new Date(hoy.getFullYear(), 0, 1));
+
+    // RN32: el Supervisor y el Jefe reciben unicamente su propio departamento
+    this.reporteService.listarDepartamentos().subscribe({
+      next: (resultado) => {
+        this.departamentos = resultado;
+        if (resultado.length === 1) {
+          this.filtros.idDepartamento = resultado[0].id;
+        }
+      },
+      error: () => (this.departamentos = [])
+    });
   }
 
   cambiarPestana(pestana: 'estadisticas' | 'trazabilidad'): void {
@@ -139,12 +154,6 @@ export class ReportesComponent implements OnInit {
       suma = suma + filas[i].cantidad;
     }
     return suma;
-  }
-
-  // Participación de la fila sobre el total del bloque, para la barra de color
-  porcentaje(fila: Conteo, filas: Conteo[]): number {
-    const total = this.total(filas);
-    return total === 0 ? 0 : Math.round((fila.cantidad / total) * 100);
   }
 
   // Cada estado del caso se pinta con su propio color en la etiqueta

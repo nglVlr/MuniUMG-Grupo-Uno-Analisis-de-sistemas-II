@@ -1,6 +1,7 @@
 package gt.muni.quejas.service;
 
 import gt.muni.quejas.dto.DtoConteo;
+import gt.muni.quejas.dto.DtoOpcionCatalogo;
 import gt.muni.quejas.dto.DtoHistorialCaso;
 import gt.muni.quejas.dto.DtoReporteEstadistico;
 import gt.muni.quejas.dto.DtoTrazabilidadCaso;
@@ -8,16 +9,16 @@ import gt.muni.quejas.exception.CodigoError;
 import gt.muni.quejas.exception.NegocioException;
 import gt.muni.quejas.model.BitacoraCambio;
 import gt.muni.quejas.model.Caso;
-import gt.muni.quejas.model.EstadoCaso;
+import gt.muni.quejas.model.Departamento;
 import gt.muni.quejas.model.Usuario;
 import gt.muni.quejas.repository.BitacoraCambioRepository;
 import gt.muni.quejas.repository.CasoRepository;
+import gt.muni.quejas.repository.DepartamentoRepository;
 import gt.muni.quejas.util.TipoCaso;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,41 @@ public class ReporteService {
 
     private final CasoRepository casoRepository;
     private final BitacoraCambioRepository bitacoraCambioRepository;
+    private final DepartamentoRepository departamentoRepository;
 
     public ReporteService(CasoRepository casoRepository,
-                          BitacoraCambioRepository bitacoraCambioRepository) {
+                          BitacoraCambioRepository bitacoraCambioRepository,
+                          DepartamentoRepository departamentoRepository) {
         this.casoRepository = casoRepository;
         this.bitacoraCambioRepository = bitacoraCambioRepository;
+        this.departamentoRepository = departamentoRepository;
+    }
+
+    // ---------- RN32: lista del filtro Departamento ----------
+    // El Supervisor y el Jefe de Departamento solo consultan su propio departamento,
+    // así que la lista les muestra únicamente ese; el Administrador ve todo el
+    // catálogo (RN06).
+    @Transactional(readOnly = true)
+    public List<DtoOpcionCatalogo> listarDepartamentos(Usuario usuario) {
+        validarRolReportes(usuario);
+
+        List<DtoOpcionCatalogo> opciones = new ArrayList<>();
+        String rol = usuario.getIdRol().getRol();
+
+        if (ROL_SUPERVISOR.equals(rol) || ROL_JEFE.equals(rol)) {
+            Departamento propio = usuario.getIdDepartamento();
+            if (propio != null) {
+                opciones.add(new DtoOpcionCatalogo(propio.getId(), propio.getNombre()));
+            }
+            return opciones;
+        }
+
+        List<Departamento> departamentos = departamentoRepository.findAll();
+        for (int i = 0; i < departamentos.size(); i++) {
+            opciones.add(new DtoOpcionCatalogo(
+                    departamentos.get(i).getId(), departamentos.get(i).getNombre()));
+        }
+        return opciones;
     }
 
     // ---------- CU-14 pasos 3 y 4: reporte estadístico ----------
@@ -68,28 +99,16 @@ public class ReporteService {
         List<DtoConteo> porDepartamento = new ArrayList<>();
         List<DtoConteo> porCategoria = new ArrayList<>();
 
-        long resueltos = 0;
-        long diasAcumulados = 0;
-
         for (int i = 0; i < casos.size(); i++) {
             Caso caso = casos.get(i);
             sumar(porEstado, caso.getEstado().getEstado());
             sumar(porTipo, caso.getTipoCaso());
             sumar(porDepartamento, caso.getDepartamento().getNombre());
             sumar(porCategoria, caso.getCategoria().getNombre());
-
-            // El tiempo de atención se mide sobre los casos que llegaron a Resuelto
-            if (EstadoCaso.RESUELTO.equals(caso.getEstado().getEstado())) {
-                resueltos++;
-                diasAcumulados = diasAcumulados + diasHastaResolucion(caso);
-            }
         }
 
-        double promedio = resueltos == 0 ? 0 : (double) diasAcumulados / resueltos;
-
         return new DtoReporteEstadistico(
-                fechaInicio, fechaFin, casos.size(), resueltos,
-                Math.round(promedio * 10.0) / 10.0,
+                fechaInicio, fechaFin, casos.size(),
                 porEstado, porTipo, porDepartamento, porCategoria);
     }
 
@@ -149,20 +168,6 @@ public class ReporteService {
             }
         }
         conteos.add(new DtoConteo(etiqueta, 1));
-    }
-
-    // Del registro del caso a la firma del oficio, que es cuando queda Resuelto
-    private long diasHastaResolucion(Caso caso) {
-        List<BitacoraCambio> registros = bitacoraCambioRepository.findByCasoIdOrderByIdAsc(caso.getId());
-        for (int i = registros.size() - 1; i >= 0; i--) {
-            BitacoraCambio registro = registros.get(i);
-            if ("Firma de oficio de resolución".equals(registro.getAccion())) {
-                LocalDateTime firma = LocalDateTime.of(registro.getFecha(), registro.getHora());
-                long dias = ChronoUnit.DAYS.between(caso.getCreateAt(), firma);
-                return dias < 0 ? 0 : dias;
-            }
-        }
-        return 0;
     }
 
     // FA01: el rango de fechas debe ser válido

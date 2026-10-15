@@ -231,14 +231,6 @@
   box-shadow: 0 2px 6px rgba(20, 33, 29, 0.05);
 }
 
-.kpi--exito {
-  border-left-color: #2e7d4f;
-}
-
-.kpi--dorado {
-  border-left-color: var(--gold);
-}
-
 .kpi__label {
   font-size: 12px;
   letter-spacing: 0.04em;
@@ -367,10 +359,6 @@
   width: 48px;
 }
 
-.tabla__participacion {
-  width: 220px;
-}
-
 .tabla__accion {
   font-weight: 600;
 }
@@ -410,36 +398,6 @@
 
 .tabla--datos tbody tr:hover {
   background: transparent;
-}
-
-/* ================= Barra de participacion ================= */
-.barra {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.barra__pista {
-  flex: 1;
-  height: 8px;
-  min-width: 80px;
-  border-radius: 999px;
-  background: #eceade;
-  overflow: hidden;
-}
-
-.barra__relleno {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--bg-deep-2) 0%, var(--gold) 100%);
-}
-
-.barra__valor {
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-soft);
-  width: 36px;
-  text-align: right;
 }
 
 /* ================= Etiquetas de estado ================= */

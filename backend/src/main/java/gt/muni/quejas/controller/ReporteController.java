@@ -1,5 +1,6 @@
 package gt.muni.quejas.controller;
 
+import gt.muni.quejas.dto.DtoOpcionCatalogo;
 import gt.muni.quejas.dto.DtoReporteEstadistico;
 import gt.muni.quejas.dto.DtoTrazabilidadCaso;
 import gt.muni.quejas.model.Usuario;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 
 // CU-14 Reportería: estadísticas y trazabilidad del caso
 @RestController
@@ -37,6 +39,13 @@ public class ReporteController {
         this.reporteService = reporteService;
         this.reportePdfService = reportePdfService;
         this.reporteExcelService = reporteExcelService;
+    }
+
+    // RN32: lista del filtro Departamento del formulario reportes estadísticos
+    @GetMapping("/departamentos")
+    public ResponseEntity<List<DtoOpcionCatalogo>> departamentos(
+            @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(reporteService.listarDepartamentos(usuario));
     }
 
     @GetMapping("/estadisticas")

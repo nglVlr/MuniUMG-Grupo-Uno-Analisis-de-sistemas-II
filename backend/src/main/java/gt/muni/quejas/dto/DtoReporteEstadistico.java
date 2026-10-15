@@ -8,8 +8,6 @@ public record DtoReporteEstadistico(
         LocalDate fechaInicio,
         LocalDate fechaFin,
         long totalCasos,
-        long casosResueltos,
-        double diasPromedioAtencion,
         List<DtoConteo> porEstado,
         List<DtoConteo> porTipoCaso,
         List<DtoConteo> porDepartamento,

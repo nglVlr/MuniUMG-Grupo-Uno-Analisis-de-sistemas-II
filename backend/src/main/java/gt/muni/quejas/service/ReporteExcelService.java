@@ -78,9 +78,6 @@ public class ReporteExcelService {
 
             fila = seccion(hoja, estilos, fila, "Resumen del periodo");
             fila = resumenNumero(hoja, estilos, fila, "Total de casos", reporte.totalCasos());
-            fila = resumenNumero(hoja, estilos, fila, "Casos resueltos", reporte.casosResueltos());
-            fila = resumenNumero(hoja, estilos, fila, "Días promedio de atención",
-                    reporte.diasPromedioAtencion());
             fila++;
 
             fila = tablaConteo(hoja, estilos, fila, "Casos por estado", "Estado", reporte.porEstado());
