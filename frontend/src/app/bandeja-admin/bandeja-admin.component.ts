@@ -89,6 +89,11 @@ export class BandejaAdminComponent {
     this.vista = 'bitacora';
   }
 
+  // CU-19: dashboard de graficas, es una pantalla aparte con su propia ruta
+  abrirDashboard(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
   // CU-14: reportes estadisticos y trazabilidad
   abrirReportes(): void {
     this.mensaje = '';

@@ -1,0 +1,387 @@
+<section class="dash">
+  <div class="dash__card">
+
+    <!-- Encabezado: escudo, titulo de la pantalla y usuario con la sesion abierta -->
+    <header class="dash__header">
+      <div class="dash__marca">
+        <img
+          class="dash__escudo"
+          src="assets/img/escudo-granados.png"
+          alt="Escudo de la Municipalidad de Granados"
+        />
+        <div>
+          <p class="dash__eyebrow">Municipalidad de Granados, B.V.</p>
+          <h1 class="dash__title">Dashboard de gráficas</h1>
+        </div>
+      </div>
+
+      <div class="dash__header-acciones">
+        <span class="dash__usuario">
+          <span class="dash__usuario-rol">Administrador &middot;</span>
+          <strong>{{ nombreUsuario }}</strong>
+        </span>
+        <button type="button" class="dash__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
+        <button type="button" class="dash__volver" (click)="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <div class="dash__cuerpo">
+
+      @if (mensaje) {
+      <div class="dash__alert" role="alert">{{ mensaje }}</div>
+      }
+
+      <!-- ================= PANEL DE FILTROS ================= -->
+      <h2 class="dash__subtitulo">Filtros</h2>
+      <div class="dash__filtros">
+
+        <!-- Rango de fechas con su modo. Es obligatorio para la consulta. -->
+        <div class="dash__campo" [hidden]="!filtroVisible('rango')">
+          <label class="dash__label">Las fechas se toman por</label>
+          <select class="dash__input" [(ngModel)]="filtros.modoFecha" (change)="consultar()">
+            <option value="registro">Fecha de registro</option>
+            <option value="resolucion">Fecha de resolución</option>
+          </select>
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('rango')">
+          <label class="dash__label">Desde</label>
+          <input type="date" class="dash__input" [(ngModel)]="filtros.desde" (change)="consultar()" />
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('rango')">
+          <label class="dash__label">Hasta</label>
+          <input type="date" class="dash__input" [(ngModel)]="filtros.hasta" (change)="consultar()" />
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('departamento')">
+          <label class="dash__label">Departamento</label>
+          <select class="dash__input" [(ngModel)]="filtros.idDepartamento"
+                  [disabled]="!filtroAplica('departamento')" (change)="cambiarDepartamento()">
+            <option [ngValue]="null">Todos</option>
+            @for (departamento of catalogos.departamentos; track departamento.id) {
+            <option [ngValue]="departamento.id">{{ departamento.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('tipoCaso')">
+          <label class="dash__label">Tipo de caso</label>
+          <select class="dash__input" [(ngModel)]="filtros.tipoCaso"
+                  [disabled]="!filtroAplica('tipoCaso')" (change)="cambiarTipoCaso()">
+            <option value="">Todos</option>
+            @for (tipo of catalogos.tiposCaso; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+          @if (!filtroAplica('tipoCaso')) {
+          <span class="dash__nota-filtro">No aplica a esta gráfica</span>
+          }
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('categoria')">
+          <label class="dash__label">Categoría</label>
+          <select class="dash__input" [(ngModel)]="filtros.idCategoria"
+                  [disabled]="!filtroAplica('categoria')" (change)="consultar()">
+            <option [ngValue]="null">Todas</option>
+            @for (categoria of categoriasFiltradas(); track categoria.id) {
+            <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+            }
+          </select>
+          @if (!filtroAplica('categoria')) {
+          <span class="dash__nota-filtro">No aplica a esta gráfica</span>
+          }
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('estado')">
+          <label class="dash__label">Estado actual</label>
+          <select class="dash__input" [(ngModel)]="filtros.estado"
+                  [disabled]="!filtroAplica('estado')" (change)="consultar()">
+            <option value="">Todos</option>
+            @for (estado of catalogos.estados; track estado) {
+            <option [value]="estado">{{ estado }}</option>
+            }
+          </select>
+          @if (!filtroAplica('estado')) {
+          <span class="dash__nota-filtro">No aplica a esta gráfica</span>
+          }
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('tecnico')">
+          <label class="dash__label">Técnico</label>
+          <select class="dash__input" [(ngModel)]="filtros.cuiTecnico"
+                  [disabled]="!filtroAplica('tecnico')" (change)="consultar()">
+            <option value="">Todos</option>
+            @for (tecnico of tecnicosFiltrados(); track tecnico.cui) {
+            <option [value]="tecnico.cui">{{ tecnico.nombre }}</option>
+            }
+          </select>
+          @if (!filtroAplica('tecnico')) {
+          <span class="dash__nota-filtro">No aplica a esta gráfica</span>
+          }
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('motivoRechazo')">
+          <label class="dash__label">Motivo de rechazo</label>
+          <select class="dash__input" [(ngModel)]="filtros.idMotivoRechazo"
+                  [disabled]="!filtroAplica('motivoRechazo')" (change)="consultar()">
+            <option [ngValue]="null">Todos</option>
+            @for (motivo of catalogos.motivosRechazo; track motivo.id) {
+            <option [ngValue]="motivo.id">{{ motivo.nombre }}</option>
+            }
+          </select>
+          @if (!filtroAplica('motivoRechazo')) {
+          <span class="dash__nota-filtro">No aplica a esta gráfica</span>
+          }
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('cargo')">
+          <label class="dash__label">Cargo</label>
+          <select class="dash__input" [(ngModel)]="filtros.cargo" (change)="consultar()">
+            <option value="">Todos</option>
+            @for (cargo of catalogos.cargos; track cargo) {
+            <option [value]="cargo">{{ cargo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('usuario')">
+          <label class="dash__label">Usuario</label>
+          <select class="dash__input" [(ngModel)]="filtros.cuiUsuario" (change)="consultar()">
+            <option value="">Todos</option>
+            @for (usuario of catalogos.usuarios; track usuario.cui) {
+            <option [value]="usuario.cui">{{ usuario.nombre }} ({{ usuario.rol }})</option>
+            }
+          </select>
+        </div>
+
+        <div class="dash__campo" [hidden]="!filtroVisible('ciudadano')">
+          <label class="dash__label">Ciudadano por DPI</label>
+          <input type="text" class="dash__input" maxlength="13" placeholder="13 dígitos"
+                 [(ngModel)]="filtros.dpiCiudadano"
+                 [disabled]="!filtroAplica('ciudadano')" (change)="consultar()" />
+          @if (!filtroAplica('ciudadano')) {
+          <span class="dash__nota-filtro">No aplica a esta gráfica</span>
+          }
+        </div>
+      </div>
+
+      <!-- ================= SELECTORES ================= -->
+      <h2 class="dash__subtitulo">Qué se grafica</h2>
+      <div class="dash__filtros">
+        <div class="dash__campo">
+          <label class="dash__label">Métrica</label>
+          <select class="dash__input" [(ngModel)]="metrica" (change)="cambiarMetrica()">
+            @for (opcion of metricas; track opcion.id) {
+            <option [value]="opcion.id">{{ opcion.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="dash__campo">
+          <label class="dash__label">Agrupación</label>
+          <select class="dash__input" [(ngModel)]="agrupacion" (change)="consultar()">
+            @for (opcion of agrupaciones; track opcion.id) {
+            <option [value]="opcion.id" [disabled]="!agrupacionPermitida(opcion.id)">
+              {{ opcion.nombre }}{{ agrupacionPermitida(opcion.id) ? '' : ' (no aplica a esta métrica)' }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="dash__campo">
+          <label class="dash__label">Gráfica que quiero ver</label>
+          <select class="dash__input" [(ngModel)]="tipoGrafica" (change)="cambiarTipoGrafica()">
+            @for (grafica of graficasDelSelector(); track grafica.id) {
+            <option [value]="grafica.id" [disabled]="!disponible(grafica.id)">
+              {{ grafica.nombre }}{{ disponible(grafica.id) ? '' : ' (' + razonNoDisponible(grafica.id) + ')' }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="dash__campo">
+          <label class="dash__label">Caso para la trazabilidad</label>
+          <input type="text" class="dash__input" placeholder="MG-0001-2026"
+                 [(ngModel)]="filtros.codigoSeguimiento" (change)="consultar()" />
+        </div>
+
+        <div class="dash__acciones">
+          <button type="button" class="btn btn--submit" (click)="consultar()">Aplicar</button>
+          <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+          <button type="button" class="btn btn--text" (click)="mostrarConfiguracion = !mostrarConfiguracion">
+            {{ mostrarConfiguracion ? 'Ocultar configuración' : 'Configuración' }}
+          </button>
+        </div>
+      </div>
+
+      @if (cargando) {
+      <p class="dash__nota">Consultando...</p>
+      }
+
+      <!-- ================= PANEL DE CONFIGURACION ================= -->
+      <div class="dash__configuracion" [hidden]="!mostrarConfiguracion">
+        <div class="dash__configuracion-acciones">
+          <span class="dash__label">Perfiles</span>
+          <button type="button" class="btn btn--text" (click)="aplicarPerfil('elegida')">Solo la elegida</button>
+          <button type="button" class="btn btn--text" (click)="aplicarPerfil('todo')">Todo</button>
+          <button type="button" class="btn btn--text" (click)="aplicarPerfil('barras')">Solo barras</button>
+          <button type="button" class="btn btn--text" (click)="restaurarConfiguracion()">Restaurar</button>
+        </div>
+
+        <div class="dash__configuracion-columnas">
+          <div>
+            <h3 class="dash__subtitulo">Gráficas que se agregan al catálogo</h3>
+            <p class="dash__nota">
+              La gráfica que elijas arriba siempre se dibuja. Estas casillas agregan
+              gráficas extra debajo de ella, con los mismos filtros.
+            </p>
+            <div class="dash__casillas">
+              @for (grafica of graficas; track grafica.id) {
+              <label class="dash__casilla">
+                <input type="checkbox" [checked]="graficaVisible(grafica.id)"
+                       [disabled]="grafica.id === tipoGrafica"
+                       (change)="alternarGrafica(grafica.id)" />
+                <span>
+                  {{ grafica.nombre }}
+                  @if (grafica.id === tipoGrafica) {
+                  <em class="dash__nota-filtro">(es la elegida, siempre se dibuja)</em>
+                  }
+                </span>
+              </label>
+              }
+            </div>
+          </div>
+
+          <div>
+            <h3 class="dash__subtitulo">Filtros que se muestran</h3>
+            <div class="dash__casillas">
+              @for (filtro of listaFiltros; track filtro.id) {
+              <label class="dash__casilla">
+                <input type="checkbox" [checked]="filtroVisible(filtro.id)"
+                       [disabled]="filtro.id === 'rango'"
+                       (change)="alternarFiltro(filtro.id)" />
+                <span>
+                  {{ filtro.nombre }}
+                  @if (filtro.id === 'rango') { (obligatorio para la consulta) }
+                </span>
+              </label>
+              }
+            </div>
+            <p class="dash__nota">
+              Un filtro oculto se limpia y no se envía en la consulta.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      @if (respuesta) {
+
+      <!-- ================= TARJETAS DE INDICADORES ================= -->
+      <div [hidden]="!graficaVisible('tarjetas')">
+        <h2 class="dash__subtitulo">Indicadores</h2>
+        <div class="dash__tarjetas">
+          @for (tarjeta of indicadores(); track tarjeta.clave) {
+          <article class="dash__tarjeta">
+            <p class="dash__tarjeta-titulo">{{ tarjeta.titulo }}</p>
+            <p class="dash__tarjeta-valor">{{ textoValor(tarjeta.valor, tarjeta.formato) }}</p>
+
+            @if (tarjeta.variacion !== 0) {
+            <p class="dash__tarjeta-variacion"
+               [class.dash__tarjeta-variacion--baja]="tarjeta.variacion < 0">
+              {{ tarjeta.variacion > 0 ? '+' : '' }}{{ tarjeta.variacion }} % contra el mes anterior
+            </p>
+            }
+
+            <div class="dash__chispa" [hidden]="!graficaVisible('sparklines')">
+              @if (chispas[tarjeta.clave]) {
+              <div echarts class="dash__chispa-lienzo" [theme]="tema"
+                   [options]="chispas[tarjeta.clave]"></div>
+              }
+            </div>
+          </article>
+          }
+        </div>
+      </div>
+
+      <!-- ================= GRAFICA PRINCIPAL ================= -->
+      <h2 class="dash__subtitulo">
+        Gráfica elegida: {{ nombreGrafica(tipoGrafica) }}
+      </h2>
+      <p class="dash__nota">
+        Es la que está seleccionada arriba en "Gráfica que quiero ver". Para ver otra,
+        cambiá ese selector.
+      </p>
+      <div class="dash__principal">
+        @if (disponible(tipoGrafica)) {
+        <div echarts class="dash__lienzo dash__lienzo--grande" [theme]="tema"
+             [options]="opcionesCalculadas[tipoGrafica]"></div>
+        } @else {
+        <p class="dash__vacio">
+          Esta gráfica no está disponible para la métrica y la agrupación elegidas
+          ({{ razonNoDisponible(tipoGrafica) }}).
+        </p>
+        }
+      </div>
+
+      <!-- ================= GALERIA DE GRAFICAS ================= -->
+      <!-- Vacia al entrar: el Admin decide que gráficas agrega desde Configuración -->
+      @if (graficasDelCatalogo() > 0) {
+      <h2 class="dash__subtitulo">Catálogo de gráficas</h2>
+      }
+      <div class="dash__galeria">
+        @for (grafica of graficas; track grafica.id) {
+
+        @if (grafica.lienzo) {
+        <article class="dash__panel" [hidden]="!mostrarEnCatalogo(grafica.id)">
+          <h3 class="dash__panel-titulo">{{ grafica.nombre }}</h3>
+          @if (mostrarEnCatalogo(grafica.id)) {
+          <div echarts class="dash__lienzo" [theme]="tema"
+               [options]="opcionesCalculadas[grafica.id]"></div>
+          }
+        </article>
+        }
+
+        }
+
+        <!-- Tabla de Tecnicos con semaforo -->
+        <article class="dash__panel dash__panel--ancho" [hidden]="!mostrarEnCatalogo('tablaTecnicos')">
+          <h3 class="dash__panel-titulo">Tabla de Técnicos con semáforo</h3>
+          @if (mostrarEnCatalogo('tablaTecnicos')) {
+          <div class="dash__tabla-scroll">
+            <table class="dash__tabla">
+              <thead>
+                <tr>
+                  <th>Técnico</th>
+                  <th>Departamento</th>
+                  <th>En atención</th>
+                  <th>Resueltos</th>
+                  <th>Días promedio</th>
+                  <th>Semáforo</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (fila of respuesta.tablaTecnicos; track fila.tecnico) {
+                <tr>
+                  <td>{{ fila.tecnico }}</td>
+                  <td>{{ fila.departamento }}</td>
+                  <td>{{ fila.enAtencion }}</td>
+                  <td>{{ fila.resueltos }}</td>
+                  <td>{{ fila.tiempoPromedio }}</td>
+                  <td>
+                    <span class="dash__semaforo"
+                          [style.background]="colorSemaforo(fila.semaforo)">{{ fila.semaforo }}</span>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          }
+        </article>
+      </div>
+
+      }
+    </div>
+  </div>
+</section>

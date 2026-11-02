@@ -144,13 +144,19 @@ public class CasoService {
                 });
         correlativo.setUltimo(correlativo.getUltimo() + 1);
         correlativoSeguimientoRepository.save(correlativo);
+        // %d - inserta un entero decimal
+        // %04d - el mismo entero, pero relleno con ceros a la izquierda hasta 4 dígitos.
         return String.format("MG-%04d-%d", correlativo.getUltimo(), anio);
     }
 
 
     @Transactional(readOnly = true)
     public DtoConsultaCasoRespuesta consultarEstado(String codigoSeguimiento) {
+        // Validar que el código de seguimiento no sea nulo y que cumpla con el patrón esperado
+        // si el codigo viene vacio le asigna "" para que no falle la validación del patrón
+        // y sino viene vacio con le quita los espacios en blanco al inicio y al final
         String codigo = codigoSeguimiento == null ? "" : codigoSeguimiento.trim();
+        //matcher() devuelve true si toda la secuencia de entrada coincide con el patrón, false en caso contrario.
         if (!CODIGO_CASO.matcher(codigo).matches()) {
             throw new NegocioException(CodigoError.CASO_NO_ENCONTRADO);
         }

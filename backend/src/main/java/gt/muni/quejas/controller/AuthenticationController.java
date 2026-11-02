@@ -54,6 +54,11 @@ public class AuthenticationController {
         String password = dtoUsuario == null || dtoUsuario.password() == null ? "" : dtoUsuario.password();
         String ip = ClienteHttp.ipOrigen(request);
 
+        // Validacion de formato: matches() exige que el valor completo sea igual con el patron.
+        // CORREO: texto + "@" + dominio + "." + extension, sin espacios ni arrobas extra.
+        // PASSWORD: solo letras y digitos, minimo 6 caracteres.
+        // Si falla no se consulta la BD: se registra el intento en bitacora y se corta con credenciales invalidas.
+
         if (!CORREO.matcher(usuario).matches() || !PASSWORD.matcher(password).matches()) {
             bitacoraCambioService.registrarIngreso(BitacoraCambioService.INGRESO_FALLIDO, usuario, ip, "Empleado");
             throw new NegocioException(CodigoError.CREDENCIALES_INVALIDAS);

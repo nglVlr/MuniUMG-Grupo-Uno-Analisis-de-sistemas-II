@@ -62,4 +62,32 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
                                  @Param("idDepartamento") Long idDepartamento,
                                  @Param("tipoCaso") String tipoCaso,
                                  @Param("estado") String estado);
+
+    // CU-19 Dashboard: los filtros de caso se aplican una sola vez, en esta consulta.
+    // El rango de fechas no va aquí porque puede ser por fecha de registro o por fecha
+    // de resolución, y la fecha de resolución se deduce de la bitácora.
+    @Query("""
+            select distinct c from Caso c
+            join fetch c.ciudadano
+            join fetch c.categoria
+            join fetch c.departamento
+            join fetch c.estado
+            left join fetch c.tecnico
+            left join fetch c.motivoRechazo
+            where (:idDepartamento is null or c.departamento.id = :idDepartamento)
+              and (:tipoCaso is null or c.tipoCaso = :tipoCaso)
+              and (:idCategoria is null or c.categoria.id = :idCategoria)
+              and (:estado is null or c.estado.estado = :estado)
+              and (:cuiTecnico is null or c.tecnico.cui = :cuiTecnico)
+              and (:idMotivoRechazo is null or c.motivoRechazo.id = :idMotivoRechazo)
+              and (:dpiCiudadano is null or c.ciudadano.dpi = :dpiCiudadano)
+            order by c.createAt asc
+            """)
+    List<Caso> buscarParaDashboard(@Param("idDepartamento") Long idDepartamento,
+                                   @Param("tipoCaso") String tipoCaso,
+                                   @Param("idCategoria") Long idCategoria,
+                                   @Param("estado") String estado,
+                                   @Param("cuiTecnico") String cuiTecnico,
+                                   @Param("idMotivoRechazo") Long idMotivoRechazo,
+                                   @Param("dpiCiudadano") String dpiCiudadano);
 }

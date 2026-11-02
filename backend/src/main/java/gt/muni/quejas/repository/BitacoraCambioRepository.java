@@ -34,4 +34,13 @@ public interface BitacoraCambioRepository extends JpaRepository<BitacoraCambio, 
 
     @Query("select distinct b.accion from BitacoraCambio b order by b.accion")
     List<String> listarAcciones();
+
+    // CU-19 Dashboard: historial completo de los casos que pasaron los filtros.
+    // De aquí salen la fecha de resolución, las transiciones de estado y el embudo.
+    @Query("select b from BitacoraCambio b where b.caso.id in :idsCaso order by b.caso.id asc, b.id asc")
+    List<BitacoraCambio> buscarPorCasos(@Param("idsCaso") List<Long> idsCaso);
+
+    // CU-19 Dashboard: actividad del sistema dentro del rango de fechas
+    @Query("select b from BitacoraCambio b where b.fecha >= :desde and b.fecha <= :hasta order by b.id asc")
+    List<BitacoraCambio> buscarPorRango(@Param("desde") LocalDate desde, @Param("hasta") LocalDate hasta);
 }

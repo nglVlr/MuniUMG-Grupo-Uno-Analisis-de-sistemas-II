@@ -9,6 +9,7 @@ import { BandejaTecnicoComponent } from './bandeja-tecnico/bandeja-tecnico.compo
 import { BandejaSupervisorComponent } from './bandeja-supervisor/bandeja-supervisor.component';
 import { BandejaJefaturaComponent } from './bandeja-jefatura/bandeja-jefatura.component';
 import { BandejaAdminComponent } from './bandeja-admin/bandeja-admin.component';
+import { DashboardGraficasComponent } from './dashboard-graficas/dashboard-graficas.component';
 import { RecuperarPasswordComponent } from './recuperar-password/recuperar-password.component';
 import { RestablecerPasswordComponent } from './reestablecer-password/restablecer-password.component';
 
@@ -62,6 +63,11 @@ export const routes: Routes = [
   {
     path: 'bandeja-admin',
     component: BandejaAdminComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'dashboard',
+    component: DashboardGraficasComponent,
     canActivate: [authGuard]
   },
   {
