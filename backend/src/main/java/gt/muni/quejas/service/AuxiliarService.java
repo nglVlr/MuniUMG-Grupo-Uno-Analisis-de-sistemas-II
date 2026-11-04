@@ -37,6 +37,7 @@ public class AuxiliarService {
     private final EvidenciaRepository evidenciaRepository;
     private final BitacoraCambioService bitacoraCambioService;
     private final NotificacionCasoService notificacionCasoService;
+    private final InformeInicialService informeInicialService;
 
     public AuxiliarService(CasoRepository casoRepository,
                            EstadoCasoRepository estadoCasoRepository,
@@ -44,7 +45,8 @@ public class AuxiliarService {
                            MotivoRechazoRepository motivoRechazoRepository,
                            EvidenciaRepository evidenciaRepository,
                            BitacoraCambioService bitacoraCambioService,
-                           NotificacionCasoService notificacionCasoService) {
+                           NotificacionCasoService notificacionCasoService,
+                           InformeInicialService informeInicialService) {
         this.casoRepository = casoRepository;
         this.estadoCasoRepository = estadoCasoRepository;
         this.usuarioRepository = usuarioRepository;
@@ -52,6 +54,7 @@ public class AuxiliarService {
         this.evidenciaRepository = evidenciaRepository;
         this.bitacoraCambioService = bitacoraCambioService;
         this.notificacionCasoService = notificacionCasoService;
+        this.informeInicialService = informeInicialService;
     }
 
     // ---------- Paso 2.3.2: RN16 Bandeja Auxiliar ----------
@@ -114,6 +117,8 @@ public class AuxiliarService {
         String estadoAnterior = caso.getEstado().getEstado();
         EstadoCaso enRevision = buscarEstado(EstadoCaso.EN_REVISION);
         caso.setEstado(enRevision);
+        // El expediente ofrece el informe de revisión inicial desde que el Auxiliar acepta.
+        caso.setInformeInicialRuta(informeInicialService.generar(caso));
         casoRepository.save(caso);
 
         bitacoraCambioService.registrarCambio(
