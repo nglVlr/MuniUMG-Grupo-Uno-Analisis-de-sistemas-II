@@ -94,6 +94,11 @@ export class BandejaAdminComponent {
     this.router.navigate(['/dashboard']);
   }
 
+  // Dashboard 2: cuatro graficas sencillas, tambien en su propia pantalla
+  abrirDashboard2(): void {
+    this.router.navigate(['/dashboard2']);
+  }
+
   // CU-14: reportes estadisticos y trazabilidad
   abrirReportes(): void {
     this.mensaje = '';

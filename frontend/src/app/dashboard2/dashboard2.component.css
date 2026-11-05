@@ -1,0 +1,262 @@
+/* Dashboard 2. Mismo lenguaje visual que las bandejas, pero mucho mas corto:
+   un panel de filtros y cuatro graficas, nada mas. */
+
+/* ================= Pagina y tarjeta ================= */
+.dos {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 60%, var(--ink) 100%);
+}
+
+.dos__card {
+  width: 100%;
+  max-width: 1400px;
+  align-self: flex-start;
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+}
+
+.dos__cuerpo {
+  padding: 28px clamp(20px, 3vw, 36px) 32px;
+}
+
+/* ================= Encabezado ================= */
+.dos__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 22px clamp(20px, 3vw, 36px);
+  background: linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-deep-2) 100%);
+  border-bottom: 3px solid var(--gold);
+}
+
+.dos__marca {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dos__escudo {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.55);
+}
+
+.dos__eyebrow {
+  color: var(--gold-bright);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.dos__title {
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.4vw, 26px);
+  margin: 2px 0 0;
+}
+
+.dos__header-acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dos__usuario {
+  display: inline-flex;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(247, 244, 236, 0.1);
+  border: 1px solid rgba(247, 244, 236, 0.22);
+  color: var(--cream);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.dos__usuario strong {
+  color: var(--gold-bright);
+}
+
+.dos__volver {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(247, 244, 236, 0.45);
+  background: transparent;
+  color: var(--cream);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.dos__volver:hover {
+  border-color: var(--gold-bright);
+  color: var(--gold-bright);
+}
+
+/* ================= Avisos y titulos ================= */
+.dos__alert {
+  background: #fdecea;
+  border-left: 4px solid var(--brick);
+  color: #611a15;
+  padding: 11px 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.dos__subtitulo {
+  color: var(--bg-deep);
+  font-family: var(--font-display);
+  font-size: 17px;
+  margin: 0 0 12px;
+}
+
+.dos__nota {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 12px 0;
+}
+
+.dos__vacio {
+  color: var(--ink-soft);
+  font-size: 14px;
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ================= Filtros ================= */
+.dos__filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  background: var(--cream);
+  border: 1px solid #e5e0d5;
+}
+
+.dos__campo {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 190px;
+}
+
+.dos__label {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 5px;
+}
+
+.dos__input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cfc9b8;
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+  background: #ffffff;
+}
+
+.dos__input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.18);
+}
+
+.dos__acciones {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ================= Botones ================= */
+.btn {
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn--submit {
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.btn--submit:hover {
+  background: var(--gold-bright);
+}
+
+.btn--text {
+  background: transparent;
+  border: none;
+  color: var(--ink-soft);
+  text-decoration: underline;
+}
+
+.btn--text:hover {
+  color: var(--bg-deep);
+}
+
+/* ================= Las cuatro graficas ================= */
+.dos__galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  gap: 16px;
+}
+
+.dos__panel {
+  border: 1px solid #e5e0d5;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(20, 33, 29, 0.06);
+  min-width: 0;
+}
+
+.dos__panel-titulo {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: var(--bg-deep);
+  margin: 0 0 10px;
+}
+
+.dos__panel-nota {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: normal;
+  color: var(--ink-soft);
+  margin-top: 3px;
+}
+
+.dos__lienzo {
+  width: 100%;
+  height: 360px;
+}
+
+@media (max-width: 720px) {
+  .dos__galeria {
+    grid-template-columns: 1fr;
+  }
+
+  .dos__lienzo {
+    height: 300px;
+  }
+}

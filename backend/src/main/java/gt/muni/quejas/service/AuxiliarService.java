@@ -135,7 +135,7 @@ public class AuxiliarService {
     public DtoMensaje asignarTecnico(Long idCaso, Usuario auxiliar, String ip) {
         Caso caso = casoRepository.findById(idCaso)
                 .orElseThrow(() -> new NegocioException(CodigoError.CASO_NO_ENCONTRADO_AUXILIAR));
-
+        //el estado del caso no es en revision
         if (!EstadoCaso.EN_REVISION.equals(caso.getEstado().getEstado())) {
             throw new NegocioException(CodigoError.CASO_NO_ENCONTRADO_AUXILIAR);
         }
@@ -147,10 +147,9 @@ public class AuxiliarService {
         if (tecnicosActivos.isEmpty()) {
             throw new NegocioException(CodigoError.TECNICO_NO_DISPONIBLE);
         }
-
+    //aca solo valida si el estado en Atencion existe
         EstadoCaso enAtencion = buscarEstado(EstadoCaso.EN_ATENCION);
 
-        // Buscamos, con un for normal, al técnico con menos casos "En Atención".
         // La carga se cuenta sobre los casos mismos y no con el contador del usuario:
         // así la repartición siempre usa el dato real, aunque el contador quede
         // desfasado por alguna carga de datos hecha fuera del sistema.
@@ -187,7 +186,7 @@ public class AuxiliarService {
                 ip,
                 "Caso asignado al Técnico " + tecnicoElegido.getNombre(),
                 estadoAnterior,
-                enAtencion.getEstado()
+                enAtencion.getEstado() //este como tal es para traer el texto que se guarda en la bitacora
         );
 
         return new DtoMensaje(MENSAJE_CASO_ASIGNADO);
@@ -210,7 +209,7 @@ public class AuxiliarService {
 
         caso.setMotivoRechazo(motivo);
         caso.setComentarioRechazo(dto.comentario().trim());
-
+        //si dtoAplicaAmpliacion=null entonces necesitaAmpliacion=false, si dtoAplicaAmpliacion=true entonces necesitaAmpliacion=true
         boolean necesitaAmpliacion = Boolean.TRUE.equals(dto.aplicaAmpliacion());
 
         if (necesitaAmpliacion) {
@@ -282,7 +281,7 @@ public class AuxiliarService {
         }
         return caso;
     }
-
+//aqui busca si realmente existe ese estado
     private EstadoCaso buscarEstado(String nombreEstado) {
         return estadoCasoRepository.findByEstado(nombreEstado)
                 .orElseThrow(() -> new NegocioException(CodigoError.ERROR_INTERNO, "No existe el estado " + nombreEstado));
