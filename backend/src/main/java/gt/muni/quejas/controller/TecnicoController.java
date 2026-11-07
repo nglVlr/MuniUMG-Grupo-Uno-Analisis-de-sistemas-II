@@ -73,7 +73,7 @@ public class TecnicoController {
     @PostMapping("/casos/{id}/finalizar")
     public ResponseEntity<DtoMensaje> finalizarAtencion(
             @PathVariable Long id,
-            @RequestPart("detalle") String detalle,
+            @RequestPart(value = "detalle", required = false) String detalle,
             @RequestPart(value = "soporte", required = false) MultipartFile soporte,
             @AuthenticationPrincipal Usuario tecnico,
             HttpServletRequest request) {
