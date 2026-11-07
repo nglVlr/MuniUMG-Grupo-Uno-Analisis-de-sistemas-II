@@ -1,0 +1,141 @@
+<section class="dos">
+  <div class="dos__card">
+
+    <!-- Encabezado -->
+    <header class="dos__header">
+      <div class="dos__marca">
+        <img
+          class="dos__escudo"
+          src="assets/img/escudo-granados.png"
+          alt="Escudo de la Municipalidad de Granados"
+        />
+        <div>
+          <p class="dos__eyebrow">Municipalidad de Granados, B.V.</p>
+          <h1 class="dos__title">Dashboard 2</h1>
+        </div>
+      </div>
+
+      <div class="dos__header-acciones">
+        <span class="dos__usuario">
+          <span>Administrador &middot;</span>
+          <strong>{{ nombreUsuario }}</strong>
+        </span>
+        <button type="button" class="dos__volver" (click)="volverAlMenu()">&larr; Volver al menú</button>
+        <button type="button" class="dos__volver" (click)="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <div class="dos__cuerpo">
+
+      @if (mensaje) {
+      <div class="dos__alert">{{ mensaje }}</div>
+      }
+
+      <!-- ================= LOS CUATRO FILTROS ================= -->
+      <!-- PARA AGREGAR UN FILTRO: copiar uno de estos bloques y cambiarle
+           la etiqueta, el ngModel y la lista que recorre. -->
+      <h2 class="dos__subtitulo">Filtros</h2>
+      <div class="dos__filtros">
+
+        <div class="dos__campo">
+          <label class="dos__label">Desde</label>
+          <input type="date" class="dos__input" [(ngModel)]="filtros.desde" (change)="consultar()" />
+        </div>
+
+        <div class="dos__campo">
+          <label class="dos__label">Hasta</label>
+          <input type="date" class="dos__input" [(ngModel)]="filtros.hasta" (change)="consultar()" />
+        </div>
+
+        <div class="dos__campo">
+          <label class="dos__label">Departamento</label>
+          <select class="dos__input" [(ngModel)]="filtros.idDepartamento" (change)="cambiarDepartamento()">
+            <option [ngValue]="null">Todos</option>
+            @for (departamento of departamentos; track departamento.id) {
+            <option [ngValue]="departamento.id">{{ departamento.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="dos__campo">
+          <label class="dos__label">Tipo de caso</label>
+          <select class="dos__input" [(ngModel)]="filtros.tipoCaso" (change)="cambiarTipoCaso()">
+            <option value="">Todos</option>
+            @for (tipo of tiposCaso; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="dos__campo">
+          <label class="dos__label">Categoría</label>
+          <select class="dos__input" [(ngModel)]="filtros.idCategoria" (change)="consultar()">
+            <option [ngValue]="null">Todas</option>
+            @for (categoria of categoriasFiltradas(); track categoria.id) {
+            <option [ngValue]="categoria.id">{{ categoria.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="dos__acciones">
+          <button type="button" class="btn btn--submit" (click)="consultar()">Aplicar</button>
+          <button type="button" class="btn btn--text" (click)="limpiarFiltros()">Limpiar filtros</button>
+        </div>
+      </div>
+
+      @if (cargando) {
+      <p class="dos__nota">Consultando...</p>
+      }
+
+      <!-- ================= LAS CUATRO GRAFICAS ================= -->
+      <!-- PARA AGREGAR UNA GRAFICA: copiar uno de estos bloques y cambiarle
+           el titulo y el nombre de la opcion. -->
+      <div class="dos__galeria">
+
+        <article class="dos__panel">
+          <h3 class="dos__panel-titulo">Casos por estado</h3>
+          @if (datosBarras.length > 0) {
+          <div echarts class="dos__lienzo" [options]="opcionBarras"></div>
+          } @else {
+          <p class="dos__vacio">Sin datos para estos filtros.</p>
+          }
+        </article>
+
+        <article class="dos__panel">
+          <h3 class="dos__panel-titulo">Casos por tipo de caso</h3>
+          @if (datosPastel.length > 0) {
+          <div echarts class="dos__lienzo" [options]="opcionPastel"></div>
+          } @else {
+          <p class="dos__vacio">Sin datos para estos filtros.</p>
+          }
+        </article>
+
+        <article class="dos__panel">
+          <h3 class="dos__panel-titulo">Casos y días promedio por Técnico</h3>
+          @if (datosDispersion.length > 0) {
+          <div echarts class="dos__lienzo" [options]="opcionDispersion"></div>
+          } @else {
+          <p class="dos__vacio">Sin datos para estos filtros.</p>
+          }
+        </article>
+
+        <article class="dos__panel">
+          <h3 class="dos__panel-titulo">
+            Campana de Gauss de días de resolución
+            @if (datosCampana.tramos.length > 0) {
+            <span class="dos__panel-nota">
+              Media {{ datosCampana.media }} días, desviación {{ datosCampana.desviacion }} días
+            </span>
+            }
+          </h3>
+          @if (datosCampana.tramos.length > 0) {
+          <div echarts class="dos__lienzo" [options]="opcionCampana"></div>
+          } @else {
+          <p class="dos__vacio">Sin casos resueltos para estos filtros.</p>
+          }
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>

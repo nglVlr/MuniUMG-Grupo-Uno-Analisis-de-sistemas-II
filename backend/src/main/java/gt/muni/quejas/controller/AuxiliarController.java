@@ -85,11 +85,17 @@ public class AuxiliarController {
     @GetMapping("/casos/{id}/evidencia")
     public ResponseEntity<Resource> verEvidencia(@PathVariable Long id) throws MalformedURLException {
         Evidencia evidencia = auxiliarService.obtenerEvidencia(id);
+        //path.of sirve para convertir la ruta de String a Path y luego toUri() convierte el Path a URI
+        // FA06: el archivo no está en la base, solo sus datos. La fila trae la ruta en disco,
+        // y  UrlResource la convierte en algo que Spring pueda enviar sin cargarlo en memoria.
         Resource recurso = new UrlResource(Path.of(evidencia.getRuta()).toUri());
 
         return ResponseEntity.ok()
+                //con esto le dice al navegador como es el archivo para que se pa como tratarlo
                 .contentType(MediaType.parseMediaType(evidencia.getContentType()))
+                //con inline se abre en la pestaña
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + evidencia.getNombreArchivo() + "\"")
+                //Aquí Spring recién abre el archivo y lo va escribiendo en la respuesta
                 .body(recurso);
     }
 }
