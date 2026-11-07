@@ -25,8 +25,11 @@ import java.util.List;
  *     GET /api/dashboard2/dispersion   casos del Tecnico contra sus dias promedio
  *     GET /api/dashboard2/campana      dias de resolucion, con media y desviacion
  *
- * Las cuatro reciben los mismos cuatro filtros. Los tres ultimos son opcionales:
- * si no se mandan, la consulta los recibe en NULL y no filtra por ellos.
+ * Las cuatro reciben los mismos cuatro filtros. La fecha es obligatoria.
+ * Departamento, tipo y categoria son opcionales: si no se mandan, la consulta
+ * los recibe en NULL y no filtra por ellos. El conteo usa la fecha de registro
+ * del caso. Dispersion y campana miden los dias hasta la accion
+ * "Firma de oficio de resolución" en la bitacora.
  */
 @RestController
 @RequestMapping("api/dashboard2")

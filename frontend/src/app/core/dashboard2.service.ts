@@ -65,6 +65,8 @@ export class Dashboard2Service {
   }
 
   // Los cuatro filtros viajan igual en las cuatro llamadas.
+  // Desde y hasta siempre van. Los otros tres solo si el usuario eligio algo:
+  // si no se mandan, el SQL los recibe en NULL y no filtra por ellos.
   // PARA AGREGAR UN FILTRO: agregarlo a Filtros2 y copiar aquí una de las tres
   // líneas de abajo con el nombre nuevo.
   private parametros(filtros: Filtros2): HttpParams {

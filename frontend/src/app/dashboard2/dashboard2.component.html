@@ -92,6 +92,7 @@
            el titulo y el nombre de la opcion. -->
       <div class="dos__galeria">
 
+        <!-- Cuenta casos del rango por estado. El eje Y es la cantidad. -->
         <article class="dos__panel">
           <h3 class="dos__panel-titulo">Casos por estado</h3>
           @if (datosBarras.length > 0) {
@@ -101,6 +102,7 @@
           }
         </article>
 
+        <!-- Un pedazo por tipo: queja, reclamo, denuncia o sugerencia. -->
         <article class="dos__panel">
           <h3 class="dos__panel-titulo">Casos por tipo de caso</h3>
           @if (datosPastel.length > 0) {
@@ -110,6 +112,7 @@
           }
         </article>
 
+        <!-- X: casos del tecnico. Y: dias promedio hasta la firma del oficio. -->
         <article class="dos__panel">
           <h3 class="dos__panel-titulo">Casos y días promedio por Técnico</h3>
           @if (datosDispersion.length > 0) {
@@ -119,6 +122,7 @@
           }
         </article>
 
+        <!-- Barras de casos resueltos por tramo de 2 dias, y la curva normal encima. -->
         <article class="dos__panel">
           <h3 class="dos__panel-titulo">
             Campana de Gauss de días de resolución
