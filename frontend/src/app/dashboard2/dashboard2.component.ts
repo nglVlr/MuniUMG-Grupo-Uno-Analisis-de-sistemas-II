@@ -19,7 +19,16 @@ interface Opcion {
   nombre: string;
 }
 
-// Dashboard 2: cuatro graficas con cuatro filtros. Pantalla del Admin.
+// Dashboard 2, pantalla del Admin en /dashboard2.
+// Al abrir pone los ultimos 12 meses y llama cinco veces al backend:
+//   /filtros     llena departamento, tipo y categoria
+//   /barras      casos por estado
+//   /pastel      casos por tipo de caso
+//   /dispersion  un punto por tecnico: casos a cargo contra dias promedio
+//   /campana     dias hasta la firma del oficio, en tramos de 2 dias
+// Las cuatro graficas usan los mismos filtros. Fecha es obligatoria.
+// Departamento, tipo y categoria vacios significan "todos".
+// El rol Admin lo exige el backend; esta ruta solo pide estar logueado.
 @Component({
   selector: 'app-dashboard2',
   standalone: true,
@@ -93,8 +102,8 @@ export class Dashboard2Component implements OnInit {
     this.router.navigate(['']);
   }
 
-  // La categoria depende del departamento y del tipo de caso: solo se muestran
-  // las categorias de ese departamento que ademas admiten ese tipo de caso.
+  // La lista de categorias no se vuelve a pedir: se recorta en el navegador.
+  // Solo quedan las del departamento elegido que ademas aceptan ese tipo de caso.
   categoriasFiltradas(): Categoria2[] {
     const resultado: Categoria2[] = [];
 
@@ -147,7 +156,9 @@ export class Dashboard2Component implements OnInit {
     });
   }
 
-  // ---------- Las cuatro consultas ----------
+  // Las cuatro graficas se piden a la vez. Cada respuesta arma su opcion de
+  // ECharts. El aviso de "sin registros" sale solo de las barras: si no hay
+  // casos en el rango, las demas tambien llegan vacias.
   consultar(): void {
     this.mensaje = '';
     this.cargando = true;
@@ -203,7 +214,8 @@ export class Dashboard2Component implements OnInit {
     });
   }
 
-  // ---------- 1. Barras verticales ----------
+  // Barras: el eje X es el estado del caso y el eje Y cuantos hay.
+  // El orden lo trae la consulta, de mayor a menor.
   private armarBarras(): any {
     const etiquetas: string[] = [];
     const valores: number[] = [];
@@ -230,7 +242,8 @@ export class Dashboard2Component implements OnInit {
     };
   }
 
-  // ---------- 2. Pastel ----------
+  // Pastel: un pedazo por tipo (queja, reclamo, denuncia, sugerencia).
+  // name es el tipo y value la cantidad.
   private armarPastel(): any {
     const partes: any[] = [];
 
@@ -257,7 +270,9 @@ export class Dashboard2Component implements OnInit {
     };
   }
 
-  // ---------- 3. Dispersion ----------
+  // Dispersion: cada punto es un tecnico.
+  // X = casos que tiene en el rango. Y = dias promedio hasta la firma del oficio.
+  // El backend no manda al tecnico que aun no resolvio ninguno.
   private armarDispersion(): any {
     const puntos: any[] = [];
 
@@ -295,7 +310,10 @@ export class Dashboard2Component implements OnInit {
     };
   }
 
-  // ---------- 4. Campana de Gauss ----------
+  // Campana: las barras ya vienen agrupadas de dos en dos dias (1, 3, 5...).
+  // La curva no viene del backend. Aqui se calcula con la media y la desviacion
+  // y se multiplica por el total y por el ancho del tramo (2) para que quede
+  // a la misma escala que las barras.
   private armarCampana(): any {
     const etiquetas: string[] = [];
     const valores: number[] = [];

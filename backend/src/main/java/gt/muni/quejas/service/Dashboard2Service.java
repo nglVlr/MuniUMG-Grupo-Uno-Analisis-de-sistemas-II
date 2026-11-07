@@ -128,7 +128,8 @@ public class Dashboard2Service {
                                           Long idCategoria, Usuario admin) {
         validar(admin, desde, hasta);
 
-        // Las barras salen de una consulta y la media y la desviacion de otra
+        // Las barras salen de una consulta y la media y la desviacion de otra.
+        // La curva normal no se calcula aqui: la pinta el componente con esos dos numeros.
         List<Dashboard2Repository.FilaValorEtiqueta> filas = dashboard2Repository.diasDeResolucionPorTramo(
                 desde, hasta, idDepartamento, vacio(tipoCaso), idCategoria);
 
